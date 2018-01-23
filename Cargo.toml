@@ -1,0 +1,12 @@
+[package]
+name        = "signatory"
+description = "Multi-provider digital signature library with Ed25519 support"
+version     = "0.0.0"
+license     = "MIT/Apache-2.0"
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+categories  = ["cryptography"]
+keywords    = ["cryptography", "security", "signatures"]
+repository  = "https://github.com/tendermint/signatory"
+readme      = "README.md"
+
+[dependencies]
