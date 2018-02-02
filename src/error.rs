@@ -33,4 +33,8 @@ pub enum ErrorKind {
     /// Malformatted or otherwise invalid cryptographic key
     #[fail(display = "malformed or corrupt cryptographic key")]
     InvalidKey,
+
+    /// Internal error within a cryptographic provider
+    #[fail(display = "error inside cryptographic provider")]
+    ProviderError,
 }

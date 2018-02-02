@@ -4,7 +4,7 @@ use super::{Signature, Signer};
 use ed25519_dalek::{Keypair, PublicKey, SecretKey};
 use sha2::Sha512;
 
-/// Ed25519 signer based ed25519-dalek (and vicariously curve25519-dalek) crate(s)
+/// Ed25519 signature provider for ed25519-dalek
 pub struct DalekSigner(Keypair);
 
 impl DalekSigner {
@@ -21,8 +21,8 @@ impl DalekSigner {
 }
 
 impl Signer for DalekSigner {
-    fn sign(&self, msg: &[u8]) -> Signature {
-        Signature(self.0.sign::<Sha512>(msg).to_bytes())
+    fn sign(&mut self, msg: &[u8]) -> Result<Signature, Error> {
+        Ok(Signature(self.0.sign::<Sha512>(msg).to_bytes()))
     }
 }
 
@@ -35,8 +35,8 @@ mod tests {
     #[test]
     fn rfc8032_test_vectors() {
         for vector in TEST_VECTORS {
-            let signer = DalekSigner::from_seed(vector.sk).expect("decode error");
-            assert_eq!(signer.sign(vector.msg).as_ref(), vector.sig);
+            let mut signer = DalekSigner::from_seed(vector.sk).expect("decode error");
+            assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
         }
     }
 }
