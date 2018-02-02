@@ -1,5 +1,18 @@
 # ![Signatory](https://raw.githubusercontent.com/tendermint/signatory/master/signatory.png)
 
+[![crate][crate-image]][crate-link]
+[![Docs][docs-image]][docs-link]
+[![Build Status][build-image]][build-link]
+![MIT/Apache2 licensed][license-image]
+
+[crate-image]: https://img.shields.io/crates/v/signatory.svg
+[crate-link]: https://crates.io/crates/signatory
+[docs-image]: https://docs.rs/signatory/badge.svg
+[docs-link]: https://docs.rs/signatory/
+[build-image]: https://circleci.com/gh/tendermint/signatory.svg?style=shield
+[build-link]: https://circleci.com/gh/tendermint/signatory
+[license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
+
 A multi-provider digital signature library for Rust with support for the
 Ed25519 elliptic curve public-key signature system described in [RFC 8032].
 
