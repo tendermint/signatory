@@ -3,7 +3,7 @@ version: 2
 jobs:  
   build:
     docker:
-      - image: abronan/rust-circleci:latest
+      - image: tarcieri/signatory-circleci:latest
 
     steps:
       - checkout
