@@ -4,7 +4,7 @@ RUN apt-get update && \
     apt-get install -y curl file gcc g++ git make openssh-client \
     autoconf automake cmake libtool libcurl4-openssl-dev libssl-dev \
     libelf-dev libdw-dev binutils-dev zlib1g-dev libiberty-dev wget \
-    xz-utils pkg-config python
+    xz-utils pkg-config python libclang-3.8 libclang-3.8-dev
 
 ENV YUBIHSM2_SDK_VERSION 1.0.1-debian9-amd64
 RUN wget https://developers.yubico.com/YubiHSM2/Releases/yubihsm2-sdk-$YUBIHSM2_SDK_VERSION.tar.gz && \
@@ -30,7 +30,8 @@ ENV CFG_RELEASE_CHANNEL "nightly"
 
 RUN rustup update && \
     rustup install nightly && \
-    rustup default nightly
+    rustup default nightly && \
+    cargo install rustfmt-nightly --vers 0.3.7 --force
 
 RUN bash -l -c 'echo $(rustc --print sysroot)/lib >> /etc/ld.so.conf'
 RUN bash -l -c 'echo /usr/local/lib >> /etc/ld.so.conf'

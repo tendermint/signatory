@@ -1,7 +1,7 @@
 use error::Error;
-use super::{Signer, Signature};
+use super::{Signature, Signer};
 
-use ed25519_dalek::{SecretKey, PublicKey, Keypair};
+use ed25519_dalek::{Keypair, PublicKey, SecretKey};
 use sha2::Sha512;
 
 /// Ed25519 signer based ed25519-dalek (and vicariously curve25519-dalek) crate(s)
@@ -13,7 +13,10 @@ impl DalekSigner {
         let sk = SecretKey::from_bytes(seed).or(Err(Error))?;
         let pk = PublicKey::from_secret::<Sha512>(&sk);
 
-        Ok(DalekSigner(Keypair { secret: sk, public: pk }))
+        Ok(DalekSigner(Keypair {
+            secret: sk,
+            public: pk,
+        }))
     }
 }
 
