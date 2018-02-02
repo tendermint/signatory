@@ -1,6 +1,6 @@
 version: 2
 
-jobs:  
+jobs:
   build:
     docker:
       - image: tarcieri/signatory-circleci:latest
@@ -16,19 +16,26 @@ jobs:
       #      rustfmt --version
       #      cargo fmt -- --write-mode=diff
       - run:
-          name: Nightly Build
+          name: signatory build (nightly)
           command: |
             rustup run nightly rustc --version --verbose
             rustup run nightly cargo --version --verbose
             rustup run nightly cargo build
       - run:
-          name: Stable Build
+          name: signatory build (stable)
           command: |
             rustup run stable rustc --version --verbose
             rustup run stable cargo --version --verbose
             rustup run stable cargo build
       - run:
-          name: Test
+          name: yubihsm-sys build (stable)
+          command: |
+            cd yubihsm-sys
+            rustup run stable rustc --version --verbose
+            rustup run stable cargo --version --verbose
+            rustup run stable cargo build
+      - run:
+          name: signatory tests
           command: rustup run stable cargo test
       - save_cache:
           key: project-cache
