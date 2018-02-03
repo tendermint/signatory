@@ -2,10 +2,8 @@
 
 #![crate_name = "signatory"]
 #![crate_type = "lib"]
-
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
-
 #![no_std]
 
 extern crate ed25519_dalek;

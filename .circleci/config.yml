@@ -1,34 +1,35 @@
 version: 2
 
-jobs:  
+jobs:
   build:
     docker:
-      - image: tarcieri/signatory-circleci:latest
+      - image: tarcieri/signatory-circleci
 
     steps:
       - checkout
       - restore_cache:
           key: project-cache
-      # TODO: build our own Docker container with a recent rustfmt
-      # - run:
-      #    name: Check formatting
-      #    command: |
-      #      rustfmt --version
-      #      cargo fmt -- --write-mode=diff
       - run:
-          name: Nightly Build
+          name: rustfmt
+          # TODO: figure out why rustfmt in docker image isn't working
+          command: |
+            cargo install rustfmt-nightly --vers 0.3.7 --force
+            rustfmt --version
+            cargo fmt -- --write-mode=diff
+      - run:
+          name: build (nightly)
           command: |
             rustup run nightly rustc --version --verbose
             rustup run nightly cargo --version --verbose
             rustup run nightly cargo build
       - run:
-          name: Stable Build
+          name: build (stable)
           command: |
             rustup run stable rustc --version --verbose
             rustup run stable cargo --version --verbose
             rustup run stable cargo build
       - run:
-          name: Test
+          name: test (stable)
           command: rustup run stable cargo test
       - save_cache:
           key: project-cache
