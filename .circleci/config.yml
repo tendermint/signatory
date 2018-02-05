@@ -3,25 +3,23 @@ version: 2
 jobs:
   build:
     docker:
-      - image: tarcieri/signatory-circleci
+      - image: tarcieri/signatory-circleci:201802051857
 
     steps:
       - checkout
       - restore_cache:
-          key: project-cache
+          key: cache-201802051839
       - run:
           name: rustfmt
-          # TODO: figure out why rustfmt in docker image isn't working
           command: |
-            cargo install rustfmt-nightly --vers 0.3.7 --force
             rustfmt --version
             cargo fmt -- --write-mode=diff
       - run:
           name: build (nightly)
           command: |
-            rustup run nightly rustc --version --verbose
-            rustup run nightly cargo --version --verbose
-            rustup run nightly cargo build
+            rustc --version --verbose
+            cargo --version --verbose
+            cargo build
       - run:
           name: build (stable)
           command: |
@@ -32,7 +30,7 @@ jobs:
           name: test (stable)
           command: rustup run stable cargo test
       - save_cache:
-          key: project-cache
+          key: cache-201802051839
           paths:
             - "~/.cargo"
             - "./target"

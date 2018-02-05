@@ -1,38 +1,33 @@
-FROM debian:stretch
+FROM centos:7.4.1708
 
-RUN apt-get update && \
-    apt-get install -y curl file gcc g++ git make openssh-client \
-    autoconf automake cmake libtool libcurl4-openssl-dev libssl-dev \
-    libelf-dev libdw-dev binutils-dev zlib1g-dev libiberty-dev wget \
-    xz-utils pkg-config python libclang-3.8 libclang-3.8-dev
+# Install/update RPMs
+RUN yum update -y
+RUN yum groupinstall -y "Development Tools"
+RUN yum install -y curl libssl-dev python clang libclang-dev
 
-ENV YUBIHSM2_SDK_VERSION 1.0.1-debian9-amd64
-RUN wget https://developers.yubico.com/YubiHSM2/Releases/yubihsm2-sdk-$YUBIHSM2_SDK_VERSION.tar.gz && \
+# Install YubiHSM2 SDK
+ENV YUBIHSM2_SDK_VERSION 1.0.1-centos7-amd64
+RUN curl -O https://developers.yubico.com/YubiHSM2/Releases/yubihsm2-sdk-$YUBIHSM2_SDK_VERSION.tar.gz && \
     tar zxf yubihsm2-sdk-$YUBIHSM2_SDK_VERSION.tar.gz && \
     rm yubihsm2-sdk-$YUBIHSM2_SDK_VERSION.tar.gz && \
-    dpkg -i yubihsm2-sdk/libyubihsm*.deb && \
+    cp -r yubihsm2-sdk/lib/* /usr/local/lib64/ && \
+    cp -r yubihsm2-sdk/include/* /usr/local/include/ && \
     rm -r yubihsm2-sdk
-
-ENV KCOV_VERSION 33
-RUN wget https://github.com/SimonKagstrom/kcov/archive/v$KCOV_VERSION.tar.gz && \
-    tar xzf v$KCOV_VERSION.tar.gz && \
-    rm v$KCOV_VERSION.tar.gz && \
-    cd kcov-$KCOV_VERSION && \
-    mkdir build && cd build && \
-    cmake .. && make && make install && \
-    cd ../.. && rm -rf kcov-$KCOV_VERSION
-
-RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 
 ENV PATH "$PATH:/root/.cargo/bin"
 ENV RUSTFLAGS "-C link-dead-code"
 ENV CFG_RELEASE_CHANNEL "nightly"
+ENV RUST_NIGHTLY_VERSION "nightly-2018-02-04"
+ENV RUSTFMT_NIGHTLY_VERSION "0.3.7"
 
+# Install Rust
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 RUN rustup update && \
-    rustup install nightly && \
-    rustup default nightly && \
-    cargo install rustfmt-nightly --vers 0.3.7 --force
+    rustup install $RUST_NIGHTLY_VERSION && \
+    rustup default $RUST_NIGHTLY_VERSION
 
-RUN bash -l -c 'echo $(rustc --print sysroot)/lib >> /etc/ld.so.conf'
-RUN bash -l -c 'echo /usr/local/lib >> /etc/ld.so.conf'
+RUN bash -l -c "echo $(rustc --print sysroot)/lib >> /etc/ld.so.conf"
+RUN bash -l -c "echo /usr/local/lib >> /etc/ld.so.conf"
 RUN ldconfig
+
+RUN cargo install rustfmt-nightly --vers $RUSTFMT_NIGHTLY_VERSION --force
