@@ -1,4 +1,4 @@
-use error::Error;
+use error::{Error, ErrorKind};
 use super::{Signature, Signer};
 
 use ed25519_dalek::{Keypair, PublicKey, SecretKey};
@@ -10,7 +10,7 @@ pub struct DalekSigner(Keypair);
 impl DalekSigner {
     /// Create a new DalekSigner from an unexpanded seed value
     pub fn from_seed(seed: &[u8]) -> Result<Self, Error> {
-        let sk = SecretKey::from_bytes(seed).or(Err(Error))?;
+        let sk = SecretKey::from_bytes(seed).or(Err(ErrorKind::InvalidKey))?;
         let pk = PublicKey::from_secret::<Sha512>(&sk);
 
         Ok(DalekSigner(Keypair {
