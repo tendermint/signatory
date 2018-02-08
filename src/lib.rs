@@ -6,6 +6,11 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![no_std]
 
+extern crate failure;
+
+#[macro_use]
+extern crate failure_derive;
+
 extern crate ed25519_dalek;
 extern crate sha2;
 
