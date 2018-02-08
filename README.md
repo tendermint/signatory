@@ -27,7 +27,7 @@ specific providers selected at runtime.
 Signatory presently supports the following providers:
 
 * [ed25519-dalek] - pure Rust software implementation of Ed25519
-* YubiHSM2 - forthcoming!
+* YubiHSM2 - [forthcoming!](https://github.com/tendermint/signatory/pull/7)
 
 [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 
