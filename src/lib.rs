@@ -4,15 +4,24 @@
 #![crate_type = "lib"]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
-#![no_std]
+// TODO: this appears to be due to failure. Attempt to debug why
+#![cfg_attr(not(feature = "yubihsm-provider"), no_std)]
+#![cfg(feature = "yubihsm-provider")]
+extern crate core;
 
 extern crate failure;
 
 #[macro_use]
 extern crate failure_derive;
 
+#[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
+
+#[cfg(feature = "dalek-provider")]
 extern crate sha2;
+
+#[cfg(feature = "yubihsm-provider")]
+extern crate yubihsm;
 
 pub mod ed25519;
 pub mod error;
