@@ -2,24 +2,21 @@
 
 #![crate_name = "signatory"]
 #![crate_type = "lib"]
-#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
-#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 // TODO: this appears to be due to failure. Attempt to debug why
 #![cfg_attr(not(feature = "yubihsm-provider"), no_std)]
-#![cfg(feature = "yubihsm-provider")]
+#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
+#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
+#![doc(html_root_url = "https://docs.rs/yubihsm/0.0.0")]
+
+#[cfg(feature = "yubihsm-provider")]
 extern crate core;
-
-extern crate failure;
-
-#[macro_use]
-extern crate failure_derive;
-
 #[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
-
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 #[cfg(feature = "dalek-provider")]
 extern crate sha2;
-
 #[cfg(feature = "yubihsm-provider")]
 extern crate yubihsm;
 
