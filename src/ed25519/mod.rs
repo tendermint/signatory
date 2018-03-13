@@ -118,6 +118,9 @@ impl fmt::Debug for Signature {
 /// Parent trait for Ed25519 signers
 /// Signer is an object-safe trait for producing a particular type of signature
 pub trait Signer {
+    /// Obtain the public key which identifies this signer
+    fn public_key(&mut self) -> Result<PublicKey, Error>;
+
     /// Compute an Ed25519 signature for the given message
     fn sign(&mut self, msg: &[u8]) -> Result<Signature, Error>;
 }
