@@ -1,5 +1,6 @@
 use error::{Error, ErrorKind};
 use super::{Signature, Signer};
+use super::PublicKey as SignatoryPublicKey;
 
 use ed25519_dalek::{Keypair, PublicKey, SecretKey};
 use sha2::Sha512;
@@ -21,6 +22,10 @@ impl DalekSigner {
 }
 
 impl Signer for DalekSigner {
+    fn public_key(&mut self) -> Result<SignatoryPublicKey, Error> {
+        Ok(SignatoryPublicKey(self.0.public.to_bytes()))
+    }
+
     fn sign(&mut self, msg: &[u8]) -> Result<Signature, Error> {
         Ok(Signature(self.0.sign::<Sha512>(msg).to_bytes()))
     }

@@ -9,29 +9,36 @@ pub use yubihsm::ObjectId as KeyId;
 pub struct YubiHSMSigner<'a> {
     session: Session<'a>,
     signing_key_id: KeyId,
-    public_key: PublicKey,
 }
 
 impl<'a> YubiHSMSigner<'a> {
     /// Create a new YubiHSMSigner from a yubihsm-client session
-    pub fn new(mut session: Session<'a>, signing_key_id: KeyId) -> Result<Self, Error> {
-        let pubkey_response = session
-            .get_pubkey(signing_key_id)
+    pub fn new(session: Session<'a>, signing_key_id: KeyId) -> Result<Self, Error> {
+        let mut signer = Self {
+            session,
+            signing_key_id,
+        };
+
+        // Ensure the signing_key_id slot contains a valid Ed25519 public key
+        signer.public_key()?;
+
+        Ok(signer)
+    }
+}
+
+impl<'a> Signer for YubiHSMSigner<'a> {
+    fn public_key(&mut self) -> Result<PublicKey, Error> {
+        let pubkey_response = self.session
+            .get_pubkey(self.signing_key_id)
             .map_err(|e| e.context(ErrorKind::ProviderError))?;
 
         if pubkey_response.algorithm != Algorithm::EC_ED25519 {
             return Err(ErrorKind::InvalidKey.into());
         }
 
-        Ok(Self {
-            session,
-            signing_key_id,
-            public_key: PublicKey::new(pubkey_response.data.as_ref()),
-        })
+        Ok(PublicKey::new(pubkey_response.data.as_ref()))
     }
-}
 
-impl<'a> Signer for YubiHSMSigner<'a> {
     fn sign(&mut self, msg: &[u8]) -> Result<Signature, Error> {
         let response = self.session
             .sign_data_eddsa(self.signing_key_id, msg)
@@ -85,7 +92,7 @@ mod tests {
 
     /// Number of HTTP requests performed by the MockHSM
     #[cfg(feature = "yubihsm-mockhsm")]
-    const NUM_MOCKHSM_REQUESTS: usize = 7;
+    const NUM_MOCKHSM_REQUESTS: usize = 8;
 
     #[cfg(feature = "yubihsm-mockhsm")]
     fn start_mockhsm() -> thread::JoinHandle<()> {
@@ -129,7 +136,7 @@ mod tests {
         let signature = signer.sign(TEST_MESSAGE).unwrap();
 
         let public_key =
-            ed25519_dalek::PublicKey::from_bytes(signer.public_key.as_bytes()).unwrap();
+            ed25519_dalek::PublicKey::from_bytes(signer.public_key().unwrap().as_bytes()).unwrap();
 
         assert!(
             public_key.verify::<Sha512>(
