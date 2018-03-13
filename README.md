@@ -13,8 +13,10 @@
 [build-link]: https://circleci.com/gh/tendermint/signatory
 [license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
 
-A multi-provider digital signature library for Rust with support for the
-Ed25519 elliptic curve public-key signature system described in [RFC 8032].
+A pure Rust multi-provider digital signature library for Rust with support for
+the Ed25519 elliptic curve public-key signature system described in [RFC 8032].
+
+[Documentation](https://docs.rs/signatory/)
 
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 
@@ -24,12 +26,41 @@ Signatory exposes an object-safe API for creating digital signatures which
 allows several signature providers to be compiled-in and available with
 specific providers selected at runtime.
 
-Signatory presently supports the following providers:
+## Provider Support
 
-* [ed25519-dalek] - pure Rust software implementation of Ed25519
-* YubiHSM2 - [forthcoming!](https://github.com/tendermint/signatory/pull/7)
+[cargo features] are used to select which providers are compiled-in:
 
+### Ed25519 providers
+
+* `dalek-provider`<sup>*</sup>: provider for the [ed25519-dalek] crate
+* `yubihsm-provider`: provider for the [yubihsm2-rs] supporting [YubiHSM2] devices 
+
+<sup>*</sup> Enabled by default
+
+[cargo features]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
+[yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
+[YubiHSM2]: https://www.yubico.com/products/yubihsm/
+
+### YubiHSM2 Provider Notes
+
+The [yubihsm-rs] crate depends on the `aesni` crate, which uses the new "stdsimd" API
+(which recently landed in nightly) to invoke hardware AES instructions via
+`core::arch`.
+
+To access these features, you will need both a relatively recent
+Rust nightly and to pass the following as RUSTFLAGS:
+
+```
+RUSTFLAGS=-C target-feature=+aes`
+```
+
+You can configure your `~/.cargo/config` to always pass these flags:
+
+```toml
+[build]
+rustflags = ["-C", "target-feature=+aes"]
+```
 
 ## License
 
