@@ -3,41 +3,52 @@ version: 2
 jobs:
   build:
     docker:
-      - image: tarcieri/rust-yubihsm-sdk:20180306
+      - image: tarcieri/rust-yubihsm-sdk:20180312
     environment:
-      - RUSTFLAGS=-C target-feature=+aes
+      # NOTE: RUST_NIGHTLY_VERSION is set in the Dockerfile
+      - RUSTFLAGS: -C target-feature=+aes
       - CARGO_FEATURES: dalek-provider,yubihsm-mockhsm
 
     steps:
       - checkout
       - restore_cache:
-          key: cache-20180306
+          key: cache-20180312
       - run:
           name: rustfmt
           command: |
-            rustfmt --version
-            cargo fmt -- --write-mode=diff
+            rustup run $RUST_NIGHTLY_VERSION rustfmt --version
+            rustup run $RUST_NIGHTLY_VERSION cargo fmt -- --write-mode=diff
       - run:
           name: clippy
           command: |
-            cargo clippy --version
-            cargo clippy --verbose --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION cargo clippy --version
+            rustup run $RUST_NIGHTLY_VERSION cargo clippy --verbose --features=$CARGO_FEATURES
+      - run:
+          name: build (stable, default features only)
+          command: |
+            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
+            cargo --version --verbose
+            cargo build
+      - run:
+          name: test (stable, default features only)
+          command: |
+            rustc --version --verbose
+            cargo --version --verbose
+            cargo test
       - run:
           name: build (nightly, all features)
           command: |
-            # Nightly is the default toolchain
-            rustc --version --verbose
-            cargo --version --verbose
-            cargo build --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
+            rustup run $RUST_NIGHTLY_VERSION cargo --version --verbose
+            rustup run $RUST_NIGHTLY_VERSION cargo build --features=$CARGO_FEATURES
       - run:
           name: test (nightly, all features)
           command: |
-            # Nightly is the default toolchain
-            rustc --version --verbose
-            cargo --version --verbose
-            cargo test --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
+            rustup run $RUST_NIGHTLY_VERSION cargo --version --verbose
+            rustup run $RUST_NIGHTLY_VERSION cargo test --features=$CARGO_FEATURES
       - save_cache:
-          key: cache-20180306
+          key: cache-20180312
           paths:
             - "~/.cargo"
             - "./target"
