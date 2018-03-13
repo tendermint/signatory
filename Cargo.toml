@@ -1,13 +1,17 @@
 [package]
 name        = "signatory"
 description = "Multi-provider digital signature library with Ed25519 support"
-version     = "0.0.0"
+version     = "0.0.0" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT/Apache-2.0"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master"
+readme      = "README.md"
 categories  = ["cryptography", "no-std"]
 keywords    = ["cryptography", "security", "signatures"]
-repository  = "https://github.com/tendermint/signatory"
-readme      = "README.md"
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
 curve25519-dalek = { version = "= 0.14.0", optional = true, default-features = false }
@@ -22,3 +26,6 @@ dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2"]
 default = ["dalek-provider"]
 yubihsm-provider = ["yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
+
+[package.metadata.docs.rs]
+rustc-args = ["-C", "target-feature=+aes"]
