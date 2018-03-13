@@ -33,7 +33,7 @@ specific providers selected at runtime.
 ### Ed25519 providers
 
 * `dalek-provider`<sup>*</sup>: provider for the [ed25519-dalek] crate
-* `yubihsm-provider`: provider for the [yubihsm2-rs] supporting [YubiHSM2] devices 
+* `yubihsm-provider`: provider for the [yubihsm-rs] crate supporting [YubiHSM2] devices
 
 <sup>*</sup> Enabled by default
 
