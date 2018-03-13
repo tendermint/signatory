@@ -6,7 +6,7 @@
 #![cfg_attr(not(feature = "yubihsm-provider"), no_std)]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
-#![doc(html_root_url = "https://docs.rs/yubihsm/0.0.0")]
+#![doc(html_root_url = "https://docs.rs/yubihsm/0.1.0")]
 
 #[cfg(feature = "yubihsm-provider")]
 extern crate core;
