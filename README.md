@@ -13,8 +13,8 @@
 [build-link]: https://circleci.com/gh/tendermint/signatory
 [license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
 
-A pure Rust multi-provider digital signature library for Rust with support for
-the Ed25519 elliptic curve public-key signature system described in [RFC 8032].
+A pure Rust multi-provider digital signature library with support for the
+Ed25519 elliptic curve public-key signature system described in [RFC 8032].
 
 [Documentation](https://docs.rs/signatory/)
 
