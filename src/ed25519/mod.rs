@@ -30,7 +30,7 @@ pub const PUBLIC_KEY_SIZE: usize = 32;
 pub const SIGNATURE_SIZE: usize = 64;
 
 /// Ed25519 public keys
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct PublicKey([u8; PUBLIC_KEY_SIZE]);
 
 impl PublicKey {
