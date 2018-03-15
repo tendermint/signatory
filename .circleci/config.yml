@@ -26,7 +26,7 @@ jobs:
       - run:
           name: build (stable, default features only)
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
+            rustc --version --verbose
             cargo --version --verbose
             cargo build
       - run:
