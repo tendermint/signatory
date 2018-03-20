@@ -1,6 +1,6 @@
 use error::{Error, ErrorKind};
-use super::{Signature, Signer};
-use super::PublicKey as SignatoryPublicKey;
+use ed25519::{Signature, Signer};
+use ed25519::PublicKey as SignatoryPublicKey;
 
 use ed25519_dalek::{Keypair, PublicKey, SecretKey};
 use sha2::Sha512;
@@ -22,19 +22,18 @@ impl DalekSigner {
 }
 
 impl Signer for DalekSigner {
-    fn public_key(&mut self) -> Result<SignatoryPublicKey, Error> {
-        Ok(SignatoryPublicKey(self.0.public.to_bytes()))
+    fn public_key(&self) -> Result<SignatoryPublicKey, Error> {
+        Ok(SignatoryPublicKey::new(self.0.public.as_bytes()))
     }
 
-    fn sign(&mut self, msg: &[u8]) -> Result<Signature, Error> {
-        Ok(Signature(self.0.sign::<Sha512>(msg).to_bytes()))
+    fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
+        Ok(Signature::new(&self.0.sign::<Sha512>(msg).to_bytes()[..]))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use ed25519::Signer;
-    use ed25519::test_vectors::TEST_VECTORS;
+    use ed25519::{Signer, TEST_VECTORS};
     use super::DalekSigner;
 
     #[test]

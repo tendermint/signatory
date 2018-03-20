@@ -13,17 +13,23 @@
 [build-link]: https://circleci.com/gh/tendermint/signatory
 [license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
 
-A pure Rust multi-provider digital signature library with support for the
-Ed25519 elliptic curve public-key signature system described in [RFC 8032].
+A pure Rust multi-provider digital signature library which provides a
+thread-safe and object-safe API.
+
+Presently implements the Ed25519 elliptic curve public-key signature system
+described in [RFC 8032] with software ([ed25519-dalek]) and hardware ([yubihsm-rs])
+providers available.
 
 [Documentation](https://docs.rs/signatory/)
 
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
+[ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
+[yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 
 ## About
 
-Signatory exposes an object-safe API for creating digital signatures which
-allows several signature providers to be compiled-in and available with
+Signatory exposes a thread-and-object-safe API for creating digital signatures
+which allows several signature providers to be compiled-in and available with
 specific providers selected at runtime.
 
 ## Provider Support
@@ -38,8 +44,6 @@ specific providers selected at runtime.
 <sup>*</sup> Enabled by default
 
 [cargo features]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
-[ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
-[yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 [YubiHSM2]: https://www.yubico.com/products/yubihsm/
 
 ### YubiHSM2 Provider Notes
@@ -52,14 +56,14 @@ To access these features, you will need both a relatively recent
 Rust nightly and to pass the following as RUSTFLAGS:
 
 ```
-RUSTFLAGS=-C target-feature=+aes`
+RUSTFLAGS=-Ctarget-feature=+aes`
 ```
 
 You can configure your `~/.cargo/config` to always pass these flags:
 
 ```toml
 [build]
-rustflags = ["-C", "target-feature=+aes"]
+rustflags = ["-Ctarget-feature=+aes"]
 ```
 
 ## License
