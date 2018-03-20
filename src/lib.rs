@@ -2,14 +2,14 @@
 
 #![crate_name = "signatory"]
 #![crate_type = "lib"]
-// TODO: this appears to be due to failure. Attempt to debug why
-#![cfg_attr(not(feature = "yubihsm-provider"), no_std)]
+#![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(html_root_url = "https://docs.rs/yubihsm/0.2.0")]
 
-#[cfg(feature = "yubihsm-provider")]
-extern crate core;
+#[cfg(feature = "std")]
+extern crate std;
+
 #[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
 extern crate failure;
@@ -22,6 +22,7 @@ extern crate yubihsm;
 
 pub mod ed25519;
 pub mod error;
+pub mod providers;
 
 pub use error::Error;
 
