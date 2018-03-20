@@ -5,7 +5,7 @@
 #![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
-#![doc(html_root_url = "https://docs.rs/yubihsm/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/yubihsm/0.3.0")]
 
 #[cfg(feature = "std")]
 extern crate std;
