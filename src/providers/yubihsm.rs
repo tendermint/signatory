@@ -8,7 +8,7 @@
 //! ```
 
 use std::sync::{Arc, Mutex};
-use yubihsm::{AbstractSession, Algorithm, Connector, ReqwestConnector, Session};
+use yubihsm::{Algorithm, Connector, DefaultConnector, Session};
 
 use error::{Error, ErrorKind};
 use ed25519::{PublicKey, Signature, Signer};
@@ -35,21 +35,21 @@ impl YubiHSMSession {
     }
 
     /// Create an Ed25519 signer which uses this session
-    pub fn ed25519_signer(
-        &self,
-        signing_key_id: KeyId,
-    ) -> Result<YubiHSMSigner<ReqwestConnector>, Error> {
+    pub fn ed25519_signer(&self, signing_key_id: KeyId) -> Result<YubiHSMSigner, Error> {
         YubiHSMSigner::new(self, signing_key_id)
     }
 }
 
 /// Ed25519 signature provider for yubihsm-client
-pub struct YubiHSMSigner<C: Connector> {
-    session: Arc<Mutex<AbstractSession<C>>>,
+pub struct YubiHSMSigner<C = DefaultConnector>
+where
+    C: Connector,
+{
+    session: Arc<Mutex<Session<C>>>,
     signing_key_id: KeyId,
 }
 
-impl YubiHSMSigner<ReqwestConnector> {
+impl YubiHSMSigner<DefaultConnector> {
     /// Create a new YubiHSM-backed Ed25519 signer
     pub fn new(session: &YubiHSMSession, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
@@ -99,13 +99,12 @@ mod tests {
     #[cfg(not(feature = "yubihsm-mockhsm"))]
     use yubihsm::Session;
     #[cfg(feature = "yubihsm-mockhsm")]
-    use yubihsm::AbstractSession;
-    #[cfg(feature = "yubihsm-mockhsm")]
     use yubihsm::mockhsm::MockHSM;
 
     use super::{KeyId, Signer, YubiHSMSigner};
 
     /// Default addr/port for yubihsm-connector
+    #[cfg(not(feature = "yubihsm-mockhsm"))]
     const DEFAULT_CONNECTOR_ADDR: &str = "http://127.0.0.1:12345";
 
     /// Default authentication key identifier
@@ -146,12 +145,8 @@ mod tests {
 
         #[cfg(feature = "yubihsm-mockhsm")]
         let session = Arc::new(Mutex::new(
-            AbstractSession::<MockHSM>::create_from_password(
-                DEFAULT_CONNECTOR_ADDR,
-                DEFAULT_AUTH_KEY_ID,
-                DEFAULT_PASSWORD,
-                true,
-            ).unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
+            MockHSM::create_session(DEFAULT_AUTH_KEY_ID, DEFAULT_PASSWORD)
+                .unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
         ));
 
         {
