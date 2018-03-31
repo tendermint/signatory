@@ -1,6 +1,13 @@
+## [0.3.2] (2018-03-31)
+
+[0.3.2]: https://github.com/tendermint/signatory/compare/v0.3.1...v0.3.2
+
+* [#15](https://github.com/tendermint/signatory/pull/15)
+  Upgrade ed25519-dalek to 0.6.2.
+
 ## [0.3.1] (2018-03-27)
 
-[0.3.1]: https://github.com/tendermint/signatory/compare/v0.2.0...v0.3.0
+[0.3.1]: https://github.com/tendermint/signatory/compare/v0.3.0...v0.3.1
 
 * [#14](https://github.com/tendermint/signatory/pull/14)
   Update to yubihsm-rs 0.7.
