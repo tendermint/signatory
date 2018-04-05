@@ -17,14 +17,15 @@ A pure Rust multi-provider digital signature library which provides a
 thread-safe and object-safe API.
 
 Presently implements the Ed25519 elliptic curve public-key signature system
-described in [RFC 8032] with software ([ed25519-dalek], [ring]) and hardware
-([yubihsm-rs]) providers available.
+described in [RFC 8032] with software ([ed25519-dalek], [ring], [sodiumoxide])
+and hardware ([yubihsm-rs]) providers available.
 
 [Documentation](https://docs.rs/signatory/)
 
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 [ring]: https://github.com/briansmith/ring
+[sodiumoxide]: https://github.com/dnaq/sodiumoxide
 [yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 
 ## About
@@ -37,11 +38,12 @@ specific providers selected at runtime.
 
 ### Ed25519 providers
 
-| [Cargo Feature]    | Crate           | Type | Signer | Verifier | Default | Speed |
-|--------------------|-----------------|------|--------|----------|---------|-------|
-| `dalek-provider`   | [ed25519-dalek] | Soft | ✅     | ✅       | ✅      | 💚    |
-| `ring-provider`    | [ring]          | Soft | ✅     | ✅       | ⛔️      | 💚    |
-| `yubihsm-provider` | [yubihsm-rs]    | Hard | ✅     | ⛔️       | ⛔️      | 💔    |
+| [Cargo Feature]        | Crate           | Type | Signer | Verifier | Default | Speed |
+|------------------------|-----------------|------|--------|----------|---------|-------|
+| `dalek-provider`       | [ed25519-dalek] | Soft | ✅     | ✅       | ✅      | 💚    |
+| `ring-provider`        | [ring]          | Soft | ✅     | ✅       | ⛔️      | 💚    |
+| `sodiumoxide-provider` | [sodiumoxide]   | Soft | ✅     | ✅       | ⛔️      | 💚    |
+| `yubihsm-provider`     | [yubihsm-rs]    | Hard | ✅     | ⛔️       | ⛔️      | 💔    |
 
 [cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 

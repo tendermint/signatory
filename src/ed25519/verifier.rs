@@ -8,20 +8,27 @@ pub use providers::dalek::DalekVerifier as DefaultVerifier;
 #[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider"))]
 pub use providers::ring::RingVerifier as DefaultVerifier;
 
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
+          feature = "sodiumoxide-provider"))]
+pub use providers::sodiumoxide::SodiumOxideVerifier as DefaultVerifier;
+
 use error::Error;
 use super::{PublicKey, Signature};
 
 /// Verifier for Ed25519 signatures
-pub trait Verifier: Sync + Sized {
+pub trait Verifier: Clone + Sync + Sized {
     /// Verify an Ed25519 signature against the given public key
     fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error>;
 }
 
 /// A panicking default verifier if no providers have been selected
-#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider")))]
-pub struct DefaultVerifier();
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
+          not(feature = "sodiumoxide-provider")))]
+#[derive(Clone)]
+pub struct DefaultVerifier {}
 
-#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider")))]
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
+          not(feature = "sodiumoxide-provider")))]
 impl Verifier for DefaultVerifier {
     fn verify(_key: &PublicKey, _msg: &[u8], _signature: &Signature) -> Result<(), Error> {
         panic!("no Ed25519 providers enabled when signatory was built");

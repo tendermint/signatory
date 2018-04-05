@@ -71,11 +71,70 @@ mod ring_benches {
     }
 }
 
-#[cfg(all(feature = "dalek-provider", not(feature = "ring-provider")))]
+#[cfg(feature = "sodiumoxide-provider")]
+mod sodiumoxide_benches {
+    use super::*;
+    use signatory::ed25519::Signer;
+    use signatory::providers::{SodiumOxideSigner, SodiumOxideVerifier};
+
+    fn sign(c: &mut Criterion) {
+        let signer = SodiumOxideSigner::from_seed(TEST_VECTOR.sk).unwrap();
+
+        c.bench_function("SodiumOxideSigner (ed25519)", move |b| {
+            b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
+        });
+    }
+
+    fn verify(c: &mut Criterion) {
+        let public_key = PublicKey::<SodiumOxideVerifier>::from_bytes(TEST_VECTOR.pk).unwrap();
+        let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
+
+        c.bench_function("SodiumOxideVerifier (ed25519)", move |b| {
+            b.iter(|| public_key.verify(TEST_VECTOR.msg, &signature).unwrap())
+        });
+    }
+
+    criterion_group! {
+        name = sodiumoxide_benches;
+        config = Criterion::default();
+        targets = sign, verify
+    }
+}
+
+#[cfg(all(feature = "dalek-provider", not(feature = "ring-provider"),
+          not(feature = "sodiumoxide-provider")))]
 criterion_main!(dalek_benches::dalek_benches);
 
-#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider"))]
+#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider",
+          not(feature = "sodiumoxide-provider")))]
 criterion_main!(ring_benches::ring_benches);
 
-#[cfg(all(feature = "dalek-provider", feature = "ring-provider"))]
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
+          feature = "sodiumoxide-provider"))]
+criterion_main!(sodiumoxide_benches::sodiumoxide_benches);
+
+#[cfg(all(feature = "dalek-provider", feature = "ring-provider",
+          not(feature = "sodiumoxide-provider")))]
 criterion_main!(dalek_benches::dalek_benches, ring_benches::ring_benches);
+
+#[cfg(all(feature = "dalek-provider", not(feature = "ring-provider"),
+          feature = "sodiumoxide-provider"))]
+criterion_main!(
+    dalek_benches::dalek_benches,
+    sodiumoxide_benches::sodiumoxide_benches
+);
+
+#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider",
+          feature = "sodiumoxide-provider"))]
+criterion_main!(
+    ring_benches::ring_benches,
+    sodiumoxide_benches::sodiumoxide_benches
+);
+
+#[cfg(all(feature = "dalek-provider", feature = "ring-provider",
+          feature = "sodiumoxide-provider"))]
+criterion_main!(
+    dalek_benches::dalek_benches,
+    ring_benches::ring_benches,
+    sodiumoxide_benches::sodiumoxide_benches
+);
