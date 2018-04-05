@@ -17,13 +17,14 @@ A pure Rust multi-provider digital signature library which provides a
 thread-safe and object-safe API.
 
 Presently implements the Ed25519 elliptic curve public-key signature system
-described in [RFC 8032] with software ([ed25519-dalek]) and hardware ([yubihsm-rs])
-providers available.
+described in [RFC 8032] with software ([ed25519-dalek], [ring]) and hardware
+([yubihsm-rs]) providers available.
 
 [Documentation](https://docs.rs/signatory/)
 
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
+[ring]: https://github.com/briansmith/ring
 [yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 
 ## About
@@ -34,17 +35,15 @@ specific providers selected at runtime.
 
 ## Provider Support
 
-[cargo features] are used to select which providers are compiled-in:
-
 ### Ed25519 providers
 
-* `dalek-provider`<sup>*</sup>: provider for the [ed25519-dalek] crate
-* `yubihsm-provider`: provider for the [yubihsm-rs] crate supporting [YubiHSM2] devices
+| [Cargo Feature]    | Crate           | Type | Signer | Verifier | Default | Speed |
+|--------------------|-----------------|------|--------|----------|---------|-------|
+| `dalek-provider`   | [ed25519-dalek] | Soft | ✅     | ✅       | ✅      | 💚    |
+| `ring-provider`    | [ring]          | Soft | ✅     | ✅       | ⛔️      | 💚    |
+| `yubihsm-provider` | [yubihsm-rs]    | Hard | ✅     | ⛔       | ⛔      | 💔    |
 
-<sup>*</sup> Enabled by default
-
-[cargo features]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
-[YubiHSM2]: https://www.yubico.com/products/yubihsm/
+[cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
 ### YubiHSM2 Provider Notes
 

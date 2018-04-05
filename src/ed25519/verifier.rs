@@ -5,6 +5,9 @@
 #[cfg(feature = "dalek-provider")]
 pub use providers::dalek::DalekVerifier as DefaultVerifier;
 
+#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider"))]
+pub use providers::ring::RingVerifier as DefaultVerifier;
+
 use error::Error;
 use super::{PublicKey, Signature};
 
@@ -15,10 +18,10 @@ pub trait Verifier: Sync + Sized {
 }
 
 /// A panicking default verifier if no providers have been selected
-#[cfg(not(feature = "dalek-provider"))]
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider")))]
 pub struct DefaultVerifier();
 
-#[cfg(not(feature = "dalek-provider"))]
+#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider")))]
 impl Verifier for DefaultVerifier {
     fn verify(_key: &PublicKey, _msg: &[u8], _signature: &Signature) -> Result<(), Error> {
         panic!("no Ed25519 providers enabled when signatory was built");

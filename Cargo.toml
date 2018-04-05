@@ -16,15 +16,19 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 curve25519-dalek = { version = "0.16", optional = true, default-features = false }
 ed25519-dalek = { version = "0.6", optional = true, default-features = false, features = ["sha2"] }
-failure = { version = "0.1", default-features = false }
-failure_derive = { version = "0.1", default-features = false }
+ring = { version = "0.12", optional = true }
 sha2 = { version = "0.7", optional = true }
+untrusted = { version = "0.5", optional = true }
 yubihsm = { version = "0.7", optional = true }
+
+[dev-dependencies]
+criterion = "0.2"
 
 [features]
 dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2", "verifier"]
 default = ["dalek-provider"]
-std = ["failure/std", "failure_derive/std"]
+std = []
+ring-provider = ["ring", "untrusted", "verifier"]
 verifier = []
 yubihsm-provider = ["std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
@@ -32,3 +36,24 @@ yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 [package.metadata.docs.rs]
 features = ["dalek-provider", "yubihsm-provider"]
 rustc-args = ["-Ctarget-feature=+aes"]
+
+[profile.release]
+opt-level = 3
+debug = false
+rpath = false
+lto = false
+debug-assertions = false
+codegen-units = 1
+panic = "abort"
+
+[profile.bench]
+opt-level = 3
+debug = false
+rpath = false
+lto = false
+debug-assertions = false
+codegen-units = 1
+
+[[bench]]
+name = "ed25519"
+harness = false
