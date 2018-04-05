@@ -38,20 +38,22 @@ specific providers selected at runtime.
 
 ### Ed25519 providers
 
-| [Cargo Feature]        | Crate           | Type | Signer | Verifier | Default | Speed |
-|------------------------|-----------------|------|--------|----------|---------|-------|
-| `dalek-provider`       | [ed25519-dalek] | Soft | ✅     | ✅       | ✅      | 💚    |
-| `ring-provider`        | [ring]          | Soft | ✅     | ✅       | ⛔️      | 💚    |
-| `sodiumoxide-provider` | [sodiumoxide]   | Soft | ✅     | ✅       | ⛔️      | 💚    |
-| `yubihsm-provider`     | [yubihsm-rs]    | Hard | ✅     | ⛔️       | ⛔️      | 💔    |
+| [Cargo Feature]        | Crate           | Type | Signing | Verification |
+|------------------------|-----------------|------|---------|--------------|
+| `dalek-provider`       | [ed25519-dalek] | Soft | 43 k/s  | 17 k/s       |
+| `ring-provider`        | [ring]          | Soft | 31 k/s  | 10 k/s       |
+| `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 14 k/s       |
+| `yubihsm-provider`     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
+
+Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @
+3.30GHz with the `nightly` cargo feature enabled.
 
 [cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
 ### YubiHSM2 Provider Notes
 
-The [yubihsm-rs] crate depends on the `aesni` crate, which uses the new "stdsimd" API
-(which recently landed in nightly) to invoke hardware AES instructions via
-`core::arch`.
+The [yubihsm-rs] crate depends on the `aesni` crate, which uses the new "stdsimd"
+API (coming soon to stable!) to invoke hardware AES instructions via `core::arch`.
 
 To access these features, you will need both a relatively recent
 Rust nightly and to pass the following as RUSTFLAGS:

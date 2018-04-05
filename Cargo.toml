@@ -28,6 +28,7 @@ criterion = "0.2"
 [features]
 dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2", "verifier"]
 default = ["dalek-provider"]
+nightly = ["curve25519-dalek/nightly", "ed25519-dalek/nightly"]
 std = []
 ring-provider = ["ring", "untrusted", "verifier"]
 sodiumoxide-provider = ["sodiumoxide", "verifier"]
