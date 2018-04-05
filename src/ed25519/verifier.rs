@@ -3,14 +3,14 @@
 //! This is intended to be used in conjunction with the `verify` method of `PublicKey`
 
 #[cfg(feature = "dalek-provider")]
-pub use providers::dalek::DalekVerifier as DefaultVerifier;
+pub use providers::dalek::Ed25519Verifier as DefaultVerifier;
 
 #[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider"))]
-pub use providers::ring::RingVerifier as DefaultVerifier;
+pub use providers::ring::Ed25519Verifier as DefaultVerifier;
 
 #[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
           feature = "sodiumoxide-provider"))]
-pub use providers::sodiumoxide::SodiumOxideVerifier as DefaultVerifier;
+pub use providers::sodiumoxide::Ed25519Verifier as DefaultVerifier;
 
 use error::Error;
 use super::{PublicKey, Signature};

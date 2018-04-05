@@ -7,12 +7,12 @@ use error::{Error, ErrorKind};
 use ed25519::{PublicKey, Signature, Signer, Verifier, SEED_SIZE};
 
 /// Ed25519 signature provider for *ring*
-pub struct SodiumOxideSigner {
+pub struct Ed25519Signer {
     secret_key: SecretKey,
     public_key: PublicKey,
 }
 
-impl SodiumOxideSigner {
+impl Ed25519Signer {
     /// Create a new SodiumOxideSigner from an unexpanded seed value
     pub fn from_seed(seed: &[u8]) -> Result<Self, Error> {
         if seed.len() != SEED_SIZE {
@@ -29,7 +29,7 @@ impl SodiumOxideSigner {
     }
 }
 
-impl Signer for SodiumOxideSigner {
+impl Signer for Ed25519Signer {
     fn public_key(&self) -> Result<PublicKey, Error> {
         Ok(self.public_key.clone())
     }
@@ -42,9 +42,9 @@ impl Signer for SodiumOxideSigner {
 
 /// Ed25519 verifier provider for *sodiumoxide*
 #[derive(Clone)]
-pub struct SodiumOxideVerifier {}
+pub struct Ed25519Verifier {}
 
-impl Verifier for SodiumOxideVerifier {
+impl Verifier for Ed25519Verifier {
     fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
         let pk = sodiumoxide_ed25519::PublicKey::from_slice(key.as_bytes()).unwrap();
         let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
@@ -63,12 +63,12 @@ mod tests {
 
     use error::ErrorKind;
     use ed25519::{PublicKey, Signature, Signer, Verifier, TEST_VECTORS};
-    use super::{SodiumOxideSigner, SodiumOxideVerifier};
+    use super::{Ed25519Signer, Ed25519Verifier};
 
     #[test]
     fn sign_rfc8032_test_vectors() {
         for vector in TEST_VECTORS {
-            let mut signer = SodiumOxideSigner::from_seed(vector.sk).expect("decode error");
+            let mut signer = Ed25519Signer::from_seed(vector.sk).expect("decode error");
             assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
         }
     }
@@ -79,7 +79,7 @@ mod tests {
             let pk = PublicKey::from_bytes(vector.pk).unwrap();
             let sig = Signature::from_bytes(vector.sig).unwrap();
             assert!(
-                SodiumOxideVerifier::verify(&pk, vector.msg, &sig).is_ok(),
+                Ed25519Verifier::verify(&pk, vector.msg, &sig).is_ok(),
                 "expected signature to verify"
             );
         }
@@ -93,7 +93,7 @@ mod tests {
             let mut tweaked_sig = Vec::from(vector.sig);
             tweaked_sig[0] ^= 0x42;
 
-            let result = SodiumOxideVerifier::verify(
+            let result = Ed25519Verifier::verify(
                 &pk,
                 vector.msg,
                 &Signature::from_bytes(&tweaked_sig).unwrap(),

@@ -1,57 +1,31 @@
 //! Digital signature (i.e. Ed25519) provider for `YubiHSM2` devices
 //!
 //! To use this provider, first establish a session with the `YubiHSM2`, then
-//! call the appropriate signer methods to obtain signers:
-//!
-//! ```no_run
-//! use signatory::providers::YubiHSMSession;
-//! ```
+//! call the appropriate signer methods to obtain signers.
 
 use std::sync::{Arc, Mutex};
-use yubihsm::{Algorithm, Connector, DefaultConnector, Session};
+use yubihsm::{Algorithm, Connector, DefaultConnector};
+use yubihsm::Session as YubiHSMSession;
 
 use error::{Error, ErrorKind};
 use ed25519::{PublicKey, Signature, Signer};
-
-/// Identifiers for keys in the `YubiHSM`
-type KeyId = u16;
-
-/// End-to-end encrypted session with the `YubiHSM`
-pub struct YubiHSMSession(Arc<Mutex<Session>>);
-
-impl YubiHSMSession {
-    /// Create a new session with the YubiHSM
-    pub fn new(connector_url: &str, auth_key_id: KeyId, password: &str) -> Result<Self, Error> {
-        let arc = Arc::new(Mutex::new(Session::create_from_password(
-            connector_url,
-            auth_key_id,
-            password,
-            true,
-        ).map_err(|e| {
-            err!(ProviderError, "{}", e)
-        })?));
-
-        Ok(YubiHSMSession(arc))
-    }
-
-    /// Create an Ed25519 signer which uses this session
-    pub fn ed25519_signer(&self, signing_key_id: KeyId) -> Result<YubiHSMSigner, Error> {
-        YubiHSMSigner::new(self, signing_key_id)
-    }
-}
+use super::{KeyId, Session};
 
 /// Ed25519 signature provider for yubihsm-client
-pub struct YubiHSMSigner<C = DefaultConnector>
+pub struct Ed25519Signer<C = DefaultConnector>
 where
     C: Connector,
 {
-    session: Arc<Mutex<Session<C>>>,
+    /// Session with the YubiHSM
+    session: Arc<Mutex<YubiHSMSession<C>>>,
+
+    /// ID of an Ed25519 key to perform signatures with
     signing_key_id: KeyId,
 }
 
-impl YubiHSMSigner<DefaultConnector> {
+impl Ed25519Signer<DefaultConnector> {
     /// Create a new YubiHSM-backed Ed25519 signer
-    pub fn new(session: &YubiHSMSession, signing_key_id: KeyId) -> Result<Self, Error> {
+    pub fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
             session: session.0.clone(),
             signing_key_id,
@@ -64,7 +38,7 @@ impl YubiHSMSigner<DefaultConnector> {
     }
 }
 
-impl<C: Connector> Signer for YubiHSMSigner<C> {
+impl<C: Connector> Signer for Ed25519Signer<C> {
     fn public_key(&self) -> Result<PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
@@ -99,7 +73,7 @@ mod tests {
     #[cfg(feature = "yubihsm-mockhsm")]
     use yubihsm::mockhsm::MockHSM;
 
-    use super::{KeyId, Signer, YubiHSMSigner};
+    use super::{Ed25519Signer, KeyId, Signer};
 
     /// Default addr/port for yubihsm-connector
     #[cfg(not(feature = "yubihsm-mockhsm"))]
@@ -164,7 +138,7 @@ mod tests {
             ).unwrap();
         }
 
-        let signer = YubiHSMSigner {
+        let signer = Ed25519Signer {
             session: session,
             signing_key_id: TEST_SIGNING_KEY_ID,
         };
