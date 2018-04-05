@@ -1,3 +1,10 @@
+## [0.4.1] (2018-04-05)
+
+[0.4.1]: https://github.com/tendermint/signatory/compare/v0.4.0...v0.4.1
+
+* [#20](https://github.com/tendermint/signatory/pull/20)
+  Add more bounds to the Verifier trait.
+
 ## [0.4.0] (2018-04-05)
 
 [0.4.0]: https://github.com/tendermint/signatory/compare/v0.3.2...v0.4.0
