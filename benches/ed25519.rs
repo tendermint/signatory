@@ -15,21 +15,21 @@ const TEST_VECTOR: &TestVector = &TEST_VECTORS[4];
 mod dalek_benches {
     use super::*;
     use signatory::ed25519::Signer;
-    use signatory::providers::{DalekSigner, DalekVerifier};
+    use signatory::providers::dalek::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = DalekSigner::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
 
-        c.bench_function("DalekSigner (ed25519)", move |b| {
+        c.bench_function("dalek: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
         });
     }
 
     fn verify(c: &mut Criterion) {
-        let public_key = PublicKey::<DalekVerifier>::from_bytes(TEST_VECTOR.pk).unwrap();
+        let public_key = PublicKey::<Ed25519Verifier>::from_bytes(TEST_VECTOR.pk).unwrap();
         let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
-        c.bench_function("DalekVerifier (ed25519)", move |b| {
+        c.bench_function("dalek: ed25519 verifier", move |b| {
             b.iter(|| public_key.verify(TEST_VECTOR.msg, &signature).unwrap())
         });
     }
@@ -45,21 +45,21 @@ mod dalek_benches {
 mod ring_benches {
     use super::*;
     use signatory::ed25519::Signer;
-    use signatory::providers::{RingSigner, RingVerifier};
+    use signatory::providers::ring::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = RingSigner::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
 
-        c.bench_function("RingSigner (ed25519)", move |b| {
+        c.bench_function("ring: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
         });
     }
 
     fn verify(c: &mut Criterion) {
-        let public_key = PublicKey::<RingVerifier>::from_bytes(TEST_VECTOR.pk).unwrap();
+        let public_key = PublicKey::<Ed25519Verifier>::from_bytes(TEST_VECTOR.pk).unwrap();
         let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
-        c.bench_function("RingVerifier (ed25519)", move |b| {
+        c.bench_function("ring: ed25519 verifier", move |b| {
             b.iter(|| public_key.verify(TEST_VECTOR.msg, &signature).unwrap())
         });
     }
@@ -75,21 +75,21 @@ mod ring_benches {
 mod sodiumoxide_benches {
     use super::*;
     use signatory::ed25519::Signer;
-    use signatory::providers::{SodiumOxideSigner, SodiumOxideVerifier};
+    use signatory::providers::sodiumoxide::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = SodiumOxideSigner::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
 
-        c.bench_function("SodiumOxideSigner (ed25519)", move |b| {
+        c.bench_function("sodiumoxide: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
         });
     }
 
     fn verify(c: &mut Criterion) {
-        let public_key = PublicKey::<SodiumOxideVerifier>::from_bytes(TEST_VECTOR.pk).unwrap();
+        let public_key = PublicKey::<Ed25519Verifier>::from_bytes(TEST_VECTOR.pk).unwrap();
         let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
-        c.bench_function("SodiumOxideVerifier (ed25519)", move |b| {
+        c.bench_function("sodiumoxide: ed25519 verifier", move |b| {
             b.iter(|| public_key.verify(TEST_VECTOR.msg, &signature).unwrap())
         });
     }
@@ -100,6 +100,8 @@ mod sodiumoxide_benches {
         targets = sign, verify
     }
 }
+
+// TODO: there has got to be a better way to do this...
 
 #[cfg(all(feature = "dalek-provider", not(feature = "ring-provider"),
           not(feature = "sodiumoxide-provider")))]
