@@ -1,5 +1,6 @@
 //! Ed25519 public keys
 
+use core::fmt;
 use core::marker::PhantomData;
 
 use error::{Error, ErrorKind};
@@ -9,7 +10,7 @@ use super::{DefaultVerifier, Signature, Verifier};
 pub const PUBLIC_KEY_SIZE: usize = 32;
 
 /// Ed25519 public keys
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, PartialEq, Hash)]
 pub struct PublicKey<V = DefaultVerifier>
 where
     V: Verifier,
@@ -54,9 +55,25 @@ impl<V: Verifier> PublicKey<V> {
     }
 }
 
-impl AsRef<[u8]> for PublicKey {
+impl<V: Verifier> AsRef<[u8]> for PublicKey<V> {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         self.bytes.as_ref()
+    }
+}
+
+impl<V: Verifier> fmt::Debug for PublicKey<V> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "signatory::ed25519::PublicKey(")?;
+
+        for (i, byte) in self.bytes.iter().enumerate() {
+            write!(f, "{:02x}", byte)?;
+
+            if i != self.bytes.len() - 1 {
+                write!(f, ":")?;
+            }
+        }
+
+        write!(f, ")")
     }
 }
