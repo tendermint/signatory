@@ -2,6 +2,9 @@
 //!
 //! This is intended to be used in conjunction with the `verify` method of `PublicKey`
 
+use core::fmt::Debug;
+use core::hash::Hash;
+
 #[cfg(feature = "dalek-provider")]
 pub use providers::dalek::Ed25519Verifier as DefaultVerifier;
 
@@ -16,7 +19,7 @@ use error::Error;
 use super::{PublicKey, Signature};
 
 /// Verifier for Ed25519 signatures
-pub trait Verifier: Clone + Sync + Sized {
+pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Sync + Sized {
     /// Verify an Ed25519 signature against the given public key
     fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error>;
 }
@@ -24,7 +27,7 @@ pub trait Verifier: Clone + Sync + Sized {
 /// A panicking default verifier if no providers have been selected
 #[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
           not(feature = "sodiumoxide-provider")))]
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct DefaultVerifier {}
 
 #[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),

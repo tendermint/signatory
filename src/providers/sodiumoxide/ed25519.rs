@@ -41,7 +41,7 @@ impl Signer for Ed25519Signer {
 }
 
 /// Ed25519 verifier provider for *sodiumoxide*
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Ed25519Verifier {}
 
 impl Verifier for Ed25519Verifier {
