@@ -1,3 +1,19 @@
+## [0.4.0] (2018-04-05)
+
+[0.4.0]: https://github.com/tendermint/signatory/compare/v0.3.2...v0.4.0
+
+* [#19](https://github.com/tendermint/signatory/pull/19)
+  Add an "ed25519" module to all providers.
+
+* [#18](https://github.com/tendermint/signatory/pull/18)
+  sodiumoxide provider for Ed25519.
+  
+* [#17](https://github.com/tendermint/signatory/pull/17)
+  *ring* provider for Ed25519.
+
+* [#16](https://github.com/tendermint/signatory/pull/16)
+  ed25519::Verifier trait.
+
 ## [0.3.2] (2018-03-31)
 
 [0.3.2]: https://github.com/tendermint/signatory/compare/v0.3.1...v0.3.2
@@ -23,7 +39,7 @@
 
 [0.2.0]: https://github.com/tendermint/signatory/compare/v0.1.0...v0.2.0
 
-* [#22](https://github.com/tendermint/signatory/pull/12)
+* [#12](https://github.com/tendermint/signatory/pull/12)
   Add `ed25519::Signer::public_key()`.
 
 ## 0.1.0 (2018-03-12)

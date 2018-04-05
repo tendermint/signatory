@@ -1,14 +1,14 @@
 [package]
 name        = "signatory"
 description = "Multi-provider digital signature library with Ed25519 support"
-version     = "0.3.2" # Also update html_root_url in lib.rs when bumping this
+version     = "0.4.0" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT/Apache-2.0"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 homepage    = "https://github.com/tendermint/signatory"
 repository  = "https://github.com/tendermint/signatory/tree/master"
 readme      = "README.md"
-categories  = ["cryptography", "no-std"]
-keywords    = ["cryptography", "security", "signatures"]
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["crypto", "cryptography", "no_std", "security", "signatures"]
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
