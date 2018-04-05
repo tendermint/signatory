@@ -1,12 +1,12 @@
 //! Digital signature (i.e. Ed25519) provider for ed25519-dalek
 
-use error::{Error, ErrorKind};
-use ed25519::{PublicKey, Signature, Signer, Verifier};
-
 use ed25519_dalek::{Keypair, SecretKey};
 use ed25519_dalek::PublicKey as DalekPublicKey;
 use ed25519_dalek::Signature as DalekSignature;
 use sha2::Sha512;
+
+use error::{Error, ErrorKind};
+use ed25519::{PublicKey, Signature, Signer, Verifier};
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct DalekSigner(Keypair);
@@ -35,6 +35,7 @@ impl Signer for DalekSigner {
 }
 
 /// Ed25519 verifier provider for ed25519-dalek
+#[derive(Clone)]
 pub struct DalekVerifier {}
 
 impl Verifier for DalekVerifier {

@@ -17,6 +17,8 @@ extern crate ed25519_dalek;
 extern crate ring;
 #[cfg(feature = "dalek-provider")]
 extern crate sha2;
+#[cfg(feature = "sodiumoxide-provider")]
+extern crate sodiumoxide;
 #[cfg(feature = "ring-provider")]
 extern crate untrusted;
 #[cfg(feature = "yubihsm-provider")]

@@ -1,50 +1,59 @@
-//! Digital signature (i.e. Ed25519) provider for *ring*
+//! Digital signature (i.e. Ed25519) provider for *sodiumoxide*
 
-use ring;
-use ring::signature::Ed25519KeyPair;
-use untrusted;
+use sodiumoxide::crypto::sign::ed25519 as sodiumoxide_ed25519;
+use sodiumoxide::crypto::sign::ed25519::{SecretKey, Seed};
 
 use error::{Error, ErrorKind};
 use ed25519::{PublicKey, Signature, Signer, Verifier, SEED_SIZE};
 
 /// Ed25519 signature provider for *ring*
-pub struct RingSigner(Ed25519KeyPair);
+pub struct SodiumOxideSigner {
+    secret_key: SecretKey,
+    public_key: PublicKey,
+}
 
-impl RingSigner {
-    /// Create a new RingSigner from an unexpanded seed value
+impl SodiumOxideSigner {
+    /// Create a new SodiumOxideSigner from an unexpanded seed value
     pub fn from_seed(seed: &[u8]) -> Result<Self, Error> {
         if seed.len() != SEED_SIZE {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(RingSigner(
-            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed)).unwrap(),
-        ))
+        let (public_key, secret_key) =
+            sodiumoxide_ed25519::keypair_from_seed(&Seed::from_slice(seed).unwrap());
+
+        Ok(Self {
+            secret_key,
+            public_key: PublicKey::from_bytes(&public_key.0).unwrap(),
+        })
     }
 }
 
-impl Signer for RingSigner {
+impl Signer for SodiumOxideSigner {
     fn public_key(&self) -> Result<PublicKey, Error> {
-        Ok(PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
+        Ok(self.public_key.clone())
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
-        Ok(Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
+        let signature = sodiumoxide_ed25519::sign_detached(msg, &self.secret_key);
+        Ok(Signature::from_bytes(&signature.0).unwrap())
     }
 }
 
-/// Ed25519 verifier provider for *ring*
+/// Ed25519 verifier provider for *sodiumoxide*
 #[derive(Clone)]
-pub struct RingVerifier {}
+pub struct SodiumOxideVerifier {}
 
-impl Verifier for RingVerifier {
+impl Verifier for SodiumOxideVerifier {
     fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
-        ring::signature::verify(
-            &ring::signature::ED25519,
-            untrusted::Input::from(key.as_bytes()),
-            untrusted::Input::from(msg),
-            untrusted::Input::from(signature.as_bytes()),
-        ).map_err(|_| ErrorKind::SignatureInvalid.into())
+        let pk = sodiumoxide_ed25519::PublicKey::from_slice(key.as_bytes()).unwrap();
+        let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
+
+        if sodiumoxide_ed25519::verify_detached(&sig, msg, &pk) {
+            Ok(())
+        } else {
+            Err(ErrorKind::SignatureInvalid.into())
+        }
     }
 }
 
@@ -54,12 +63,12 @@ mod tests {
 
     use error::ErrorKind;
     use ed25519::{PublicKey, Signature, Signer, Verifier, TEST_VECTORS};
-    use super::{RingSigner, RingVerifier};
+    use super::{SodiumOxideSigner, SodiumOxideVerifier};
 
     #[test]
     fn sign_rfc8032_test_vectors() {
         for vector in TEST_VECTORS {
-            let mut signer = RingSigner::from_seed(vector.sk).expect("decode error");
+            let mut signer = SodiumOxideSigner::from_seed(vector.sk).expect("decode error");
             assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
         }
     }
@@ -70,7 +79,7 @@ mod tests {
             let pk = PublicKey::from_bytes(vector.pk).unwrap();
             let sig = Signature::from_bytes(vector.sig).unwrap();
             assert!(
-                RingVerifier::verify(&pk, vector.msg, &sig).is_ok(),
+                SodiumOxideVerifier::verify(&pk, vector.msg, &sig).is_ok(),
                 "expected signature to verify"
             );
         }
@@ -84,7 +93,7 @@ mod tests {
             let mut tweaked_sig = Vec::from(vector.sig);
             tweaked_sig[0] ^= 0x42;
 
-            let result = RingVerifier::verify(
+            let result = SodiumOxideVerifier::verify(
                 &pk,
                 vector.msg,
                 &Signature::from_bytes(&tweaked_sig).unwrap(),

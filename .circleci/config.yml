@@ -22,7 +22,7 @@ jobs:
           name: clippy
           command: |
             rustup run $RUST_NIGHTLY_VERSION cargo clippy --version
-            rustup run $RUST_NIGHTLY_VERSION cargo clippy --verbose --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION cargo clippy --features=$CARGO_FEATURES
       - run:
           name: build (stable, no default features)
           command: |

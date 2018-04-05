@@ -11,6 +11,10 @@ pub mod dalek;
 #[cfg(feature = "ring-provider")]
 pub mod ring;
 
+/// sodiumoxide (i.e. libsodium) software preovider
+#[cfg(feature = "sodiumoxide-provider")]
+pub mod sodiumoxide;
+
 /// `YubiHSM2` hardware provider
 #[cfg(feature = "yubihsm-provider")]
 pub mod yubihsm;
@@ -20,6 +24,9 @@ pub use self::dalek::{DalekSigner, DalekVerifier};
 
 #[cfg(feature = "ring-provider")]
 pub use self::ring::{RingSigner, RingVerifier};
+
+#[cfg(feature = "sodiumoxide-provider")]
+pub use self::sodiumoxide::{SodiumOxideSigner, SodiumOxideVerifier};
 
 #[cfg(feature = "yubihsm-provider")]
 pub use self::yubihsm::{YubiHSMSession, YubiHSMSigner};
