@@ -1,44 +1,101 @@
 //! Error types
 
-use failure::Context;
+use core::fmt;
+
+#[cfg(feature = "std")]
+use std::error::Error as StdError;
+#[cfg(feature = "std")]
+use std::string::{String, ToString};
 
 /// Error type
 #[derive(Debug)]
 pub struct Error {
-    inner: Context<ErrorKind>,
+    kind: ErrorKind,
+
+    #[cfg(feature = "std")]
+    description: Option<String>,
 }
 
 impl Error {
+    /// Create a new error object with an optional error message
+    #[allow(unused_variables)]
+    pub fn new(kind: ErrorKind, description: Option<&str>) -> Self {
+        Error {
+            kind,
+
+            #[cfg(feature = "std")]
+            description: description.map(|desc| desc.to_string()),
+        }
+    }
+
     /// Obtain the ErrorKind for this Error
     pub fn kind(&self) -> ErrorKind {
-        *self.inner.get_context()
+        self.kind
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.kind.as_str())
+    }
+}
+
+#[cfg(feature = "std")]
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self.description {
+            Some(ref desc) => write!(f, "{}: {}", self.description(), desc),
+            None => write!(f, "{}", self.description()),
+        }
+    }
+}
+
+#[cfg(feature = "std")]
+impl StdError for Error {
+    fn description(&self) -> &str {
+        self.kind.as_str()
     }
 }
 
 impl From<ErrorKind> for Error {
     fn from(kind: ErrorKind) -> Error {
-        Error { inner: kind.into() }
-    }
-}
+        Error {
+            kind,
 
-impl From<Context<ErrorKind>> for Error {
-    fn from(inner: Context<ErrorKind>) -> Error {
-        Error { inner }
+            #[cfg(feature = "std")]
+            description: None,
+        }
     }
 }
 
 /// Kinds of errors
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ErrorKind {
     /// Malformatted or otherwise invalid cryptographic key
-    #[fail(display = "malformed or corrupt cryptographic key")]
     KeyInvalid,
 
     /// Internal error within a cryptographic provider
-    #[fail(display = "error inside cryptographic provider")]
     ProviderError,
 
     /// Signature is not valid
-    #[fail(display = "bad signature")]
     SignatureInvalid,
+}
+
+impl ErrorKind {
+    /// Obtain a string description of an error. Like `description()` but not
+    /// bound to `std`
+    pub fn as_str(&self) -> &str {
+        match *self {
+            ErrorKind::KeyInvalid => "malformed or corrupt cryptographic key",
+            ErrorKind::ProviderError => "error inside cryptographic provider",
+            ErrorKind::SignatureInvalid => "bad signature",
+        }
+    }
+}
+
+impl fmt::Display for ErrorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
 }

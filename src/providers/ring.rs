@@ -1,54 +1,49 @@
-//! Digital signature (i.e. Ed25519) provider for ed25519-dalek
+//! Digital signature (i.e. Ed25519) provider for *ring*
 
 use error::{Error, ErrorKind};
-use ed25519::{PublicKey, Signature, Signer, Verifier};
+use ed25519::{PublicKey, Signature, Signer, Verifier, SEED_SIZE};
 
-use ed25519_dalek::{Keypair, SecretKey};
-use ed25519_dalek::PublicKey as DalekPublicKey;
-use ed25519_dalek::Signature as DalekSignature;
-use sha2::Sha512;
+use ring;
+use ring::signature::Ed25519KeyPair;
+use untrusted;
 
-/// Ed25519 signature provider for ed25519-dalek
-pub struct DalekSigner(Keypair);
+/// Ed25519 signature provider for *ring*
+pub struct RingSigner(Ed25519KeyPair);
 
-impl DalekSigner {
-    /// Create a new DalekSigner from an unexpanded seed value
+impl RingSigner {
+    /// Create a new RingSigner from an unexpanded seed value
     pub fn from_seed(seed: &[u8]) -> Result<Self, Error> {
-        let sk = SecretKey::from_bytes(seed).or(Err(ErrorKind::KeyInvalid))?;
-        let pk = DalekPublicKey::from_secret::<Sha512>(&sk);
+        if seed.len() != SEED_SIZE {
+            return Err(ErrorKind::KeyInvalid.into());
+        }
 
-        Ok(DalekSigner(Keypair {
-            secret: sk,
-            public: pk,
-        }))
+        Ok(RingSigner(
+            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed)).unwrap(),
+        ))
     }
 }
 
-impl Signer for DalekSigner {
+impl Signer for RingSigner {
     fn public_key(&self) -> Result<PublicKey, Error> {
-        Ok(PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
+        Ok(PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
-        Ok(Signature::from_bytes(&self.0.sign::<Sha512>(msg).to_bytes()[..]).unwrap())
+        Ok(Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
     }
 }
 
-/// Ed25519 verifier provider for ed25519-dalek
-pub struct DalekVerifier {}
+/// Ed25519 verifier provider for *ring*
+pub struct RingVerifier {}
 
-impl Verifier for DalekVerifier {
+impl Verifier for RingVerifier {
     fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
-        let sig = DalekSignature::from_bytes(signature.as_ref()).unwrap();
-
-        if DalekPublicKey::from_bytes(&key.bytes)
-            .unwrap()
-            .verify::<Sha512>(msg, &sig)
-        {
-            Ok(())
-        } else {
-            Err(ErrorKind::SignatureInvalid.into())
-        }
+        ring::signature::verify(
+            &ring::signature::ED25519,
+            untrusted::Input::from(key.as_bytes()),
+            untrusted::Input::from(msg),
+            untrusted::Input::from(signature.as_bytes()),
+        ).map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }
 
@@ -58,12 +53,12 @@ mod tests {
 
     use error::ErrorKind;
     use ed25519::{PublicKey, Signature, Signer, Verifier, TEST_VECTORS};
-    use super::{DalekSigner, DalekVerifier};
+    use super::{RingSigner, RingVerifier};
 
     #[test]
     fn sign_rfc8032_test_vectors() {
         for vector in TEST_VECTORS {
-            let mut signer = DalekSigner::from_seed(vector.sk).expect("decode error");
+            let mut signer = RingSigner::from_seed(vector.sk).expect("decode error");
             assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
         }
     }
@@ -74,7 +69,7 @@ mod tests {
             let pk = PublicKey::from_bytes(vector.pk).unwrap();
             let sig = Signature::from_bytes(vector.sig).unwrap();
             assert!(
-                DalekVerifier::verify(&pk, vector.msg, &sig).is_ok(),
+                RingVerifier::verify(&pk, vector.msg, &sig).is_ok(),
                 "expected signature to verify"
             );
         }
@@ -88,7 +83,7 @@ mod tests {
             let mut tweaked_sig = Vec::from(vector.sig);
             tweaked_sig[0] ^= 0x42;
 
-            let result = DalekVerifier::verify(
+            let result = RingVerifier::verify(
                 &pk,
                 vector.msg,
                 &Signature::from_bytes(&tweaked_sig).unwrap(),

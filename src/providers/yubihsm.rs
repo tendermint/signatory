@@ -28,7 +28,7 @@ impl YubiHSMSession {
             password,
             true,
         ).map_err(|e| {
-            e.context(ErrorKind::ProviderError)
+            err!(ProviderError, "{}", e)
         })?));
 
         Ok(YubiHSMSession(arc))
@@ -70,7 +70,7 @@ impl<C: Connector> Signer for YubiHSMSigner<C> {
 
         let pubkey_response = session
             .get_pubkey(self.signing_key_id)
-            .map_err(|e| e.context(ErrorKind::ProviderError))?;
+            .map_err(|e| err!(ProviderError, "{}", e))?;
 
         if pubkey_response.algorithm != Algorithm::EC_ED25519 {
             return Err(ErrorKind::KeyInvalid.into());
@@ -84,7 +84,7 @@ impl<C: Connector> Signer for YubiHSMSigner<C> {
 
         let response = session
             .sign_data_eddsa(self.signing_key_id, msg)
-            .map_err(|e| e.context(ErrorKind::ProviderError))?;
+            .map_err(|e| err!(ProviderError, "{}", e))?;
 
         Ok(Signature::from_bytes(response.signature.as_ref()).unwrap())
     }

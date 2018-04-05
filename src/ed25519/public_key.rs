@@ -2,7 +2,7 @@
 
 use core::marker::PhantomData;
 
-use error::Error;
+use error::{Error, ErrorKind};
 use super::{DefaultVerifier, Signature, Verifier};
 
 /// Size of an Ed25519 public key in bytes (256-bits)
@@ -25,7 +25,7 @@ impl<V: Verifier> PublicKey<V> {
     /// Create an Ed25519 public key from its serialized (compressed Edwards-y) form
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         if bytes.len() != PUBLIC_KEY_SIZE {
-            panic!("public key is incorrect size: {}", bytes.len())
+            return Err(ErrorKind::KeyInvalid.into());
         }
 
         let mut public_key = [0u8; PUBLIC_KEY_SIZE];
