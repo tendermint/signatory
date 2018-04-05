@@ -1,20 +1,14 @@
-//! Providers which implement digital signature algorithms
-//!
-//! This is presently specialized to Ed25519. This API will need to be
-//! redesigned in order to support e.g. ECDSA
+//! Providers are Signatory's plugins/adapters which provide a common
+//! API to digital signature functionality.
 
-/// ed25519-dalek software provider
 #[cfg(feature = "dalek-provider")]
 pub mod dalek;
 
-/// *ring* software provider
 #[cfg(feature = "ring-provider")]
 pub mod ring;
 
-/// sodiumoxide (i.e. libsodium) software preovider
 #[cfg(feature = "sodiumoxide-provider")]
 pub mod sodiumoxide;
 
-/// `YubiHSM2` hardware provider
 #[cfg(feature = "yubihsm-provider")]
 pub mod yubihsm;

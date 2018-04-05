@@ -1,4 +1,10 @@
-//! yubihsm-rs provider
+//! yubihsm-rs provider: supports Ed25519 signing
+//!
+//! `YubiHSM2` devices are relatively inexpensive hardware security modules
+//! (HSMs) which natively implement the Ed25519 digital signature algorithm.
+//!
+//! This provider enables performing Ed25519 signatures with a hardware-backed
+//! signature key.
 
 use std::sync::{Arc, Mutex};
 use yubihsm::Session as YubiHSMSession;
