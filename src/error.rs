@@ -32,9 +32,13 @@ impl From<Context<ErrorKind>> for Error {
 pub enum ErrorKind {
     /// Malformatted or otherwise invalid cryptographic key
     #[fail(display = "malformed or corrupt cryptographic key")]
-    InvalidKey,
+    KeyInvalid,
 
     /// Internal error within a cryptographic provider
     #[fail(display = "error inside cryptographic provider")]
     ProviderError,
+
+    /// Signature is not valid
+    #[fail(display = "bad signature")]
+    SignatureInvalid,
 }

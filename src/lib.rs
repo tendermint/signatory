@@ -7,7 +7,7 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(html_root_url = "https://docs.rs/yubihsm/0.3.2")]
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", test))]
 extern crate std;
 
 #[cfg(feature = "dalek-provider")]

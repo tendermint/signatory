@@ -73,10 +73,10 @@ impl<C: Connector> Signer for YubiHSMSigner<C> {
             .map_err(|e| e.context(ErrorKind::ProviderError))?;
 
         if pubkey_response.algorithm != Algorithm::EC_ED25519 {
-            return Err(ErrorKind::InvalidKey.into());
+            return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(PublicKey::new(pubkey_response.data.as_ref()))
+        Ok(PublicKey::from_bytes(pubkey_response.data.as_ref()).unwrap())
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
@@ -86,14 +86,12 @@ impl<C: Connector> Signer for YubiHSMSigner<C> {
             .sign_data_eddsa(self.signing_key_id, msg)
             .map_err(|e| e.context(ErrorKind::ProviderError))?;
 
-        Ok(Signature::new(response.signature.as_ref()))
+        Ok(Signature::from_bytes(response.signature.as_ref()).unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use ed25519_dalek;
-    use sha2::Sha512;
     use std::sync::{Arc, Mutex};
     use yubihsm::{Algorithm, Capabilities, Domains, ObjectType};
     #[cfg(not(feature = "yubihsm-mockhsm"))]
@@ -171,17 +169,9 @@ mod tests {
             signing_key_id: TEST_SIGNING_KEY_ID,
         };
 
+        let public_key = signer.public_key().unwrap();
         let signature = signer.sign(TEST_MESSAGE).unwrap();
 
-        let public_key =
-            ed25519_dalek::PublicKey::from_bytes(signer.public_key().unwrap().as_bytes()).unwrap();
-
-        assert!(
-            public_key.verify::<Sha512>(
-                TEST_MESSAGE,
-                &ed25519_dalek::Signature::from_bytes(signature.as_bytes()).unwrap()
-            ),
-            "Ed25519 signature verification failed!"
-        );
+        assert!(public_key.verify(TEST_MESSAGE, &signature).is_ok());
     }
 }

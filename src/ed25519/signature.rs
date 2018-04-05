@@ -2,22 +2,24 @@
 
 use core::fmt;
 
+use error::{Error, ErrorKind};
+
 /// Size of an Ed25519 signature in bytes (512-bits)
 pub const SIGNATURE_SIZE: usize = 64;
 
 /// Ed25519 signatures
-pub struct Signature([u8; SIGNATURE_SIZE]);
+pub struct Signature(pub [u8; SIGNATURE_SIZE]);
 
 impl Signature {
-    #[allow(dead_code)]
-    pub(crate) fn new(bytes: &[u8]) -> Self {
+    /// Create an Ed25519 signature from its serialized byte representation
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         if bytes.len() != SIGNATURE_SIZE {
-            panic!("signature is incorrect size: {}", bytes.len())
+            return Err(ErrorKind::SignatureInvalid.into());
         }
 
         let mut signature = [0u8; SIGNATURE_SIZE];
         signature.copy_from_slice(bytes);
-        Signature(signature)
+        Ok(Signature(signature))
     }
 
     /// Obtain signature as a byte array reference

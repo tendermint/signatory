@@ -22,9 +22,10 @@ sha2 = { version = "0.7", optional = true }
 yubihsm = { version = "0.7", optional = true }
 
 [features]
-dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2"]
+dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2", "verifier"]
 default = ["dalek-provider"]
 std = ["failure/std", "failure_derive/std"]
+verifier = []
 yubihsm-provider = ["std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 
