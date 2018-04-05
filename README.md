@@ -41,7 +41,7 @@ specific providers selected at runtime.
 |--------------------|-----------------|------|--------|----------|---------|-------|
 | `dalek-provider`   | [ed25519-dalek] | Soft | ✅     | ✅       | ✅      | 💚    |
 | `ring-provider`    | [ring]          | Soft | ✅     | ✅       | ⛔️      | 💚    |
-| `yubihsm-provider` | [yubihsm-rs]    | Hard | ✅     | ⛔       | ⛔      | 💔    |
+| `yubihsm-provider` | [yubihsm-rs]    | Hard | ✅     | ⛔️       | ⛔️      | 💔    |
 
 [cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
