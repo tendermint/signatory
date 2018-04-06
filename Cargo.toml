@@ -25,14 +25,14 @@ yubihsm = { version = "0.7", optional = true }
 criterion = "0.2"
 
 [features]
-dalek-provider = ["ed25519-dalek", "sha2", "verifier"]
+dalek-provider = ["ed25519", "ed25519-dalek", "sha2"]
 default = ["dalek-provider"]
+ed25519 = []
 nightly = ["ed25519-dalek/nightly"]
 std = []
-ring-provider = ["ring", "untrusted", "verifier"]
-sodiumoxide-provider = ["sodiumoxide", "verifier"]
-verifier = []
-yubihsm-provider = ["std", "yubihsm"]
+ring-provider = ["ed25519", "ring", "untrusted"]
+sodiumoxide-provider = ["ed25519", "sodiumoxide"]
+yubihsm-provider = ["ed25519", "std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 
 [package.metadata.docs.rs]

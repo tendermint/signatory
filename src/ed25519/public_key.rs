@@ -5,6 +5,7 @@ use core::marker::PhantomData;
 
 use error::{Error, ErrorKind};
 use super::{DefaultVerifier, Signature, Verifier};
+use util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 public key in bytes (256-bits)
 pub const PUBLIC_KEY_SIZE: usize = 32;
@@ -24,13 +25,16 @@ where
 
 impl<V: Verifier> PublicKey<V> {
     /// Create an Ed25519 public key from its serialized (compressed Edwards-y) form
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
-        if bytes.len() != PUBLIC_KEY_SIZE {
+    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
+    where
+        B: AsRef<[u8]>,
+    {
+        if bytes.as_ref().len() != PUBLIC_KEY_SIZE {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
         let mut public_key = [0u8; PUBLIC_KEY_SIZE];
-        public_key.copy_from_slice(bytes);
+        public_key.copy_from_slice(bytes.as_ref());
         Ok(Self {
             bytes: public_key,
             verifier: PhantomData,
@@ -65,15 +69,7 @@ impl<V: Verifier> AsRef<[u8]> for PublicKey<V> {
 impl<V: Verifier> fmt::Debug for PublicKey<V> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ed25519::PublicKey(")?;
-
-        for (i, byte) in self.bytes.iter().enumerate() {
-            write!(f, "{:02x}", byte)?;
-
-            if i != self.bytes.len() - 1 {
-                write!(f, ":")?;
-            }
-        }
-
+        fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
     }
 }
