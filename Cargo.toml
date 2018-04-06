@@ -14,7 +14,6 @@ keywords    = ["crypto", "cryptography", "no_std", "security", "signatures"]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-curve25519-dalek = { version = "0.16", optional = true, default-features = false }
 ed25519-dalek = { version = "0.6", optional = true, default-features = false, features = ["sha2"] }
 ring = { version = "0.12", optional = true }
 sha2 = { version = "0.7", optional = true }
@@ -26,9 +25,9 @@ yubihsm = { version = "0.7", optional = true }
 criterion = "0.2"
 
 [features]
-dalek-provider = ["curve25519-dalek", "ed25519-dalek", "sha2", "verifier"]
+dalek-provider = ["ed25519-dalek", "sha2", "verifier"]
 default = ["dalek-provider"]
-nightly = ["curve25519-dalek/nightly", "ed25519-dalek/nightly"]
+nightly = ["ed25519-dalek/nightly"]
 std = []
 ring-provider = ["ring", "untrusted", "verifier"]
 sodiumoxide-provider = ["sodiumoxide", "verifier"]
