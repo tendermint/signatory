@@ -23,16 +23,11 @@ pub struct Session(Arc<Mutex<YubiHSMSession>>);
 impl Session {
     /// Create a new session with the YubiHSM
     pub fn new(connector_url: &str, auth_key_id: KeyId, password: &str) -> Result<Self, Error> {
-        let arc = Arc::new(Mutex::new(YubiHSMSession::create_from_password(
-            connector_url,
-            auth_key_id,
-            password,
-            true,
-        ).map_err(|e| {
-            err!(ProviderError, "{}", e)
-        })?));
+        let session =
+            YubiHSMSession::create_from_password(connector_url, auth_key_id, password, true)
+                .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        Ok(Session(arc))
+        Ok(Session(Arc::new(Mutex::new(session))))
     }
 
     /// Create an Ed25519 signer which uses this session
