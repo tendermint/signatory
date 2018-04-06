@@ -31,7 +31,7 @@ impl Ed25519Signer {
 
 impl Signer for Ed25519Signer {
     fn public_key(&self) -> Result<PublicKey, Error> {
-        Ok(self.public_key.clone())
+        Ok(self.public_key)
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
