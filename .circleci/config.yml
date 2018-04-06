@@ -7,7 +7,7 @@ jobs:
     environment:
       # NOTE: RUST_NIGHTLY_VERSION is set in the Dockerfile
       - RUSTFLAGS: -C target-feature=+aes
-      - CARGO_FEATURES: dalek-provider,ring-provider,yubihsm-mockhsm
+      - CARGO_FEATURES: dalek-provider,sodiumoxide-provider,ring-provider,yubihsm-mockhsm
 
     steps:
       - checkout
