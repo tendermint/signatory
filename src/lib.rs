@@ -4,8 +4,10 @@
 //! verifying elliptic curve digital signatures, using either software-based
 //! or hardware-based providers.
 //!
-//! Ed25519 ([RFC 8032]) is presently the only digital signature algorithm supported
+//! ECDSA ([FIPS 186-4]) and Ed25519 ([RFC 8032]) are the supported digital
+//! signature algorithms.
 //!
+//! [FIPS 186-4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 //! [RFC 8032]: https://tools.ietf.org/html/rfc8032
 //!
 //! There are several backend providers available, which need to be enabled
@@ -16,11 +18,14 @@
 //!   ed25519-dalek crate. This provider is enabled-by-default.
 //! * `ring-provider`: Ed25519 signing/verification with the *ring*
 //!   cryptography library.
+//! * `secp256k1-provider`: ECDSA signing/verification for the secp256k1
+//!    elliptic curve (commonly used by Bitcoin and other cryptocurrrencies)
+//!    which wraps the libsecp256k1 library from Bitcoin Core.
 //! * `sodiumoxide-provider`: Ed25519 signing/verification with the
 //!   sodiumoxide crate, a Rust wrapper for libsodium (NOTE: requires
 //!   libsodium to be installed on the system)
-//! * `yubihsm-provider`: Ed25519 signing-only using private keys stored in
-//!   a `YubiHSM2` hardware device, via the yubihsm-rs crate.
+//! * `yubihsm-provider`: Ed25519 signing-only provider using private keys
+//!   stored in a `YubiHSM2` hardware device, via the yubihsm-rs crate.
 
 #![crate_name = "signatory"]
 #![crate_type = "lib"]
@@ -35,8 +40,12 @@ extern crate std;
 
 #[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
+#[cfg(feature = "ecdsa")]
+pub extern crate generic_array;
 #[cfg(feature = "ring-provider")]
 extern crate ring;
+#[cfg(feature = "secp256k1-provider")]
+extern crate secp256k1;
 #[cfg(feature = "sha2")]
 extern crate sha2;
 #[cfg(feature = "sodiumoxide-provider")]
@@ -49,6 +58,8 @@ extern crate yubihsm;
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "ecdsa")]
+pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]
 pub mod ed25519;
