@@ -7,6 +7,10 @@ mod signature;
 mod signer;
 mod verifier;
 
+#[cfg(test)]
+#[macro_use]
+mod test_macros;
+
 /// RFC 8032 Ed25519 test vectors
 mod test_vectors;
 
@@ -15,6 +19,6 @@ pub const SEED_SIZE: usize = 32;
 
 pub use self::public_key::{PublicKey, PUBLIC_KEY_SIZE};
 pub use self::signature::{Signature, SIGNATURE_SIZE};
-pub use self::signer::Signer;
+pub use self::signer::{FromSeed, Signer};
 pub use self::verifier::{DefaultVerifier, Verifier};
 pub use self::test_vectors::TEST_VECTORS;

@@ -50,7 +50,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(PublicKey::from_bytes(pubkey_response.data.as_ref()).unwrap())
+        Ok(PublicKey::from_bytes(&pubkey_response.data).unwrap())
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
@@ -60,7 +60,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
             .sign_data_eddsa(self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        Ok(Signature::from_bytes(response.signature.as_ref()).unwrap())
+        Ok(Signature::from_bytes(&response.signature).unwrap())
     }
 }
 

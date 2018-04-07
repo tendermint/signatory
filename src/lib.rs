@@ -37,7 +37,7 @@ extern crate std;
 extern crate ed25519_dalek;
 #[cfg(feature = "ring-provider")]
 extern crate ring;
-#[cfg(feature = "dalek-provider")]
+#[cfg(feature = "sha2")]
 extern crate sha2;
 #[cfg(feature = "sodiumoxide-provider")]
 extern crate sodiumoxide;
@@ -49,9 +49,12 @@ extern crate yubihsm;
 #[macro_use]
 mod macros;
 
+#[cfg(feature = "ed25519")]
+#[macro_use]
 pub mod ed25519;
 pub mod error;
 pub mod providers;
 pub mod test_vector;
+mod util;
 
 pub use error::Error;

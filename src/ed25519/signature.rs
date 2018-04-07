@@ -3,22 +3,27 @@
 use core::fmt;
 
 use error::{Error, ErrorKind};
+use util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 signature in bytes (512-bits)
 pub const SIGNATURE_SIZE: usize = 64;
 
 /// Ed25519 signatures
+#[derive(Clone)]
 pub struct Signature(pub [u8; SIGNATURE_SIZE]);
 
 impl Signature {
     /// Create an Ed25519 signature from its serialized byte representation
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
-        if bytes.len() != SIGNATURE_SIZE {
+    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
+    where
+        B: AsRef<[u8]>,
+    {
+        if bytes.as_ref().len() != SIGNATURE_SIZE {
             return Err(ErrorKind::SignatureInvalid.into());
         }
 
         let mut signature = [0u8; SIGNATURE_SIZE];
-        signature.copy_from_slice(bytes);
+        signature.copy_from_slice(bytes.as_ref());
         Ok(Signature(signature))
     }
 
@@ -44,15 +49,15 @@ impl AsRef<[u8]> for Signature {
 impl fmt::Debug for Signature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ed25519::Signature(")?;
-
-        for (i, byte) in self.0.iter().enumerate() {
-            write!(f, "{:02x}", byte)?;
-
-            if i != self.0.len() - 1 {
-                write!(f, ":")?;
-            }
-        }
-
+        fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
     }
 }
+
+impl PartialEq for Signature {
+    fn eq(&self, other: &Self) -> bool {
+        self.0[..] == other.0[..]
+    }
+}
+
+impl Eq for Signature {}
