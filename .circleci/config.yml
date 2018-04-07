@@ -7,7 +7,7 @@ jobs:
     environment:
       # NOTE: RUST_NIGHTLY_VERSION is set in the Dockerfile
       - RUSTFLAGS: -C target-feature=+aes
-      - CARGO_FEATURES: dalek-provider,sodiumoxide-provider,ring-provider,yubihsm-mockhsm
+      - CARGO_FEATURES: dalek-provider,ring-provider,secp256k1-provider,sodiumoxide-provider,yubihsm-mockhsm
 
     steps:
       - checkout
@@ -24,11 +24,11 @@ jobs:
             rustup run $RUST_NIGHTLY_VERSION cargo clippy --version
             rustup run $RUST_NIGHTLY_VERSION cargo clippy --features=$CARGO_FEATURES
       - run:
-          name: build (stable, no default features)
+          name: build (stable, no default features + ecdsa + ed25519)
           command: |
             rustc --version --verbose
             cargo --version --verbose
-            cargo build --no-default-features
+            cargo build --no-default-features --features=ecdsa,ed25519
       - run:
           name: build (stable, default features only)
           command: |

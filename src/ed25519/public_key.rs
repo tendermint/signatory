@@ -3,7 +3,7 @@
 use core::fmt;
 use core::marker::PhantomData;
 
-use error::{Error, ErrorKind};
+use error::Error;
 use super::{DefaultVerifier, Signature, Verifier};
 use util::fmt_colon_delimited_hex;
 
@@ -29,9 +29,13 @@ impl<V: Verifier> PublicKey<V> {
     where
         B: AsRef<[u8]>,
     {
-        if bytes.as_ref().len() != PUBLIC_KEY_SIZE {
-            return Err(ErrorKind::KeyInvalid.into());
-        }
+        ensure!(
+            bytes.as_ref().len() == PUBLIC_KEY_SIZE,
+            KeyInvalid,
+            "expected {}-byte key (got {})",
+            PUBLIC_KEY_SIZE,
+            bytes.as_ref().len()
+        );
 
         let mut public_key = [0u8; PUBLIC_KEY_SIZE];
         public_key.copy_from_slice(bytes.as_ref());

@@ -7,6 +7,9 @@ pub mod dalek;
 #[cfg(feature = "ring-provider")]
 pub mod ring;
 
+#[cfg(feature = "secp256k1-provider")]
+pub mod secp256k1;
+
 #[cfg(feature = "sodiumoxide-provider")]
 pub mod sodiumoxide;
 

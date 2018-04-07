@@ -13,18 +13,21 @@
 [build-link]: https://circleci.com/gh/tendermint/signatory
 [license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
 
-A pure Rust multi-provider digital signature library which provides a
-thread-safe and object-safe API.
+A pure Rust multi-provider digital signature library with support for elliptic
+curve digital signature algorithms, namely ECDSA (described in [FIPS 186-4])
+and Ed25519 (described in [RFC 8032]).
 
-Presently implements the Ed25519 elliptic curve public-key signature system
-described in [RFC 8032] with software ([ed25519-dalek], [ring], [sodiumoxide])
-and hardware ([yubihsm-rs]) providers available.
+Signatory provides a thread-safe and object-safe API and implements providers
+for many popular Rust crates, including [ed25519-dalek], [secp256k1], [ring],
+and [sodiumoxide].
 
 [Documentation](https://docs.rs/signatory/)
 
+[FIPS 186-4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 [ring]: https://github.com/briansmith/ring
+[secp256k1]: https://github.com/rust-bitcoin/rust-secp256k1/
 [sodiumoxide]: https://github.com/dnaq/sodiumoxide
 [yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 
@@ -36,17 +39,28 @@ specific providers selected at runtime.
 
 ## Provider Support
 
+Signatory includes the following providers, which can be enabled by selecting
+the corresponding [cargo feature] for a given crate:
+
+### ECDSA providers
+
+| [Cargo Feature]      | Crate          | Type | Curve(s)  |
+|----------------------|----------------|------|-----------| 
+| `secp256k1-provider` | [secp256k1-rs] | Soft | secp256k1 |
+
 ### Ed25519 providers
 
 | [Cargo Feature]        | Crate           | Type | Signing | Verification |
 |------------------------|-----------------|------|---------|--------------|
-| `dalek-provider`       | [ed25519-dalek] | Soft | 43 k/s  | 17 k/s       |
+| `dalek-provider`†      | [ed25519-dalek] | Soft | 43 k/s  | 17 k/s       |
 | `ring-provider`        | [ring]          | Soft | 31 k/s  | 10 k/s       |
 | `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 14 k/s       |
 | `yubihsm-provider`     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
 
 Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @
 3.30GHz with the `nightly` cargo feature enabled.
+
+† NOTE: enabled by default
 
 [cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 

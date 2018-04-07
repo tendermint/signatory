@@ -2,7 +2,7 @@
 
 use core::fmt;
 
-use error::{Error, ErrorKind};
+use error::Error;
 use util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 signature in bytes (512-bits)
@@ -18,9 +18,13 @@ impl Signature {
     where
         B: AsRef<[u8]>,
     {
-        if bytes.as_ref().len() != SIGNATURE_SIZE {
-            return Err(ErrorKind::SignatureInvalid.into());
-        }
+        ensure!(
+            bytes.as_ref().len() == SIGNATURE_SIZE,
+            KeyInvalid,
+            "expected {}-byte signature (got {})",
+            SIGNATURE_SIZE,
+            bytes.as_ref().len()
+        );
 
         let mut signature = [0u8; SIGNATURE_SIZE];
         signature.copy_from_slice(bytes.as_ref());
