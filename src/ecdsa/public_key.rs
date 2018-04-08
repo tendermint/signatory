@@ -6,6 +6,9 @@ use generic_array::GenericArray;
 use generic_array::typenum::Unsigned;
 
 use error::Error;
+#[cfg(feature = "std")]
+use super::DERSignature;
+use super::{RawSignature, Verifier};
 use super::curve::WeierstrassCurve;
 use util::fmt_colon_delimited_hex;
 
@@ -49,6 +52,27 @@ impl<C: WeierstrassCurve> PublicKey<C> {
     #[inline]
     pub fn into_bytes(self) -> GenericArray<u8, C::PublicKeySize> {
         self.bytes
+    }
+
+    /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature
+    #[inline]
+    pub fn verify_sha2_raw_signature(
+        &self,
+        msg: &[u8],
+        signature: &RawSignature<C>,
+    ) -> Result<(), Error> {
+        C::DefaultSignatureVerifier::verify_sha2_raw_signature(self, msg, signature)
+    }
+
+    /// Verify an ASN.1 DER-encoded ECDSA signature
+    #[cfg(feature = "std")]
+    #[inline]
+    pub fn verify_sha2_der_signature(
+        &self,
+        msg: &[u8],
+        signature: &DERSignature<C>,
+    ) -> Result<(), Error> {
+        C::DefaultSignatureVerifier::verify_sha2_der_signature(self, msg, signature)
     }
 }
 

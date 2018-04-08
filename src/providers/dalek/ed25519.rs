@@ -39,13 +39,11 @@ impl Signer for Ed25519Signer {
 pub struct Ed25519Verifier {}
 
 impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+        let pk = DalekPublicKey::from_bytes(key.as_ref()).unwrap();
         let sig = DalekSignature::from_bytes(signature.as_ref()).unwrap();
 
-        if DalekPublicKey::from_bytes(&key.bytes)
-            .unwrap()
-            .verify::<Sha512>(msg, &sig)
-        {
+        if pk.verify::<Sha512>(msg, &sig) {
             Ok(())
         } else {
             Err(ErrorKind::SignatureInvalid.into())

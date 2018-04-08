@@ -12,9 +12,11 @@
 
 use test_vector::TestVector;
 
-/// secp256k1 ECDSA test vectors (from the Python Cryptography library)
-pub const TEST_VECTORS: &[TestVector] = &[
-    // TODO: actually test against these vectors!
+/// secp256k1 raw ECDSA test vectors (from the Python Cryptography library)
+// TODO: mark these as pub when we have a well-vetted set of test vectors
+#[allow(dead_code)]
+pub(crate) const RAW_TEST_VECTORS: &[TestVector] = &[
+    // TODO: verify the conversions of these vectors from the upstream ones are correct and actually test against them
     TestVector {
         sk: b"\x13\x1c\xa4\xe5\x81\x12\x67\xfa\x90\xfc\x63\x1d\x62\x98\xc2\xd7\xa4\xec\xcc\xc4\x5c\xc6\x0d\x37\x8e\x06\x60\xb6\x1f\x82\xfe\x8d",
         pk: b"\xcf\x5a\xcf\x8e\xd3\xe0\xbb\xf7\x35\x30\x8c\xc4\x15\x60\x4b\xd3\x4a\xb8\xf7\xfc\x8b\x4a\x22\x74\x11\x17\xa7\xfb\xc7\x2a\x79\x49",

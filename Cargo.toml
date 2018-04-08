@@ -16,6 +16,7 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 ed25519-dalek = { version = "0.6", optional = true, default-features = false, features = ["sha2"] }
 generic-array = { version = "0.9", optional = true }
+lazy_static = { version = "1", optional = true }
 ring = { version = "0.12", optional = true }
 secp256k1 = { version = "0.9", optional = true }
 sha2 = { version = "0.7", optional = true }
@@ -34,7 +35,7 @@ ed25519 = []
 nightly = ["ed25519-dalek/nightly"]
 std = []
 ring-provider = ["ed25519", "ring", "untrusted"]
-secp256k1-provider = ["ecdsa", "secp256k1", "sha2", "std"]
+secp256k1-provider = ["ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
 sodiumoxide-provider = ["ed25519", "sodiumoxide"]
 yubihsm-provider = ["ed25519", "std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]

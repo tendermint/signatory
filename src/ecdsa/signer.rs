@@ -8,7 +8,8 @@ use super::DERSignature;
 use super::{PublicKey, RawSignature};
 use super::curve::WeierstrassCurve;
 
-/// Sign a message the same size as the curve's field
+/// Sign a raw message the same size as the curve's field (i.e. without first
+/// computing a SHA-2 digest of the message)
 pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Sync {
     /// Compute a compact, fixed-width signature of a fixed-sized message
     /// whose length matches the size of the curve's field.
@@ -31,7 +32,7 @@ pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Sync {
 /// When using this trait, the message will first be hashed using the SHA-2
 /// function whose digest size matches the size of the elliptic curve's field.
 ///
-/// Support is not (yet) provided for mixing and matching curve and
+/// NOTE: Support is not (yet) provided for mixing and matching curve and
 /// digest sizes. If you are interested in this, please open an issue.
 pub trait Signer<C: WeierstrassCurve>: Sync {
     /// Obtain the public key which identifies this signer

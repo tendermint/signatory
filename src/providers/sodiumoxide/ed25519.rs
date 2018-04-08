@@ -49,7 +49,7 @@ impl Signer for Ed25519Signer {
 pub struct Ed25519Verifier {}
 
 impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {
         let pk = sodiumoxide_ed25519::PublicKey::from_slice(key.as_bytes()).unwrap();
         let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
 
