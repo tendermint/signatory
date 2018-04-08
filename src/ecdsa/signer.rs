@@ -8,25 +8,6 @@ use super::DERSignature;
 use super::{PublicKey, RawSignature};
 use super::curve::WeierstrassCurve;
 
-/// Sign a raw message the same size as the curve's field (i.e. without first
-/// computing a SHA-2 digest of the message)
-pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Sync {
-    /// Compute a compact, fixed-width signature of a fixed-sized message
-    /// whose length matches the size of the curve's field.
-    fn sign_fixed_raw(
-        &self,
-        msg: &GenericArray<u8, C::PrivateKeySize>,
-    ) -> Result<RawSignature<C>, Error>;
-
-    /// Compute an ASN.1 DER encoded signature of a fixed-sized message
-    /// whose length matches the size of the curve's field.
-    #[cfg(feature = "std")]
-    fn sign_fixed_der(
-        &self,
-        msg: &GenericArray<u8, C::PrivateKeySize>,
-    ) -> Result<DERSignature<C>, Error>;
-}
-
 /// Trait for ECDSA signers (object safe)
 ///
 /// When using this trait, the message will first be hashed using the SHA-2
@@ -46,4 +27,23 @@ pub trait Signer<C: WeierstrassCurve>: Sync {
     /// of the given message.
     #[cfg(feature = "std")]
     fn sign_sha2_der(&self, msg: &[u8]) -> Result<DERSignature<C>, Error>;
+}
+
+/// Sign a raw message the same size as the curve's field (i.e. without first
+/// computing a SHA-2 digest of the message)
+pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Sync {
+    /// Compute a compact, fixed-width signature of a fixed-sized message
+    /// whose length matches the size of the curve's field.
+    fn sign_fixed_raw(
+        &self,
+        msg: &GenericArray<u8, C::PrivateKeySize>,
+    ) -> Result<RawSignature<C>, Error>;
+
+    /// Compute an ASN.1 DER encoded signature of a fixed-sized message
+    /// whose length matches the size of the curve's field.
+    #[cfg(feature = "std")]
+    fn sign_fixed_der(
+        &self,
+        msg: &GenericArray<u8, C::PrivateKeySize>,
+    ) -> Result<DERSignature<C>, Error>;
 }

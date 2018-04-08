@@ -11,27 +11,6 @@ use super::DERSignature;
 use super::{PublicKey, RawSignature};
 use super::curve::WeierstrassCurve;
 
-/// Verify a raw message the same size as the curve's field (i.e. without first
-/// computing a SHA-2 digest of the message)
-pub trait FixedSizeInputVerifier<C: WeierstrassCurve>: Verifier<C> + Sync {
-    /// Verify a compact, fixed-width signature of a fixed-sized message
-    /// whose length matches the size of the curve's field.
-    fn verify_fixed_raw_signature(
-        key: &PublicKey<C>,
-        msg: &GenericArray<u8, C::PrivateKeySize>,
-        signature: &RawSignature<C>,
-    ) -> Result<(), Error>;
-
-    /// Verify an ASN.1 DER encoded signature of a fixed-sized message
-    /// whose length matches the size of the curve's field.
-    #[cfg(feature = "std")]
-    fn verify_fixed_der_signature(
-        key: &PublicKey<C>,
-        msg: &GenericArray<u8, C::PrivateKeySize>,
-        signature: &DERSignature<C>,
-    ) -> Result<(), Error>;
-}
-
 /// Verifier for ECDSA signatures which first hashes the input message using
 /// the SHA-2 function whose digest matches the size of the elliptic curve's
 /// field.
@@ -54,6 +33,27 @@ where
     fn verify_sha2_der_signature(
         key: &PublicKey<C>,
         msg: &[u8],
+        signature: &DERSignature<C>,
+    ) -> Result<(), Error>;
+}
+
+/// Verify a raw message the same size as the curve's field (i.e. without first
+/// computing a SHA-2 digest of the message)
+pub trait FixedSizeInputVerifier<C: WeierstrassCurve>: Verifier<C> + Sync {
+    /// Verify a compact, fixed-width signature of a fixed-sized message
+    /// whose length matches the size of the curve's field.
+    fn verify_fixed_raw_signature(
+        key: &PublicKey<C>,
+        msg: &GenericArray<u8, C::PrivateKeySize>,
+        signature: &RawSignature<C>,
+    ) -> Result<(), Error>;
+
+    /// Verify an ASN.1 DER encoded signature of a fixed-sized message
+    /// whose length matches the size of the curve's field.
+    #[cfg(feature = "std")]
+    fn verify_fixed_der_signature(
+        key: &PublicKey<C>,
+        msg: &GenericArray<u8, C::PrivateKeySize>,
         signature: &DERSignature<C>,
     ) -> Result<(), Error>;
 }
