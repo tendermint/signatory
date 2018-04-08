@@ -36,7 +36,7 @@ impl Signer for Ed25519Signer {
 
 /// Ed25519 verifier provider for ed25519-dalek
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Ed25519Verifier {}
+pub struct Ed25519Verifier;
 
 impl Verifier for Ed25519Verifier {
     fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {

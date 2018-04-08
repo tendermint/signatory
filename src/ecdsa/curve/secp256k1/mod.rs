@@ -18,7 +18,7 @@ pub(crate) use self::test_vectors::RAW_TEST_VECTORS;
 
 /// The secp256k1 elliptic curve: y² = x³ + 7 over a ~256-bit field
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
-pub struct Secp256k1 {}
+pub struct Secp256k1;
 
 impl WeierstrassCurve for Secp256k1 {
     type PrivateKeySize = U32;

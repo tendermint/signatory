@@ -85,7 +85,7 @@ impl FixedSizeInputSigner<Secp256k1> for ECDSASigner {
 
 /// ECDSA verifier provider for the secp256k1 crate
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct ECDSAVerifier {}
+pub struct ECDSAVerifier;
 
 impl Verifier<Secp256k1> for ECDSAVerifier {
     /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature against the given public key
