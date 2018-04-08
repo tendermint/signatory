@@ -7,6 +7,7 @@ use core::hash::Hash;
 use generic_array::ArrayLength;
 
 pub use self::secp256k1::Secp256k1;
+use super::verifier::Verifier;
 
 /// Elliptic curve in short Weierstrass form suitable for use with ECDSA
 pub trait WeierstrassCurve: Clone + Debug + Default + Hash + Eq + PartialEq + Sync + Sized {
@@ -18,4 +19,7 @@ pub trait WeierstrassCurve: Clone + Debug + Default + Hash + Eq + PartialEq + Sy
 
     /// Size of a compact, fixed-sized signature for this curve
     type RawSignatureSize: ArrayLength<u8>;
+
+    /// Default ECDSA verification provider to use for this curve
+    type DefaultSignatureVerifier: Verifier<Self>;
 }

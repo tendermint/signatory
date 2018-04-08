@@ -51,7 +51,7 @@ impl Signer for Ed25519Signer {
 pub struct Ed25519Verifier {}
 
 impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ring::signature::ED25519,
             untrusted::Input::from(key.as_bytes()),

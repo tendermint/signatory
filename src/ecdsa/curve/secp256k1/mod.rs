@@ -12,7 +12,9 @@ use ecdsa::RawSignature as GenericRawSignature;
 use ecdsa::DERSignature as GenericDERSignature;
 use super::WeierstrassCurve;
 
-pub use self::test_vectors::TEST_VECTORS;
+// TODO: mark these as pub when we have a well-vetted set of test vectors
+#[allow(unused_imports)]
+pub(crate) use self::test_vectors::RAW_TEST_VECTORS;
 
 /// The secp256k1 elliptic curve: y² = x³ + 7 over a ~256-bit field
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
@@ -22,6 +24,12 @@ impl WeierstrassCurve for Secp256k1 {
     type PrivateKeySize = U32;
     type PublicKeySize = U33;
     type RawSignatureSize = U64;
+
+    #[cfg(feature = "secp256k1-provider")]
+    type DefaultSignatureVerifier = ::providers::secp256k1::ECDSAVerifier;
+
+    #[cfg(not(feature = "secp256k1-provider"))]
+    type DefaultSignatureVerifier = ::ecdsa::verifier::PanickingVerifier<Self>;
 }
 
 /// secp256k1 public key

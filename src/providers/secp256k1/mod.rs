@@ -5,4 +5,4 @@
 
 mod ecdsa;
 
-pub use self::ecdsa::ECDSASigner;
+pub use self::ecdsa::{ECDSASigner, ECDSAVerifier};

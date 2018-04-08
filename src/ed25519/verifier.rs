@@ -21,7 +21,7 @@ use super::{PublicKey, Signature};
 /// Verifier for Ed25519 signatures
 pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Sync + Sized {
     /// Verify an Ed25519 signature against the given public key
-    fn verify(key: &PublicKey<Self>, msg: &[u8], signature: &Signature) -> Result<(), Error>;
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error>;
 }
 
 /// A panicking default verifier if no providers have been selected
