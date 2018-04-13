@@ -15,7 +15,7 @@ use super::curve::WeierstrassCurve;
 ///
 /// NOTE: Support is not (yet) provided for mixing and matching curve and
 /// digest sizes. If you are interested in this, please open an issue.
-pub trait Signer<C: WeierstrassCurve>: Send + Sized + Sync {
+pub trait Signer<C: WeierstrassCurve>: Send + Sync {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<PublicKey<C>, Error>;
 
@@ -31,7 +31,7 @@ pub trait Signer<C: WeierstrassCurve>: Send + Sized + Sync {
 
 /// Sign a raw message the same size as the curve's field (i.e. without first
 /// computing a SHA-2 digest of the message)
-pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Send + Sized + Sync {
+pub trait FixedSizeInputSigner<C: WeierstrassCurve>: Send + Sync {
     /// Compute a compact, fixed-width signature of a fixed-sized message
     /// whose length matches the size of the curve's field.
     fn sign_fixed_raw(

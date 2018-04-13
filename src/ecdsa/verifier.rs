@@ -17,7 +17,7 @@ use super::curve::WeierstrassCurve;
 ///
 /// NOTE: Support is not (yet) provided for mixing and matching curve and
 /// digest sizes. If you are interested in this, please open an issue.
-pub trait Verifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sized + Sync
+pub trait Verifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sync
 where
     C: WeierstrassCurve,
 {
@@ -39,7 +39,7 @@ where
 
 /// Verify a raw message the same size as the curve's field (i.e. without first
 /// computing a SHA-2 digest of the message)
-pub trait FixedSizeInputVerifier<C: WeierstrassCurve>: Send + Sized + Sync {
+pub trait FixedSizeInputVerifier<C: WeierstrassCurve>: Send + Sync {
     /// Verify a compact, fixed-width signature of a fixed-sized message
     /// whose length matches the size of the curve's field.
     fn verify_fixed_raw_signature(

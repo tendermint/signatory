@@ -19,7 +19,7 @@ use error::Error;
 use super::{PublicKey, Signature};
 
 /// Verifier for Ed25519 signatures
-pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Send + Sized + Sync {
+pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Send + Sync {
     /// Verify an Ed25519 signature against the given public key
     fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error>;
 }
