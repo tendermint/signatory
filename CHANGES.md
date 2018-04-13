@@ -1,3 +1,22 @@
+## [0.5.0] (2018-04-12)
+
+[0.5.0]: https://github.com/tendermint/signatory/compare/v0.4.1...v0.5.0
+
+* [#27](https://github.com/tendermint/signatory/pull/27)
+  Upgrade to yubihsm-rs 0.8.
+
+* [#26](https://github.com/tendermint/signatory/pull/26)
+  ECDSA verification support.
+
+* [#25](https://github.com/tendermint/signatory/pull/25)
+  ECDSA support with secp256k1 provider.
+
+* [#24](https://github.com/tendermint/signatory/pull/24)
+  Ed25519 FromSeed trait and miscellaneous cleanups.
+
+* [#21](https://github.com/tendermint/signatory/pull/21)
+  Remove unnecessary direct dependency on curve25519-dalek
+
 ## [0.4.1] (2018-04-05)
 
 [0.4.1]: https://github.com/tendermint/signatory/compare/v0.4.0...v0.4.1

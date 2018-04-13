@@ -5,7 +5,7 @@
 [![Build Status][build-image]][build-link]
 ![MIT/Apache2 licensed][license-image]
 
-[crate-image]: https://img.shields.io/crates/v/signatory.svg?maxAge=2592000
+[crate-image]: https://img.shields.io/crates/v/signatory.svg
 [crate-link]: https://crates.io/crates/signatory
 [docs-image]: https://docs.rs/signatory/badge.svg
 [docs-link]: https://docs.rs/signatory/
