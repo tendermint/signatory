@@ -1,3 +1,10 @@
+## [0.5.1] (2018-04-13)
+
+[0.5.1]: https://github.com/tendermint/signatory/compare/v0.5.0...v0.5.1
+
+* [#29](https://github.com/tendermint/signatory/pull/29)
+  Mark all Signers and Verifiers as Send safe.
+
 ## [0.5.0] (2018-04-12)
 
 [0.5.0]: https://github.com/tendermint/signatory/compare/v0.4.1...v0.5.0
