@@ -36,7 +36,7 @@ nightly = ["ed25519-dalek/nightly"]
 std = []
 ring-provider = ["ed25519", "ring", "untrusted"]
 secp256k1-provider = ["ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
-sodiumoxide-provider = ["ed25519", "sodiumoxide"]
+sodiumoxide-provider = ["ed25519", "sodiumoxide", "std"]
 yubihsm-provider = ["ed25519", "std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 

@@ -14,7 +14,7 @@ pub trait FromSeed: Sized {
 }
 
 /// Trait for Ed25519 signers (object-safe)
-pub trait Signer: Sync {
+pub trait Signer: Send + Sized + Sync {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<PublicKey, Error>;
 

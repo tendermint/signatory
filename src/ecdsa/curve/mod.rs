@@ -10,7 +10,9 @@ pub use self::secp256k1::Secp256k1;
 use super::verifier::Verifier;
 
 /// Elliptic curve in short Weierstrass form suitable for use with ECDSA
-pub trait WeierstrassCurve: Clone + Debug + Default + Hash + Eq + PartialEq + Sync + Sized {
+pub trait WeierstrassCurve:
+    Clone + Debug + Default + Hash + Eq + PartialEq + Send + Sized + Sync
+{
     /// Size of a private scalar for this elliptic curve in bytes
     type PrivateKeySize: ArrayLength<u8>;
 
