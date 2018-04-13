@@ -6,7 +6,7 @@ use sodiumoxide::crypto::sign::ed25519::{SecretKey, Seed};
 use error::{Error, ErrorKind};
 use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, SEED_SIZE};
 
-/// Ed25519 signature provider for *ring*
+/// Ed25519 signature provider for *sodiumoxide*
 pub struct Ed25519Signer {
     secret_key: SecretKey,
     public_key: PublicKey,
