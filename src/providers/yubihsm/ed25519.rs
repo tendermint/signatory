@@ -4,7 +4,7 @@
 //! call the appropriate signer methods to obtain signers.
 
 use std::sync::{Arc, Mutex};
-use yubihsm::{Algorithm, Connector, DefaultConnector};
+use yubihsm::{Algorithm, Connector, HttpConnector};
 use yubihsm::Session as YubiHSMSession;
 
 use error::{Error, ErrorKind};
@@ -12,7 +12,7 @@ use ed25519::{PublicKey, Signature, Signer};
 use super::{KeyId, Session};
 
 /// Ed25519 signature provider for yubihsm-client
-pub struct Ed25519Signer<C = DefaultConnector>
+pub struct Ed25519Signer<C = HttpConnector>
 where
     C: Connector,
 {
@@ -23,7 +23,7 @@ where
     signing_key_id: KeyId,
 }
 
-impl Ed25519Signer<DefaultConnector> {
+impl Ed25519Signer<HttpConnector> {
     /// Create a new YubiHSM-backed Ed25519 signer
     pub fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
@@ -75,10 +75,6 @@ mod tests {
 
     use super::{Ed25519Signer, KeyId, Signer};
 
-    /// Default addr/port for yubihsm-connector
-    #[cfg(not(feature = "yubihsm-mockhsm"))]
-    const DEFAULT_CONNECTOR_ADDR: &str = "http://127.0.0.1:12345";
-
     /// Default authentication key identifier
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
 
@@ -108,7 +104,7 @@ mod tests {
         #[cfg(not(feature = "yubihsm-mockhsm"))]
         let session = Arc::new(Mutex::new(
             Session::create_from_password(
-                DEFAULT_CONNECTOR_ADDR,
+                Default::default(),
                 DEFAULT_AUTH_KEY_ID,
                 DEFAULT_PASSWORD,
                 true,

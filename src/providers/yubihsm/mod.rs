@@ -8,6 +8,7 @@
 
 use std::sync::{Arc, Mutex};
 use yubihsm::Session as YubiHSMSession;
+pub use yubihsm::connector::HttpConfig as Config;
 
 mod ed25519;
 
@@ -22,10 +23,9 @@ pub struct Session(Arc<Mutex<YubiHSMSession>>);
 
 impl Session {
     /// Create a new session with the YubiHSM
-    pub fn new(connector_url: &str, auth_key_id: KeyId, password: &str) -> Result<Self, Error> {
-        let session =
-            YubiHSMSession::create_from_password(connector_url, auth_key_id, password, true)
-                .map_err(|e| err!(ProviderError, "{}", e))?;
+    pub fn new(config: Config, auth_key_id: KeyId, password: &str) -> Result<Self, Error> {
+        let session = YubiHSMSession::create_from_password(config, auth_key_id, password, true)
+            .map_err(|e| err!(ProviderError, "{}", e))?;
 
         Ok(Session(Arc::new(Mutex::new(session))))
     }
