@@ -24,33 +24,39 @@ jobs:
       - run:
           name: build (stable, no default features + ecdsa + ed25519)
           command: |
-            rustc --version --verbose
-            cargo --version --verbose
+            rustc --version
+            cargo --version
             cargo build --no-default-features --features=ecdsa,ed25519
       - run:
           name: build (stable, default features only)
           command: |
-            rustc --version --verbose
-            cargo --version --verbose
+            rustc --version
+            cargo --version
             cargo build
       - run:
           name: test (stable, default features only)
           command: |
-            rustc --version --verbose
-            cargo --version --verbose
+            rustc --version
+            cargo --version
             cargo test
       - run:
           name: build (nightly, all features)
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
-            rustup run $RUST_NIGHTLY_VERSION cargo --version --verbose
-            rustup run $RUST_NIGHTLY_VERSION cargo build --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION rustc --version
+            rustup run $RUST_NIGHTLY_VERSION cargo --version
+            rustup run $RUST_NIGHTLY_VERSION cargo build --features=nightly,$CARGO_FEATURES
       - run:
           name: test (nightly, all features)
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version --verbose
-            rustup run $RUST_NIGHTLY_VERSION cargo --version --verbose
-            rustup run $RUST_NIGHTLY_VERSION cargo test --features=$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION rustc --version
+            rustup run $RUST_NIGHTLY_VERSION cargo --version
+            rustup run $RUST_NIGHTLY_VERSION cargo test --features=nightly,$CARGO_FEATURES
+      - run:
+          name: bench (nightly, all features)
+          command: |
+            rustup run $RUST_NIGHTLY_VERSION rustc --version
+            rustup run $RUST_NIGHTLY_VERSION cargo --version
+            rustup run $RUST_NIGHTLY_VERSION cargo bench --features=nightly,$CARGO_FEATURES
       - save_cache:
           key: cache-201804090 # bump restore_cache key above too
           paths:
