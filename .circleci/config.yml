@@ -32,7 +32,7 @@ jobs:
           command: |
             rustc --version
             cargo --version
-            cargo build
+            cargo build --benches --all
       - run:
           name: test (stable, default features only)
           command: |
@@ -44,19 +44,13 @@ jobs:
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
             rustup run $RUST_NIGHTLY_VERSION cargo --version
-            rustup run $RUST_NIGHTLY_VERSION cargo build --features=nightly,$CARGO_FEATURES
+            rustup run $RUST_NIGHTLY_VERSION cargo build --benches --all --features=nightly,$CARGO_FEATURES
       - run:
           name: test (nightly, all features)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
             rustup run $RUST_NIGHTLY_VERSION cargo --version
             rustup run $RUST_NIGHTLY_VERSION cargo test --features=nightly,$CARGO_FEATURES
-      - run:
-          name: bench (nightly, all features)
-          command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version
-            rustup run $RUST_NIGHTLY_VERSION cargo --version
-            rustup run $RUST_NIGHTLY_VERSION cargo bench --features=nightly,$CARGO_FEATURES
       - save_cache:
           key: cache-201804090 # bump restore_cache key above too
           paths:
