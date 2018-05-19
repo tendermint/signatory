@@ -1,3 +1,13 @@
+## [0.5.2] (2018-05-19)
+
+[0.5.2]: https://github.com/tendermint/signatory/compare/v0.5.1...v0.5.2
+
+* [#32](https://github.com/tendermint/signatory/pull/32)
+  Update to yubihsm-rs 0.9.
+
+* [#30](https://github.com/tendermint/signatory/pull/30)
+  Fix benchmarks.
+
 ## [0.5.1] (2018-04-13)
 
 [0.5.1]: https://github.com/tendermint/signatory/compare/v0.5.0...v0.5.1
