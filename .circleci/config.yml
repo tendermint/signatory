@@ -3,24 +3,24 @@ version: 2
 jobs:
   build:
     docker:
-      - image: iqlusion/rust-ci:201804090 # bump cache keys when modifying this
+      - image: iqlusion/rust-ci:20180602.1 # bump cache keys when modifying this
     environment:
       - CARGO_FEATURES: dalek-provider,ring-provider,secp256k1-provider,sodiumoxide-provider,yubihsm-mockhsm
 
     steps:
       - checkout
       - restore_cache:
-           key: cache-201804090 # bump save_cache key below too
+           key: cache-20180602.1 # bump save_cache key below too
       - run:
           name: rustfmt
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustfmt --version
-            rustup run $RUST_NIGHTLY_VERSION cargo fmt -- --write-mode=diff
+            cargo +$RUST_NIGHTLY_VERSION fmt --version
+            cargo +$RUST_NIGHTLY_VERSION fmt -- --check
       - run:
           name: clippy
           command: |
-            rustup run $RUST_NIGHTLY_VERSION cargo clippy --version
-            rustup run $RUST_NIGHTLY_VERSION cargo clippy --features=$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION clippy --version
+            cargo +$RUST_NIGHTLY_VERSION clippy --features=$CARGO_FEATURES
       - run:
           name: build (stable, no default features + ecdsa + ed25519)
           command: |
@@ -43,16 +43,16 @@ jobs:
           name: build (nightly, all features)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
-            rustup run $RUST_NIGHTLY_VERSION cargo --version
-            rustup run $RUST_NIGHTLY_VERSION cargo build --benches --all --features=nightly,$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION --version
+            cargo +$RUST_NIGHTLY_VERSION build --benches --all --features=nightly,$CARGO_FEATURES
       - run:
           name: test (nightly, all features)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
-            rustup run $RUST_NIGHTLY_VERSION cargo --version
-            rustup run $RUST_NIGHTLY_VERSION cargo test --features=nightly,$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION --version
+            cargo +$RUST_NIGHTLY_VERSION test --features=nightly,$CARGO_FEATURES
       - save_cache:
-          key: cache-201804090 # bump restore_cache key above too
+          key: cache-20180602.1 # bump restore_cache key above too
           paths:
             - "~/.cargo"
             - "./target"
