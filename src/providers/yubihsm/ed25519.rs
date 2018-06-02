@@ -4,12 +4,12 @@
 //! call the appropriate signer methods to obtain signers.
 
 use std::sync::{Arc, Mutex};
-use yubihsm::{Algorithm, Connector, HttpConnector};
 use yubihsm::Session as YubiHSMSession;
+use yubihsm::{Algorithm, Connector, HttpConnector};
 
-use error::{Error, ErrorKind};
-use ed25519::{PublicKey, Signature, Signer};
 use super::{KeyId, Session};
+use ed25519::{PublicKey, Signature, Signer};
+use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for yubihsm-client
 pub struct Ed25519Signer<C = HttpConnector>
@@ -67,11 +67,11 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
 #[cfg(test)]
 mod tests {
     use std::sync::{Arc, Mutex};
-    use yubihsm::{Algorithm, Capabilities, Domains, ObjectType};
-    #[cfg(not(feature = "yubihsm-mockhsm"))]
-    use yubihsm::Session;
     #[cfg(feature = "yubihsm-mockhsm")]
     use yubihsm::mockhsm::MockHSM;
+    #[cfg(not(feature = "yubihsm-mockhsm"))]
+    use yubihsm::Session;
+    use yubihsm::{Algorithm, Capabilities, Domains, ObjectType};
 
     use super::{Ed25519Signer, KeyId, Signer};
 

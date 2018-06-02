@@ -2,11 +2,11 @@
 
 use generic_array::GenericArray;
 
-use error::Error;
+use super::curve::WeierstrassCurve;
 #[cfg(feature = "std")]
 use super::DERSignature;
 use super::{PublicKey, RawSignature};
-use super::curve::WeierstrassCurve;
+use error::Error;
 
 /// Trait for ECDSA signers (object safe)
 ///

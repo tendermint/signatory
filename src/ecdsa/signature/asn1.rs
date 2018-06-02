@@ -4,8 +4,8 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::vec::Vec;
 
-use error::Error;
 use ecdsa::curve::WeierstrassCurve;
+use error::Error;
 use util::fmt_colon_delimited_hex;
 
 /// ECDSA signatures serialized as ASN.1 DER

@@ -2,14 +2,14 @@
 
 use core::fmt;
 use core::marker::PhantomData;
-use generic_array::GenericArray;
 use generic_array::typenum::Unsigned;
+use generic_array::GenericArray;
 
-use error::Error;
+use super::curve::WeierstrassCurve;
 #[cfg(feature = "std")]
 use super::DERSignature;
 use super::{RawSignature, Verifier};
-use super::curve::WeierstrassCurve;
+use error::Error;
 use util::fmt_colon_delimited_hex;
 
 /// ECDSA public keys

@@ -2,11 +2,11 @@
 
 use core::fmt;
 use core::marker::PhantomData;
-use generic_array::GenericArray;
 use generic_array::typenum::Unsigned;
+use generic_array::GenericArray;
 
-use error::Error;
 use ecdsa::curve::WeierstrassCurve;
+use error::Error;
 use util::fmt_colon_delimited_hex;
 
 /// ECDSA signatures serialized in a compact, fixed-sized form

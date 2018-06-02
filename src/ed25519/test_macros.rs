@@ -1,10 +1,10 @@
 //! Macro for generating shared tests for all software Ed25519 implementations
 
 macro_rules! ed25519_tests {
-    ($signer: ident, $verifier: ident) => {
-        use std::vec::Vec;
-        use error::ErrorKind;
+    ($signer:ident, $verifier:ident) => {
         use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, TEST_VECTORS};
+        use error::ErrorKind;
+        use std::vec::Vec;
 
         #[test]
         fn sign_rfc8032_test_vectors() {

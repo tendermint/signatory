@@ -2,8 +2,8 @@
 
 use core::fmt;
 
-use error::Error;
 use super::{DefaultVerifier, Signature, Verifier};
+use error::Error;
 use util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 public key in bytes (256-bits)

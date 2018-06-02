@@ -106,38 +106,61 @@ mod sodiumoxide_benches {
 
 // TODO: there has got to be a better way to do this...
 
-#[cfg(all(feature = "dalek-provider", not(feature = "ring-provider"),
-          not(feature = "sodiumoxide-provider")))]
+#[cfg(
+    all(
+        feature = "dalek-provider",
+        not(feature = "ring-provider"),
+        not(feature = "sodiumoxide-provider")
+    )
+)]
 criterion_main!(dalek_benches::dalek_benches);
 
-#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider",
-          not(feature = "sodiumoxide-provider")))]
+#[cfg(
+    all(
+        not(feature = "dalek-provider"),
+        feature = "ring-provider",
+        not(feature = "sodiumoxide-provider")
+    )
+)]
 criterion_main!(ring_benches::ring_benches);
 
-#[cfg(all(not(feature = "dalek-provider"), not(feature = "ring-provider"),
-          feature = "sodiumoxide-provider"))]
+#[cfg(
+    all(
+        not(feature = "dalek-provider"),
+        not(feature = "ring-provider"),
+        feature = "sodiumoxide-provider"
+    )
+)]
 criterion_main!(sodiumoxide_benches::sodiumoxide_benches);
 
-#[cfg(all(feature = "dalek-provider", feature = "ring-provider",
-          not(feature = "sodiumoxide-provider")))]
+#[cfg(
+    all(
+        feature = "dalek-provider", feature = "ring-provider", not(feature = "sodiumoxide-provider")
+    )
+)]
 criterion_main!(dalek_benches::dalek_benches, ring_benches::ring_benches);
 
-#[cfg(all(feature = "dalek-provider", not(feature = "ring-provider"),
-          feature = "sodiumoxide-provider"))]
+#[cfg(
+    all(
+        feature = "dalek-provider", not(feature = "ring-provider"), feature = "sodiumoxide-provider"
+    )
+)]
 criterion_main!(
     dalek_benches::dalek_benches,
     sodiumoxide_benches::sodiumoxide_benches
 );
 
-#[cfg(all(not(feature = "dalek-provider"), feature = "ring-provider",
-          feature = "sodiumoxide-provider"))]
+#[cfg(
+    all(
+        not(feature = "dalek-provider"), feature = "ring-provider", feature = "sodiumoxide-provider"
+    )
+)]
 criterion_main!(
     ring_benches::ring_benches,
     sodiumoxide_benches::sodiumoxide_benches
 );
 
-#[cfg(all(feature = "dalek-provider", feature = "ring-provider",
-          feature = "sodiumoxide-provider"))]
+#[cfg(all(feature = "dalek-provider", feature = "ring-provider", feature = "sodiumoxide-provider"))]
 criterion_main!(
     dalek_benches::dalek_benches,
     ring_benches::ring_benches,

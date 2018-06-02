@@ -7,13 +7,13 @@
 //! signature key.
 
 use std::sync::{Arc, Mutex};
-use yubihsm::Session as YubiHSMSession;
 pub use yubihsm::connector::HttpConfig as Config;
+use yubihsm::Session as YubiHSMSession;
 
 mod ed25519;
 
-use error::Error;
 use self::ed25519::Ed25519Signer;
+use error::Error;
 
 /// Identifiers for keys in the `YubiHSM`
 pub type KeyId = u16;

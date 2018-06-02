@@ -5,11 +5,11 @@ use core::hash::Hash;
 use core::marker::PhantomData;
 use generic_array::GenericArray;
 
-use error::Error;
+use super::curve::WeierstrassCurve;
 #[cfg(feature = "std")]
 use super::DERSignature;
 use super::{PublicKey, RawSignature};
-use super::curve::WeierstrassCurve;
+use error::Error;
 
 /// Verifier for ECDSA signatures which first hashes the input message using
 /// the SHA-2 function whose digest matches the size of the elliptic curve's

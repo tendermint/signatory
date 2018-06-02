@@ -1,12 +1,12 @@
 //! Ed25519 provider for ed25519-dalek
 
-use ed25519_dalek::{Keypair, SecretKey};
 use ed25519_dalek::PublicKey as DalekPublicKey;
 use ed25519_dalek::Signature as DalekSignature;
+use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
-use error::{Error, ErrorKind};
 use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier};
+use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);

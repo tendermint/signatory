@@ -3,8 +3,8 @@
 use sodiumoxide::crypto::sign::ed25519 as sodiumoxide_ed25519;
 use sodiumoxide::crypto::sign::ed25519::{SecretKey, Seed};
 
-use error::{Error, ErrorKind};
 use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, SEED_SIZE};
+use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for *sodiumoxide*
 pub struct Ed25519Signer {
