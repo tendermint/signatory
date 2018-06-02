@@ -4,8 +4,8 @@ use ring;
 use ring::signature::Ed25519KeyPair;
 use untrusted;
 
-use error::{Error, ErrorKind};
 use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, SEED_SIZE};
+use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for *ring*
 pub struct Ed25519Signer(Ed25519KeyPair);

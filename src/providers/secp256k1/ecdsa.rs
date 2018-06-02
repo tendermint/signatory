@@ -1,17 +1,16 @@
-/// ECDSA signer implementation for the secp256k1 crate
-
-use generic_array::GenericArray;
 use generic_array::typenum::U32;
+/// ECDSA signer implementation for the secp256k1 crate
+use generic_array::GenericArray;
+use secp256k1::key::PublicKey as SecpPublicKey;
+use secp256k1::key::SecretKey;
 use secp256k1::Message;
 use secp256k1::Secp256k1 as SecpEngine;
-use secp256k1::key::PublicKey as SecpPublicKey;
 use secp256k1::Signature as SecpSignature;
-use secp256k1::key::SecretKey;
 use sha2::{Digest, Sha256};
 
-pub use ecdsa::{FixedSizeInputSigner, FixedSizeInputVerifier, Signer, Verifier};
 pub use ecdsa::curve::secp256k1::{DERSignature, PublicKey, RawSignature};
 use ecdsa::curve::Secp256k1;
+pub use ecdsa::{FixedSizeInputSigner, FixedSizeInputVerifier, Signer, Verifier};
 use error::Error;
 
 lazy_static! {

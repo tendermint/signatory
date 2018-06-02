@@ -6,11 +6,11 @@ mod test_vectors;
 
 use generic_array::typenum::{U32, U33, U64};
 
-use ecdsa::PublicKey as GenericPublicKey;
-use ecdsa::RawSignature as GenericRawSignature;
+use super::WeierstrassCurve;
 #[cfg(feature = "std")]
 use ecdsa::DERSignature as GenericDERSignature;
-use super::WeierstrassCurve;
+use ecdsa::PublicKey as GenericPublicKey;
+use ecdsa::RawSignature as GenericRawSignature;
 
 // TODO: mark these as pub when we have a well-vetted set of test vectors
 #[allow(unused_imports)]

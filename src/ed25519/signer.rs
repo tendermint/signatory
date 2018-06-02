@@ -1,7 +1,7 @@
 //! Trait for Ed25519 signers
 
-use error::Error;
 use super::{PublicKey, Signature};
+use error::Error;
 
 /// Trait for Ed25519 signers that can be initialized from a seed value
 pub trait FromSeed: Sized {
