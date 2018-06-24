@@ -42,6 +42,7 @@ extern crate std;
 extern crate ed25519_dalek;
 #[cfg(feature = "ecdsa")]
 pub extern crate generic_array;
+extern crate rand;
 #[cfg(feature = "secp256k1-provider")]
 #[macro_use]
 extern crate lazy_static;
