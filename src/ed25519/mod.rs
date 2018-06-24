@@ -19,6 +19,6 @@ pub const SEED_SIZE: usize = 32;
 
 pub use self::public_key::{PublicKey, PUBLIC_KEY_SIZE};
 pub use self::signature::{Signature, SIGNATURE_SIZE};
-pub use self::signer::{FromSeed, Signer};
+pub use self::signer::{FromSeed, KeyGen, Signer};
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::verifier::{DefaultVerifier, Verifier};

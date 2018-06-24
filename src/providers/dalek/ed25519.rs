@@ -1,12 +1,16 @@
 //! Ed25519 provider for ed25519-dalek
 
+use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier};
 use ed25519_dalek::PublicKey as DalekPublicKey;
 use ed25519_dalek::Signature as DalekSignature;
 use ed25519_dalek::{Keypair, SecretKey};
+use error::{Error, ErrorKind};
 use sha2::Sha512;
 
-use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier};
-use error::{Error, ErrorKind};
+#[cfg(feature = "std")]
+use ed25519::{KeyGen, SEED_SIZE};
+#[cfg(feature = "std")]
+use rand::OsRng;
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);
@@ -21,6 +25,19 @@ impl FromSeed for Ed25519Signer {
             secret: sk,
             public: pk,
         }))
+    }
+}
+
+#[cfg(feature = "std")]
+impl KeyGen for Ed25519Signer {
+    // Create a new DalekSigner from random number
+    fn generate_key() -> Self {
+        let mut csprng: OsRng = OsRng::new().unwrap();
+        let kp: Keypair = Keypair::generate::<Sha512>(&mut csprng);
+        Ed25519Signer(kp)
+    }
+    fn seed_as_bytes(&self) -> &[u8; SEED_SIZE] {
+        self.0.secret.as_bytes()
     }
 }
 
