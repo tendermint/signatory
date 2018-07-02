@@ -31,7 +31,6 @@ criterion = "0.2"
 
 [features]
 dalek-provider = ["ed25519", "ed25519-dalek", "sha2"]
-default = ["dalek-provider"]
 ecdsa = ["generic-array"]
 ed25519 = ["clear_on_drop", "rand"]
 nightly = ["clear_on_drop/nightly", "ed25519-dalek/nightly", "yubihsm/nightly"]

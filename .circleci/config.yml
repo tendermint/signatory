@@ -23,17 +23,17 @@ jobs:
             cargo +$RUST_NIGHTLY_VERSION clippy --version
             cargo +$RUST_NIGHTLY_VERSION clippy --all-features
       - run:
-          name: build (--no-default-features + ecdsa + ed25519)
+          name: build (ecdsa feature only)
           command: |
             rustc --version
             cargo --version
-            cargo build --no-default-features --features=ecdsa,ed25519
+            cargo build --features=ecdsa
       - run:
-          name: build (default features)
+          name: build (ed25519 feature only)
           command: |
             rustc --version
             cargo --version
-            cargo build --benches --all
+            cargo build --features=ed25519
       - run:
           name: build (all features except nightly)
           command: |
