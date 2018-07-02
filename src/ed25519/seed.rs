@@ -9,6 +9,9 @@ use error::Error;
 /// Size of the "seed" value for an Ed25519 private key
 pub const SEED_SIZE: usize = 32;
 
+/// Size of an Ed25519 keypair (private scalar + compressed Edwards-y public key)
+pub const KEYPAIR_SIZE: usize = 64;
+
 /// Ed25519 seeds: derivation secrets for Ed25519 private scalars/nonce prefixes
 pub struct Seed(pub(crate) [u8; SEED_SIZE]);
 
@@ -47,6 +50,21 @@ impl Seed {
         bytes.copy_from_slice(slice);
 
         Ok(Seed::new(bytes))
+    }
+
+    /// Create an Ed25519 seed from a keypair: i.e. a seed and its assocaited
+    /// public key (i.e. compressed Edwards-y coordinate)
+    pub fn from_keypair(keypair: &[u8]) -> Result<Self, Error> {
+        ensure!(
+            keypair.len() == KEYPAIR_SIZE,
+            KeyInvalid,
+            "invalid {}-byte keypair (expected {})",
+            keypair.len(),
+            KEYPAIR_SIZE
+        );
+
+        // TODO: ensure public key part of keypair is correct
+        Self::from_slice(&keypair[..SEED_SIZE])
     }
 
     /// Expose the secret values of the `Seed` as a byte slice
