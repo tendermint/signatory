@@ -8,7 +8,7 @@ extern crate criterion;
 extern crate signatory;
 
 use criterion::Criterion;
-use signatory::ed25519::{PublicKey, Signature, TEST_VECTORS};
+use signatory::ed25519::{PublicKey, Seed, Signature, TEST_VECTORS};
 use signatory::test_vector::TestVector;
 
 /// Test vector to use for benchmarking
@@ -21,7 +21,7 @@ mod dalek_benches {
     use signatory::providers::dalek::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
         c.bench_function("dalek: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
@@ -51,7 +51,7 @@ mod ring_benches {
     use signatory::providers::ring::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
         c.bench_function("ring: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
@@ -81,7 +81,7 @@ mod sodiumoxide_benches {
     use signatory::providers::sodiumoxide::{Ed25519Signer, Ed25519Verifier};
 
     fn sign(c: &mut Criterion) {
-        let signer = Ed25519Signer::from_seed(TEST_VECTOR.sk).unwrap();
+        let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
         c.bench_function("sodiumoxide: ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())

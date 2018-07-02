@@ -2,14 +2,15 @@
 
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
-        use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, TEST_VECTORS};
+        use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier, TEST_VECTORS};
         use error::ErrorKind;
         use std::vec::Vec;
 
         #[test]
         fn sign_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
-                let mut signer = $signer::from_seed(vector.sk).expect("decode error");
+                let seed = Seed::from_slice(vector.sk).unwrap();
+                let mut signer = $signer::from_seed(seed);
                 assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
             }
         }

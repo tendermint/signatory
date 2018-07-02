@@ -1,9 +1,10 @@
 //! Digital signature (i.e. Ed25519) provider for *sodiumoxide*
 
 use sodiumoxide::crypto::sign::ed25519 as sodiumoxide_ed25519;
-use sodiumoxide::crypto::sign::ed25519::{SecretKey, Seed};
+use sodiumoxide::crypto::sign::ed25519::SecretKey;
+use sodiumoxide::crypto::sign::ed25519::Seed as SodiumOxideSeed;
 
-use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, SEED_SIZE};
+use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier};
 use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for *sodiumoxide*
@@ -14,22 +15,14 @@ pub struct Ed25519Signer {
 
 impl FromSeed for Ed25519Signer {
     /// Create a new SodiumOxideSigner from an unexpanded seed value
-    fn from_seed(seed: &[u8]) -> Result<Self, Error> {
-        ensure!(
-            seed.len() == SEED_SIZE,
-            KeyInvalid,
-            "expected {}-byte seed (got {})",
-            SEED_SIZE,
-            seed.len()
-        );
+    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+        let sodium_oxide_seed = SodiumOxideSeed::from_slice(&seed.into().0[..]).unwrap();
+        let (public_key, secret_key) = sodiumoxide_ed25519::keypair_from_seed(&sodium_oxide_seed);
 
-        let (public_key, secret_key) =
-            sodiumoxide_ed25519::keypair_from_seed(&Seed::from_slice(seed).unwrap());
-
-        Ok(Self {
+        Self {
             secret_key,
             public_key: PublicKey::from_bytes(&public_key.0).unwrap(),
-        })
+        }
     }
 }
 
