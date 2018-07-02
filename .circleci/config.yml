@@ -3,14 +3,15 @@ version: 2
 jobs:
   build:
     docker:
-      - image: iqlusion/rust-ci:20180602.1 # bump cache keys when modifying this
+      - image: iqlusion/rust-ci:20180626.0 # bump cache keys when modifying this
     environment:
+      # All features except "nightly"
       - CARGO_FEATURES: dalek-provider,ring-provider,secp256k1-provider,sodiumoxide-provider,yubihsm-mockhsm
 
     steps:
       - checkout
       - restore_cache:
-           key: cache-20180602.1 # bump save_cache key below too
+           key: cache-20180626.0 # bump save_cache key below too
       - run:
           name: rustfmt
           command: |
@@ -20,39 +21,45 @@ jobs:
           name: clippy
           command: |
             cargo +$RUST_NIGHTLY_VERSION clippy --version
-            cargo +$RUST_NIGHTLY_VERSION clippy --features=$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION clippy --all-features
       - run:
-          name: build (stable, no default features + ecdsa + ed25519)
+          name: build (--no-default-features + ecdsa + ed25519)
           command: |
             rustc --version
             cargo --version
             cargo build --no-default-features --features=ecdsa,ed25519
       - run:
-          name: build (stable, default features only)
+          name: build (default features)
           command: |
             rustc --version
             cargo --version
             cargo build --benches --all
       - run:
-          name: test (stable, default features only)
+          name: build (all features except nightly)
           command: |
             rustc --version
             cargo --version
-            cargo test
+            cargo build --benches --all --features=$CARGO_FEATURES
       - run:
-          name: build (nightly, all features)
+          name: build (--all-features including nightly)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
             cargo +$RUST_NIGHTLY_VERSION --version
-            cargo +$RUST_NIGHTLY_VERSION build --benches --all --features=nightly,$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION build --benches --all --all-features
       - run:
-          name: test (nightly, all features)
+          name: test (all features except nightly)
+          command: |
+            rustc --version
+            cargo --version
+            cargo test --features=$CARGO_FEATURES
+      - run:
+          name: test (--all-features including nightly)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
             cargo +$RUST_NIGHTLY_VERSION --version
-            cargo +$RUST_NIGHTLY_VERSION test --features=nightly,$CARGO_FEATURES
+            cargo +$RUST_NIGHTLY_VERSION test --all-features
       - save_cache:
-          key: cache-20180602.1 # bump restore_cache key above too
+          key: cache-20180626.0 # bump restore_cache key above too
           paths:
             - "~/.cargo"
             - "./target"
