@@ -38,6 +38,8 @@
 #[macro_use]
 extern crate std;
 
+#[cfg(feature = "ed25519")]
+extern crate clear_on_drop;
 #[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
 #[cfg(feature = "ecdsa")]
@@ -45,6 +47,8 @@ pub extern crate generic_array;
 #[cfg(feature = "secp256k1-provider")]
 #[macro_use]
 extern crate lazy_static;
+#[cfg(feature = "rand")]
+extern crate rand;
 #[cfg(feature = "ring-provider")]
 extern crate ring;
 #[cfg(feature = "secp256k1-provider")]
@@ -59,14 +63,13 @@ extern crate untrusted;
 extern crate yubihsm;
 
 #[macro_use]
-mod macros;
+mod error;
 
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]
 pub mod ed25519;
-pub mod error;
 pub mod providers;
 pub mod test_vector;
 mod util;

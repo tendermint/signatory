@@ -5,7 +5,7 @@ use ed25519_dalek::Signature as DalekSignature;
 use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
-use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier};
+use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier};
 use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -13,14 +13,14 @@ pub struct Ed25519Signer(Keypair);
 
 impl FromSeed for Ed25519Signer {
     /// Create a new DalekSigner from an unexpanded seed value
-    fn from_seed(seed: &[u8]) -> Result<Self, Error> {
-        let sk = SecretKey::from_bytes(seed).or(Err(ErrorKind::KeyInvalid))?;
+    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+        let sk = SecretKey::from_bytes(&seed.into().0[..]).unwrap();
         let pk = DalekPublicKey::from_secret::<Sha512>(&sk);
 
-        Ok(Ed25519Signer(Keypair {
+        Ed25519Signer(Keypair {
             secret: sk,
             public: pk,
-        }))
+        })
     }
 }
 

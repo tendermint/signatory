@@ -4,7 +4,7 @@ use ring;
 use ring::signature::Ed25519KeyPair;
 use untrusted;
 
-use ed25519::{FromSeed, PublicKey, Signature, Signer, Verifier, SEED_SIZE};
+use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier};
 use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for *ring*
@@ -12,17 +12,12 @@ pub struct Ed25519Signer(Ed25519KeyPair);
 
 impl FromSeed for Ed25519Signer {
     /// Create a new Ed25519Signer from an unexpanded seed value
-    fn from_seed(seed: &[u8]) -> Result<Self, Error> {
-        ensure!(
-            seed.len() == SEED_SIZE,
-            KeyInvalid,
-            "expected {}-byte seed (got {})",
-            SEED_SIZE,
-            seed.len()
-        );
+    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+        let keypair = Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(
+            &seed.into().0[..],
+        )).unwrap();
 
-        let keypair = Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed)).unwrap();
-        Ok(Ed25519Signer(keypair))
+        Ed25519Signer(keypair)
     }
 }
 
