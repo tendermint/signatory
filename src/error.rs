@@ -1,5 +1,7 @@
 //! Error types
 
+#![allow(unused_macros)]
+
 use core::fmt;
 
 #[cfg(feature = "std")]
