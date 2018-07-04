@@ -1,5 +1,6 @@
 //! Macro for generating shared tests for all software Ed25519 implementations
 
+#[allow(unused_macros)]
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
         use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier, TEST_VECTORS};

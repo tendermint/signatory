@@ -5,7 +5,7 @@
 
 use std::sync::{Arc, Mutex};
 use yubihsm::Session as YubiHSMSession;
-use yubihsm::{Algorithm, Connector, HttpConnector};
+use yubihsm::{self, Algorithm, Connector, HttpConnector};
 
 use super::{KeyId, Session};
 use ed25519::{PublicKey, Signature, Signer};
@@ -42,8 +42,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
     fn public_key(&self) -> Result<PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let pubkey_response = session
-            .get_pubkey(self.signing_key_id)
+        let pubkey_response = yubihsm::get_pubkey(&mut session, self.signing_key_id)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         if pubkey_response.algorithm != Algorithm::EC_ED25519 {
@@ -56,8 +55,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let response = session
-            .sign_data_eddsa(self.signing_key_id, msg)
+        let response = yubihsm::sign_ed25519(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         Ok(Signature::from_bytes(&response.signature).unwrap())
@@ -71,7 +69,7 @@ mod tests {
     use yubihsm::mockhsm::MockHSM;
     #[cfg(not(feature = "yubihsm-mockhsm"))]
     use yubihsm::Session;
-    use yubihsm::{Algorithm, Capabilities, Domains, ObjectType};
+    use yubihsm::{self, Algorithm, Capability, Domain, ObjectType};
 
     use super::{Ed25519Signer, KeyId, Signer};
 
@@ -85,10 +83,10 @@ mod tests {
     const TEST_SIGNING_KEY_ID: KeyId = 123;
 
     /// Domain IDs for test key
-    const TEST_SIGNING_KEY_DOMAINS: Domains = Domains::DOMAIN_1;
+    const TEST_SIGNING_KEY_DOMAINS: Domain = Domain::DOM1;
 
-    /// Capabilities for test key
-    const TEST_SIGNING_KEY_CAPABILITIES: Capabilities = Capabilities::ASYMMETRIC_SIGN_EDDSA;
+    /// Capability for test key
+    const TEST_SIGNING_KEY_CAPABILITIES: Capability = Capability::ASYMMETRIC_SIGN_EDDSA;
 
     /// Label for test key
     const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
@@ -122,10 +120,11 @@ mod tests {
 
             // Delete the key in TEST_KEY_ID slot it exists
             // Ignore errors since the object may not exist yet
-            let _ = s.delete_object(TEST_SIGNING_KEY_ID, ObjectType::Asymmetric);
+            let _ = yubihsm::delete_object(&mut s, TEST_SIGNING_KEY_ID, ObjectType::Asymmetric);
 
             // Create a new key for testing
-            s.generate_asymmetric_key(
+            yubihsm::generate_asymmetric_key(
+                &mut s,
                 TEST_SIGNING_KEY_ID,
                 TEST_SIGNING_KEY_LABEL.into(),
                 TEST_SIGNING_KEY_DOMAINS,
