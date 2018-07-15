@@ -5,7 +5,7 @@
 
 use std::sync::{Arc, Mutex};
 use yubihsm::Session as YubiHSMSession;
-use yubihsm::{self, Algorithm, Connector, HttpConnector};
+use yubihsm::{self, AsymmetricAlgorithm, Connector, HttpConnector};
 
 use super::{KeyId, Session};
 use ed25519::{PublicKey, Signature, Signer};
@@ -42,23 +42,23 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
     fn public_key(&self) -> Result<PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let pubkey_response = yubihsm::get_pubkey(&mut session, self.signing_key_id)
+        let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        if pubkey_response.algorithm != Algorithm::EC_ED25519 {
+        if pubkey.algorithm != AsymmetricAlgorithm::EC_ED25519 {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(PublicKey::from_bytes(&pubkey_response.data).unwrap())
+        Ok(PublicKey::from_bytes(pubkey.as_ref()).unwrap())
     }
 
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let response = yubihsm::sign_ed25519(&mut session, self.signing_key_id, msg)
+        let signature = yubihsm::sign_ed25519(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        Ok(Signature::from_bytes(&response.signature).unwrap())
+        Ok(Signature::from_bytes(signature.as_ref()).unwrap())
     }
 }
 
@@ -67,17 +67,16 @@ mod tests {
     use std::sync::{Arc, Mutex};
     #[cfg(feature = "yubihsm-mockhsm")]
     use yubihsm::mockhsm::MockHSM;
+    #[cfg(feature = "yubihsm-mockhsm")]
+    use yubihsm::AuthKey;
     #[cfg(not(feature = "yubihsm-mockhsm"))]
     use yubihsm::Session;
-    use yubihsm::{self, Algorithm, Capability, Domain, ObjectType};
+    use yubihsm::{self, AsymmetricAlgorithm, Capability, Domain, ObjectType};
 
     use super::{Ed25519Signer, KeyId, Signer};
 
     /// Default authentication key identifier
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
-
-    /// Default YubiHSM2 password
-    const DEFAULT_PASSWORD: &str = "password";
 
     /// Key ID to use for test key
     const TEST_SIGNING_KEY_ID: KeyId = 123;
@@ -92,7 +91,8 @@ mod tests {
     const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
 
     /// Example message to sign
-    const TEST_MESSAGE: &[u8] = b"The Edwards-curve Digital Signature Algorithm (EdDSA) is a \
+    const TEST_MESSAGE: &[u8] =
+        b"The Edwards-curve Digital Signature AsymmetricAlgorithm  (EdDSA) is a \
         variant of Schnorr's signature system with (possibly twisted) Edwards curves.";
 
     // We need dalek to actually verify the signature
@@ -101,17 +101,18 @@ mod tests {
     fn generates_signature_verifiable_by_dalek() {
         #[cfg(not(feature = "yubihsm-mockhsm"))]
         let session = Arc::new(Mutex::new(
-            Session::create_from_password(
+            Session::create(
                 Default::default(),
                 DEFAULT_AUTH_KEY_ID,
-                DEFAULT_PASSWORD,
+                AuthKey::default(),
                 true,
             ).unwrap_or_else(|err| panic!("error creating session: {}", err)),
         ));
 
         #[cfg(feature = "yubihsm-mockhsm")]
         let session = Arc::new(Mutex::new(
-            MockHSM::create_session(DEFAULT_AUTH_KEY_ID, DEFAULT_PASSWORD)
+            MockHSM::new()
+                .create_session(DEFAULT_AUTH_KEY_ID, AuthKey::default())
                 .unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
         ));
 
@@ -120,7 +121,7 @@ mod tests {
 
             // Delete the key in TEST_KEY_ID slot it exists
             // Ignore errors since the object may not exist yet
-            let _ = yubihsm::delete_object(&mut s, TEST_SIGNING_KEY_ID, ObjectType::Asymmetric);
+            let _ = yubihsm::delete_object(&mut s, TEST_SIGNING_KEY_ID, ObjectType::AsymmetricKey);
 
             // Create a new key for testing
             yubihsm::generate_asymmetric_key(
@@ -129,7 +130,7 @@ mod tests {
                 TEST_SIGNING_KEY_LABEL.into(),
                 TEST_SIGNING_KEY_DOMAINS,
                 TEST_SIGNING_KEY_CAPABILITIES,
-                Algorithm::EC_ED25519,
+                AsymmetricAlgorithm::EC_ED25519,
             ).unwrap();
         }
 

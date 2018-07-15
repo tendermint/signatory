@@ -8,7 +8,9 @@
 
 use std::sync::{Arc, Mutex};
 pub use yubihsm::connector::HttpConfig as Config;
+use yubihsm::AuthKey;
 use yubihsm::Session as YubiHSMSession;
+pub use yubihsm::AUTH_KEY_SIZE;
 
 mod ed25519;
 
@@ -22,9 +24,26 @@ pub type KeyId = u16;
 pub struct Session(Arc<Mutex<YubiHSMSession>>);
 
 impl Session {
+    /// Create a new YubiHSM session from the given password
+    pub fn create_from_password(
+        config: Config,
+        auth_key_id: KeyId,
+        password: &str,
+    ) -> Result<Self, Error> {
+        Self::new(
+            config,
+            auth_key_id,
+            AuthKey::derive_from_password(password.as_bytes()),
+        )
+    }
+
     /// Create a new session with the YubiHSM
-    pub fn new(config: Config, auth_key_id: KeyId, password: &str) -> Result<Self, Error> {
-        let session = YubiHSMSession::create_from_password(config, auth_key_id, password, true)
+    pub fn new<K: Into<AuthKey>>(
+        config: Config,
+        auth_key_id: KeyId,
+        auth_key: K,
+    ) -> Result<Self, Error> {
+        let session = YubiHSMSession::create(config, auth_key_id, auth_key.into(), true)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         Ok(Session(Arc::new(Mutex::new(session))))
