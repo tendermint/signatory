@@ -9,4 +9,6 @@ pub mod verifier;
 
 pub use self::curve::Secp256k1;
 pub use self::public_key::PublicKey;
-pub use self::signature::*;
+#[cfg(feature = "std")]
+pub use self::signature::der::DERSignature;
+pub use self::signature::fixed::FixedSignature;

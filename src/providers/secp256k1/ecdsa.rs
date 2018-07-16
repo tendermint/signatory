@@ -116,14 +116,14 @@ fn verify_signature(
 mod tests {
     use super::{ECDSASigner, ECDSAVerifier, Signer};
     use ecdsa::{
-        curve::secp256k1::{DERSignature, FixedSignature, RAW_TEST_VECTORS},
+        curve::secp256k1::{DERSignature, FixedSignature, PublicKey, FIXED_SIZE_TEST_VECTORS},
         signer::*,
         verifier::*,
     };
 
     #[test]
     pub fn der_signature_roundtrip() {
-        let vector = &RAW_TEST_VECTORS[0];
+        let vector = &FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_der(vector.msg).unwrap();
@@ -134,7 +134,7 @@ mod tests {
 
     #[test]
     pub fn rejects_tweaked_der_signature() {
-        let vector = &RAW_TEST_VECTORS[0];
+        let vector = &FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_der(vector.msg).unwrap();
@@ -156,18 +156,22 @@ mod tests {
 
     #[test]
     pub fn fixed_signature_roundtrip() {
-        let vector = &RAW_TEST_VECTORS[0];
+        for vector in FIXED_SIZE_TEST_VECTORS {
+            let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
+            let public_key = PublicKey::from_bytes(vector.pk).unwrap();
+            assert_eq!(signer.public_key().unwrap(), public_key);
 
-        let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
-        let signature = signer.sign_sha256_fixed(vector.msg).unwrap();
+            let signature = signer.sign_sha256_fixed(vector.msg).unwrap();
+            assert_eq!(signature.as_ref(), vector.sig);
 
-        let public_key = signer.public_key().unwrap();
-        ECDSAVerifier::verify_sha256_fixed_signature(&public_key, vector.msg, &signature).unwrap();
+            ECDSAVerifier::verify_sha256_fixed_signature(&public_key, vector.msg, &signature)
+                .unwrap();
+        }
     }
 
     #[test]
     pub fn rejects_tweaked_fixed_signature() {
-        let vector = &RAW_TEST_VECTORS[0];
+        let vector = &FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_fixed(vector.msg).unwrap();

@@ -8,7 +8,7 @@ extern crate criterion;
 extern crate signatory;
 
 #[cfg(feature = "sodiumoxide-provider")]
-mod sodiumoxide_benches {
+mod sodiumoxide_ed25519 {
     use criterion::Criterion;
     use signatory::{
         ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier, TEST_VECTORS},
@@ -19,7 +19,7 @@ mod sodiumoxide_benches {
     /// Test vector to use for benchmarking
     const TEST_VECTOR: &TestVector = &TEST_VECTORS[4];
 
-    fn sign(c: &mut Criterion) {
+    fn sign_ed25519(c: &mut Criterion) {
         let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
         c.bench_function("sodiumoxide: ed25519 signer", move |b| {
@@ -27,7 +27,7 @@ mod sodiumoxide_benches {
         });
     }
 
-    fn verify(c: &mut Criterion) {
+    fn verify_ed25519(c: &mut Criterion) {
         let public_key = PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
         let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
@@ -37,14 +37,14 @@ mod sodiumoxide_benches {
     }
 
     criterion_group! {
-        name = sodiumoxide_benches;
+        name = sodiumoxide_ed25519;
         config = Criterion::default();
-        targets = sign, verify
+        targets = sign_ed25519, verify_ed25519
     }
 }
 
 #[cfg(feature = "sodiumoxide-provider")]
-criterion_main!(sodiumoxide_benches::sodiumoxide_benches);
+criterion_main!(sodiumoxide_ed25519::sodiumoxide_ed25519);
 
 #[cfg(not(feature = "sodiumoxide-provider"))]
 fn main() {

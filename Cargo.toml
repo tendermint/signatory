@@ -78,5 +78,9 @@ name = "ring"
 harness = false
 
 [[bench]]
+name = "secp256k1"
+harness = false
+
+[[bench]]
 name = "sodiumoxide"
 harness = false
