@@ -1,10 +1,12 @@
-//! ECDSA signatures. ASN.1 signatures are variable-sized and therefore require
-//! `std` for `Vec` support.
+//! ECDSA signatures:
+//!
+//! - ASN.1 DER signatures (requires `std` as they're backed by `Vec`)
+//! - Fixed sized signatures
 
 #[cfg(feature = "std")]
-mod asn1;
-mod raw;
+mod der;
+mod fixed;
 
 #[cfg(feature = "std")]
-pub use self::asn1::DERSignature;
-pub use self::raw::RawSignature;
+pub use self::der::DERSignature;
+pub use self::fixed::FixedSignature;

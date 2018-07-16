@@ -1,14 +1,18 @@
-//! ASN.1 DER-serialized ECDSA signatures
+//! ASN.1 DER-encoded ECDSA signatures
+//!
+//! Presently requires 'std' as these signatures are variable-sized and the
+//! current implementation is backed by a `Vec<u8>`.
 
-use std::fmt;
+use std::fmt::{self, Debug};
 use std::marker::PhantomData;
+// TODO: no_std support (with 'alloc' crate or fixed sized array)
 use std::vec::Vec;
 
 use ecdsa::curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
 
-/// ECDSA signatures serialized as ASN.1 DER
+/// ECDSA signatures encoded as ASN.1 DER
 #[derive(Clone, PartialEq, Eq)]
 pub struct DERSignature<C: WeierstrassCurve> {
     /// Signature data as bytes
@@ -19,7 +23,7 @@ pub struct DERSignature<C: WeierstrassCurve> {
 }
 
 impl<C: WeierstrassCurve> DERSignature<C> {
-    /// Create an ECDSA signature from its serialized byte representation
+    /// Create an ASN.1 DER-encoded ECDSA signature from its serialized byte representation
     pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
     where
         B: Into<Vec<u8>>,
@@ -50,9 +54,9 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for DERSignature<C> {
     }
 }
 
-impl<C: WeierstrassCurve> fmt::Debug for DERSignature<C> {
+impl<C: WeierstrassCurve> Debug for DERSignature<C> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "signatory::ecdsa::Signature<{:?}>(", C::default())?;
+        write!(f, "signatory::ecdsa::DERSignature<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
     }

@@ -49,6 +49,6 @@ pub struct DefaultVerifier {}
 )]
 impl Verifier for DefaultVerifier {
     fn verify(_key: &PublicKey, _msg: &[u8], _signature: &Signature) -> Result<(), Error> {
-        panic!("no Ed25519 providers enabled when signatory was built");
+        panic!("no Ed25519 providers available");
     }
 }
