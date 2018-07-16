@@ -52,9 +52,9 @@ the corresponding [cargo feature] for a given crate:
 
 | [Cargo Feature]        | Crate           | Type | Signing | Verification |
 |------------------------|-----------------|------|---------|--------------|
-| `dalek-provider`†      | [ed25519-dalek] | Soft | 43 k/s  | 17 k/s       |
-| `ring-provider`        | [ring]          | Soft | 31 k/s  | 10 k/s       |
-| `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 14 k/s       |
+| `dalek-provider`†      | [ed25519-dalek] | Soft | 51 k/s  | 18 k/s       |
+| `ring-provider`        | [ring]          | Soft | 47 k/s  | 16 k/s       |
+| `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
 | `yubihsm-provider`     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
 
 Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @
