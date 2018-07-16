@@ -4,9 +4,5 @@
 //! - Fixed sized signatures
 
 #[cfg(feature = "std")]
-mod der;
-mod fixed;
-
-#[cfg(feature = "std")]
-pub use self::der::DERSignature;
-pub use self::fixed::FixedSignature;
+pub(crate) mod der;
+pub(crate) mod fixed;
