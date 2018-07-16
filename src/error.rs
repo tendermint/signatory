@@ -123,10 +123,18 @@ macro_rules! err {
         )
     };
     ($variant:ident, $fmt:expr, $($arg:tt)+) => {
-        ::error::Error::new(
-            ::error::ErrorKind::$variant,
-            Some(&format!($fmt, $($arg)+))
-        )
+        err!($variant, &format!($fmt, $($arg)+))
+    };
+}
+
+/// Create and return an error with a formatted message
+#[allow(unused_macros)]
+macro_rules! fail {
+    ($kind:ident, $msg:expr) => {
+        return Err(err!($kind, $msg).into());
+    };
+    ($kind:ident, $fmt:expr, $($arg:tt)+) => {
+        return Err(err!($kind, $fmt, $($arg)+).into());
     };
 }
 
