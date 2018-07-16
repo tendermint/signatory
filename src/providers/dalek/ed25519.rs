@@ -43,11 +43,8 @@ impl Verifier for Ed25519Verifier {
         let pk = DalekPublicKey::from_bytes(key.as_ref()).unwrap();
         let sig = DalekSignature::from_bytes(signature.as_ref()).unwrap();
 
-        if pk.verify::<Sha512>(msg, &sig) {
-            Ok(())
-        } else {
-            Err(ErrorKind::SignatureInvalid.into())
-        }
+        pk.verify::<Sha512>(msg, &sig)
+            .map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }
 
