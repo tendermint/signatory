@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: iqlusion/rust-ci:20180715.0 # bump cache keys when modifying this
     environment:
-      # All features except "nightly"
+      # All features except "dalek-nightly" and "dalek-avx2"
       - CARGO_FEATURES: dalek-provider,ring-provider,secp256k1-provider,sodiumoxide-provider,yubihsm-mockhsm
 
     steps:
@@ -41,13 +41,19 @@ jobs:
             cargo --version
             cargo build --benches --features=ed25519
       - run:
-          name: build (all features except nightly)
+          name: build (--no-default-features + ecdsa + ed25519)
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --no-default-features --features=ecdsa,ed25519
+      - run:
+          name: build (all features except dalek-nightly and dalek-avx2)
           command: |
             rustc --version
             cargo --version
             cargo build --benches --features=$CARGO_FEATURES
       - run:
-          name: build (--all-features including nightly)
+          name: build (--all-features including dalek-nightly and dalek-avx2)
           command: |
             rustup run $RUST_NIGHTLY_VERSION rustc --version
             cargo +$RUST_NIGHTLY_VERSION --version

@@ -1,10 +1,11 @@
-use generic_array::typenum::U32;
-/// ECDSA signer implementation for the secp256k1 crate
-use generic_array::GenericArray;
+//! ECDSA provider for the `secp256k1` crate
+
+use generic_array::{typenum::U32, GenericArray};
 use secp256k1::{
     key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message, Secp256k1 as Secp256k1Engine,
     Signature as Secp256k1Signature,
 };
+use sha2::{Digest, Sha256};
 
 use ecdsa::{
     curve::secp256k1::{DERSignature, FixedSignature, PublicKey, Secp256k1},
@@ -35,7 +36,7 @@ impl Signer<Secp256k1> for ECDSASigner {
     /// Return the public key that corresponds to the private key for this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
         match Secp256k1PublicKey::from_secret_key(&SECP256K1_ENGINE, &self.0) {
-            Ok(pk) => PublicKey::from_bytes(&pk.serialize()[..]),
+            Ok(pk) => PublicKey::from_der(&pk.serialize()[..]),
             Err(e) => fail!(KeyInvalid, "{}", e),
         }
     }
@@ -62,6 +63,18 @@ impl RawDigestFixedSigner<Secp256k1> for ECDSASigner {
             ).unwrap()),
             Err(e) => fail!(ProviderError, "{}", e),
         }
+    }
+}
+
+impl SHA256DERSigner<Secp256k1> for ECDSASigner {
+    fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature, Error> {
+        self.sign_digest_der(&Sha256::digest(msg))
+    }
+}
+
+impl SHA256FixedSigner<Secp256k1> for ECDSASigner {
+    fn sign_sha256_fixed(&self, msg: &[u8]) -> Result<FixedSignature, Error> {
+        self.sign_digest_fixed(&Sha256::digest(msg))
     }
 }
 
@@ -116,14 +129,16 @@ fn verify_signature(
 mod tests {
     use super::{ECDSASigner, ECDSAVerifier, Signer};
     use ecdsa::{
-        curve::secp256k1::{DERSignature, FixedSignature, PublicKey, FIXED_SIZE_TEST_VECTORS},
+        curve::secp256k1::{
+            DERSignature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
+        },
         signer::*,
         verifier::*,
     };
 
     #[test]
     pub fn der_signature_roundtrip() {
-        let vector = &FIXED_SIZE_TEST_VECTORS[0];
+        let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_der(vector.msg).unwrap();
@@ -134,12 +149,12 @@ mod tests {
 
     #[test]
     pub fn rejects_tweaked_der_signature() {
-        let vector = &FIXED_SIZE_TEST_VECTORS[0];
+        let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_der(vector.msg).unwrap();
         let mut tweaked_signature = signature.into_bytes();
-        tweaked_signature[0] ^= 42;
+        *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let public_key = signer.public_key().unwrap();
         let result = ECDSAVerifier::verify_sha256_der_signature(
@@ -155,10 +170,10 @@ mod tests {
     }
 
     #[test]
-    pub fn fixed_signature_roundtrip() {
-        for vector in FIXED_SIZE_TEST_VECTORS {
+    pub fn fixed_signature_vectors() {
+        for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
             let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
-            let public_key = PublicKey::from_bytes(vector.pk).unwrap();
+            let public_key = PublicKey::from_der(vector.pk).unwrap();
             assert_eq!(signer.public_key().unwrap(), public_key);
 
             let signature = signer.sign_sha256_fixed(vector.msg).unwrap();
@@ -171,12 +186,12 @@ mod tests {
 
     #[test]
     pub fn rejects_tweaked_fixed_signature() {
-        let vector = &FIXED_SIZE_TEST_VECTORS[0];
+        let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
         let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
         let signature = signer.sign_sha256_fixed(vector.msg).unwrap();
         let mut tweaked_signature = signature.into_bytes();
-        tweaked_signature[0] ^= 42;
+        *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let public_key = signer.public_key().unwrap();
         let result = ECDSAVerifier::verify_sha256_fixed_signature(

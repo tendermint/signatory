@@ -11,7 +11,7 @@ extern crate signatory;
 mod secp256k1_ecdsa {
     use criterion::Criterion;
     use signatory::ecdsa::{
-        curve::secp256k1::FIXED_SIZE_TEST_VECTORS, signer::*, verifier::*, FixedSignature,
+        curve::secp256k1::SHA256_FIXED_SIZE_TEST_VECTORS, signer::*, verifier::*, FixedSignature,
         PublicKey,
     };
     use signatory::{
@@ -20,7 +20,7 @@ mod secp256k1_ecdsa {
     };
 
     /// Test vector to use for benchmarking
-    const TEST_VECTOR: &TestVector = &FIXED_SIZE_TEST_VECTORS[0];
+    const TEST_VECTOR: &TestVector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
     fn sign_ecdsa(c: &mut Criterion) {
         let signer = ECDSASigner::from_bytes(TEST_VECTOR.sk).unwrap();

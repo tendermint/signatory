@@ -1,13 +1,11 @@
 //! Trait for ECDSA verifiers
 
-use core::{fmt::Debug, hash::Hash};
+use core::fmt::Debug;
 use generic_array::{typenum::U32, GenericArray};
 #[cfg(feature = "sha2")]
 use sha2::{Digest, Sha256};
 
-#[cfg(feature = "std")]
-use super::DERSignature;
-use super::{curve::WeierstrassCurve, FixedSignature, PublicKey};
+use super::{curve::WeierstrassCurve, DERSignature, FixedSignature, PublicKey};
 use error::Error;
 
 /// Verifier for ECDSA signatures which first hashes the input message using
@@ -16,12 +14,11 @@ use error::Error;
 ///
 /// NOTE: Support is not (yet) provided for mixing and matching curve and
 /// digest sizes. If you are interested in this, please open an issue.
-pub trait SHA256DERVerifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sync
+pub trait SHA256DERVerifier<C>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
-    C: WeierstrassCurve<PrivateKeySize = U32>,
+    C: WeierstrassCurve<PrivateScalarSize = U32>,
 {
     /// Verify an ASN.1 DER-encoded ECDSA signature against the given public key
-    #[cfg(feature = "std")]
     fn verify_sha256_der_signature(
         key: &PublicKey<C>,
         msg: &[u8],
@@ -35,9 +32,9 @@ where
 ///
 /// NOTE: Support is not (yet) provided for mixing and matching curve and
 /// digest sizes. If you are interested in this, please open an issue.
-pub trait SHA256FixedVerifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sync
+pub trait SHA256FixedVerifier<C>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
-    C: WeierstrassCurve<PrivateKeySize = U32>,
+    C: WeierstrassCurve<PrivateScalarSize = U32>,
 {
     /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature against the given public key
     fn verify_sha256_fixed_signature(
@@ -49,23 +46,22 @@ where
 
 /// Verify a raw message the same size as the curve's field (i.e. without first
 /// computing a SHA-2 digest of the message)
-pub trait RawDigestDERVerifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sync
+pub trait RawDigestDERVerifier<C>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
     C: WeierstrassCurve,
 {
     /// Verify an ASN.1 DER encoded signature of a fixed-sized message
     /// whose length matches the size of the curve's field.
-    #[cfg(feature = "std")]
     fn verify_digest_der_signature(
         key: &PublicKey<C>,
-        digest: &GenericArray<u8, C::PrivateKeySize>,
+        digest: &GenericArray<u8, C::PrivateScalarSize>,
         signature: &DERSignature<C>,
     ) -> Result<(), Error>;
 }
 
 /// Verify a raw message the same size as the curve's field (i.e. without first
 /// computing a SHA-2 digest of the message)
-pub trait RawDigestFixedVerifier<C>: Clone + Debug + Hash + Eq + PartialEq + Send + Sync
+pub trait RawDigestFixedVerifier<C>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
     C: WeierstrassCurve,
 {
@@ -73,7 +69,7 @@ where
     /// whose length matches the size of the curve's field.
     fn verify_digest_fixed_signature(
         key: &PublicKey<C>,
-        digest: &GenericArray<u8, C::PrivateKeySize>,
+        digest: &GenericArray<u8, C::PrivateScalarSize>,
         signature: &FixedSignature<C>,
     ) -> Result<(), Error>;
 }
@@ -81,7 +77,7 @@ where
 #[cfg(feature = "sha2")]
 impl<C, V> SHA256DERVerifier<C> for V
 where
-    C: WeierstrassCurve<PrivateKeySize = U32>,
+    C: WeierstrassCurve<PrivateScalarSize = U32>,
     V: RawDigestDERVerifier<C>,
 {
     fn verify_sha256_der_signature(
@@ -96,7 +92,7 @@ where
 #[cfg(feature = "sha2")]
 impl<C, V> SHA256FixedVerifier<C> for V
 where
-    C: WeierstrassCurve<PrivateKeySize = U32>,
+    C: WeierstrassCurve<PrivateScalarSize = U32>,
     V: RawDigestFixedVerifier<C>,
 {
     fn verify_sha256_fixed_signature(

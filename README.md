@@ -44,23 +44,22 @@ the corresponding [cargo feature] for a given crate:
 
 ### ECDSA providers
 
-| [Cargo Feature]      | Crate          | Type | Curve(s)  |
-|----------------------|----------------|------|-----------| 
-| `secp256k1-provider` | [secp256k1-rs] | Soft | secp256k1 |
+| [Cargo Feature]      | Crate          | Type | Curve(s)   |
+|----------------------|----------------|------|------------|
+| `ring-provider`      | [ring]         | Soft | NIST P-256 |
+| `secp256k1-provider` | [secp256k1-rs] | Soft | secp256k1  |
 
 ### Ed25519 providers
 
 | [Cargo Feature]        | Crate           | Type | Signing | Verification |
 |------------------------|-----------------|------|---------|--------------|
-| `dalek-provider`†      | [ed25519-dalek] | Soft | 51 k/s  | 18 k/s       |
+| `dalek-provider`       | [ed25519-dalek] | Soft | 51 k/s  | 18 k/s       |
 | `ring-provider`        | [ring]          | Soft | 47 k/s  | 16 k/s       |
 | `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
 | `yubihsm-provider`     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
 
 Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @
 3.30GHz with the `nightly` cargo feature enabled.
-
-† NOTE: enabled by default
 
 [cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
 
