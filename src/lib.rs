@@ -66,6 +66,8 @@ extern crate yubihsm;
 mod error;
 
 #[cfg(feature = "ecdsa")]
+pub mod asn1;
+#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]

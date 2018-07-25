@@ -1,11 +1,10 @@
 //! ASN.1 DER-encoded ECDSA signatures
-//!
-//! Presently requires 'std' as these signatures are variable-sized and the
-//! current implementation is backed by a `Vec<u8>`.
 
-use std::fmt::{self, Debug};
-use std::marker::PhantomData;
-// TODO: no_std support (with 'alloc' crate or fixed sized array)
+use core::fmt::{self, Debug};
+use core::marker::PhantomData;
+use generic_array::typenum::Unsigned;
+use generic_array::GenericArray;
+#[cfg(feature = "std")]
 use std::vec::Vec;
 
 use ecdsa::curve::WeierstrassCurve;
@@ -16,7 +15,10 @@ use util::fmt_colon_delimited_hex;
 #[derive(Clone, PartialEq, Eq)]
 pub struct DERSignature<C: WeierstrassCurve> {
     /// Signature data as bytes
-    bytes: Vec<u8>,
+    bytes: GenericArray<u8, C::DERSignatureMaxSize>,
+
+    /// Length of the signature in bytes (DER is variable-width)
+    length: usize,
 
     /// Placeholder for elliptic curve type
     curve: PhantomData<C>,
@@ -26,11 +28,25 @@ impl<C: WeierstrassCurve> DERSignature<C> {
     /// Create an ASN.1 DER-encoded ECDSA signature from its serialized byte representation
     pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
     where
-        B: Into<Vec<u8>>,
+        B: AsRef<[u8]>,
     {
-        // TODO: validate signature is well-formed ASN.1 DER
+        let length = bytes.as_ref().len();
+
+        // TODO: better validate signature is well-formed ASN.1 DER
+        ensure!(
+            length <= C::DERSignatureMaxSize::to_usize(),
+            SignatureInvalid,
+            "max {}-byte signature (got {})",
+            C::DERSignatureMaxSize::to_usize(),
+            length
+        );
+
+        let mut array = GenericArray::default();
+        array.as_mut_slice()[..length].copy_from_slice(bytes.as_ref());
+
         Ok(Self {
-            bytes: bytes.into(),
+            bytes: array,
+            length,
             curve: PhantomData,
         })
     }
@@ -38,13 +54,14 @@ impl<C: WeierstrassCurve> DERSignature<C> {
     /// Obtain signature as a byte array reference
     #[inline]
     pub fn as_bytes(&self) -> &[u8] {
-        self.bytes.as_slice()
+        &self.bytes.as_slice()[..self.length]
     }
 
     /// Convert signature into a byte vector
+    #[cfg(feature = "std")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
-        self.bytes
+        self.as_bytes().into()
     }
 }
 
