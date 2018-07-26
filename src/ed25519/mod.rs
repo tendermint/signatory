@@ -13,11 +13,13 @@ mod verifier;
 mod test_macros;
 
 /// RFC 8032 Ed25519 test vectors
+#[cfg(feature = "test-vectors")]
 mod test_vectors;
 
 pub use self::public_key::{PublicKey, PUBLIC_KEY_SIZE};
 pub use self::seed::{Seed, SEED_SIZE};
 pub use self::signature::{Signature, SIGNATURE_SIZE};
 pub use self::signer::{FromSeed, Signer};
+#[cfg(feature = "test-vectors")]
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::verifier::{DefaultVerifier, Verifier};

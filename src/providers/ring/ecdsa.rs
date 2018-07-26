@@ -76,10 +76,8 @@ impl P256DERSigner {
     }
 
     /// Create a P256FixedSigner from a test vector
-    ///
-    /// Panics if the test vector is not P-256
-    // TODO: find a better way to gate this
-    #[cfg(feature = "std")]
+    // TODO: replace this with a generic PKCS#8 serializer for test vectors
+    #[cfg(all(feature = "std", feature = "test-vectors"))]
     pub fn from_test_vector(vector: &TestVector) -> Self {
         Self::from_pkcs8(&test_vector_to_pkcs8(vector)).unwrap()
     }
@@ -110,9 +108,8 @@ impl P256FixedSigner {
     }
 
     /// Create a P256FixedSigner from a test vector
-    ///
-    // TODO: find a better way to gate this
-    #[cfg(feature = "std")]
+    // TODO: replace this with a generic PKCS#8 serializer for test vectors
+    #[cfg(all(feature = "std", feature = "test-vectors"))]
     pub fn from_test_vector(vector: &TestVector) -> Self {
         Self::from_pkcs8(&test_vector_to_pkcs8(vector)).unwrap()
     }
@@ -174,7 +171,7 @@ impl SHA256FixedVerifier<NISTP256> for P256FixedVerifier {
 
 /// Serialize this test vector as a PKCS#8 document
 // TODO: find a better solution than giant bytestring literals, like a PKCS#8 library
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", feature = "test-vectors"))]
 fn test_vector_to_pkcs8(vector: &TestVector) -> ::std::vec::Vec<u8> {
     if vector.alg != TestVectorAlgorithm::NISTP256 {
         panic!("not a NIST P-256 test vector: {:?}", vector.alg);
