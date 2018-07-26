@@ -173,7 +173,7 @@ mod tests {
     pub fn fixed_signature_vectors() {
         for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
             let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
-            let public_key = PublicKey::from_der(vector.pk).unwrap();
+            let public_key = PublicKey::from_bytes(vector.pk).unwrap();
             assert_eq!(signer.public_key().unwrap(), public_key);
 
             let signature = signer.sign_sha256_fixed(vector.msg).unwrap();

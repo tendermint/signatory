@@ -22,7 +22,7 @@ mod dalek_ed25519 {
     fn sign_ed25519(c: &mut Criterion) {
         let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
-        c.bench_function("dalek: ed25519 signer", move |b| {
+        c.bench_function("dalek: Ed25519 signer", move |b| {
             b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
         });
     }
@@ -31,7 +31,7 @@ mod dalek_ed25519 {
         let public_key = PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
         let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
-        c.bench_function("dalek: ed25519 verifier", move |b| {
+        c.bench_function("dalek: Ed25519 verifier", move |b| {
             b.iter(|| Ed25519Verifier::verify(&public_key, TEST_VECTOR.msg, &signature).unwrap())
         });
     }

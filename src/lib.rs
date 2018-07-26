@@ -73,6 +73,7 @@ pub mod ecdsa;
 #[macro_use]
 pub mod ed25519;
 pub mod providers;
+#[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
 
