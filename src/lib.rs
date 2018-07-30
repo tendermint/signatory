@@ -32,7 +32,10 @@
 #![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
-#![doc(html_root_url = "https://docs.rs/yubihsm/0.5.2")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
+    html_root_url = "https://docs.rs/signatory/0.5.2"
+)]
 
 #[cfg(any(feature = "std", test))]
 #[macro_use]
