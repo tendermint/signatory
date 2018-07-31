@@ -1,7 +1,7 @@
 [package]
 name        = "signatory"
 description = "Multi-provider elliptic curve digital signature library with ECDSA and Ed25519 support"
-version     = "0.6.0-alpha2" # Also update html_root_url in lib.rs when bumping this
+version     = "0.6.0" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT OR Apache-2.0"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 homepage    = "https://github.com/tendermint/signatory"

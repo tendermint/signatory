@@ -1,6 +1,42 @@
-## 0.6.0-alpha1 (2018-07-31)
+## [0.6.0] (2018-07-31)
 
-TODO
+[0.6.0]: https://github.com/tendermint/signatory/compare/v0.5.2...v0.6.0
+
+* [#56](https://github.com/tendermint/signatory/pull/56)
+  Factor ECDSA PublicKey into compressed/uncompressed curve points.
+
+* [#55](https://github.com/tendermint/signatory/pull/55)
+  ECDSA support for `yubihsm-provider`.
+
+* [#54](https://github.com/tendermint/signatory/pull/54)
+  Upgrade to `yubihsm` crate 0.14.
+
+* [#53](https://github.com/tendermint/signatory/pull/53)
+  Add Rustdoc logo.
+
+* [#52](https://github.com/tendermint/signatory/pull/52)
+  Audit project for security vulnerabilities with cargo-audit.
+
+* [#51](https://github.com/tendermint/signatory/pull/49)
+  Update to ed25519-dalek 0.8.
+
+* [#49](https://github.com/tendermint/signatory/pull/49)
+  Add ECDSA NIST P-256 support with *ring* provider.
+
+* [#46](https://github.com/tendermint/signatory/pull/46)
+  Factor ECDSA traits apart into separate traits per method.
+
+* [#40](https://github.com/tendermint/signatory/pull/40)
+  Upgrade to sodiumoxide 0.1.
+
+* [#38](https://github.com/tendermint/signatory/pull/38)
+  Add `ed25519::Seed::from_keypair` method
+
+* [#37](https://github.com/tendermint/signatory/pull/37)
+  No default features.
+
+* [#35](https://github.com/tendermint/signatory/pull/35)
+  Add `ed25519::Seed` type.
 
 ## [0.5.2] (2018-05-19)
 
