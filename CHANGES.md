@@ -1,3 +1,7 @@
+## 0.6.0-alpha1 (2018-07-31)
+
+TODO
+
 ## [0.5.2] (2018-05-19)
 
 [0.5.2]: https://github.com/tendermint/signatory/compare/v0.5.1...v0.5.2
