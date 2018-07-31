@@ -1,3 +1,10 @@
+## [0.6.1] (2018-07-31)
+
+[0.6.1]: https://github.com/tendermint/signatory/compare/v0.6.0...v0.6.1
+
+* [#59](https://github.com/tendermint/signatory/pull/59)
+  Upgrade to `secp256k1` crate v0.10.
+
 ## [0.6.0] (2018-07-31)
 
 [0.6.0]: https://github.com/tendermint/signatory/compare/v0.5.2...v0.6.0
