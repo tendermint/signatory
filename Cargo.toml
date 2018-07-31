@@ -42,7 +42,7 @@ ring-provider = ["ecdsa", "ed25519", "ring", "untrusted"]
 secp256k1-provider = ["ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
 sodiumoxide-provider = ["ed25519", "sodiumoxide", "std"]
 test-vectors = []
-yubihsm-provider = ["ed25519", "std", "yubihsm"]
+yubihsm-provider = ["ecdsa", "ed25519", "std", "yubihsm"]
 yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 
 [package.metadata.docs.rs]

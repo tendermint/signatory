@@ -2,6 +2,13 @@
 
 use core::fmt;
 
+#[cfg(
+    any(
+        feature = "dalek-provider",
+        feature = "ring-provider",
+        feature = "sodiumoxide-provider"
+    )
+)]
 use super::{DefaultVerifier, Signature, Verifier};
 use error::Error;
 use util::fmt_colon_delimited_hex;
@@ -45,6 +52,13 @@ impl PublicKey {
     }
 
     /// Verify a signature using this key
+    #[cfg(
+        any(
+            feature = "dalek-provider",
+            feature = "ring-provider",
+            feature = "sodiumoxide-provider"
+        )
+    )]
     pub fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), Error> {
         DefaultVerifier::verify(self, msg, signature)
     }

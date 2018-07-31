@@ -43,7 +43,7 @@ impl Signer<Secp256k1> for ECDSASigner {
 }
 
 impl RawDigestDERSigner<Secp256k1> for ECDSASigner {
-    /// Compute an ASN.1 DER-encoded signature of the given 32-byte message
+    /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
     fn sign_digest_der(&self, msg: &GenericArray<u8, U32>) -> Result<DERSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
         match SECP256K1_ENGINE.sign(&m, &self.0) {
@@ -54,7 +54,7 @@ impl RawDigestDERSigner<Secp256k1> for ECDSASigner {
 }
 
 impl RawDigestFixedSigner<Secp256k1> for ECDSASigner {
-    /// Compute a compact, fixed-sized signature of the given 32-byte message
+    /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
     fn sign_digest_fixed(&self, msg: &GenericArray<u8, U32>) -> Result<FixedSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
         match SECP256K1_ENGINE.sign(&m, &self.0) {
