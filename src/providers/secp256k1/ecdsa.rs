@@ -1,9 +1,9 @@
 //! ECDSA provider for the `secp256k1` crate
 
 use generic_array::{typenum::U32, GenericArray};
-use secp256k1::{
-    key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message, Secp256k1 as Secp256k1Engine,
-    Signature as Secp256k1Signature,
+use secp256k1_crate::{
+    self, key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message,
+    Secp256k1 as Secp256k1Engine, Signature as Secp256k1Signature,
 };
 use sha2::{Digest, Sha256};
 
@@ -16,7 +16,7 @@ use error::Error;
 
 lazy_static! {
     /// Lazily initialized secp256k1 engine
-    static ref SECP256K1_ENGINE: Secp256k1Engine = Secp256k1Engine::new();
+    static ref SECP256K1_ENGINE: Secp256k1Engine<secp256k1_crate::All> = Secp256k1Engine::new();
 }
 
 /// ECDSA signature provider for the secp256k1 crate
@@ -35,10 +35,8 @@ impl ECDSASigner {
 impl Signer<Secp256k1> for ECDSASigner {
     /// Return the public key that corresponds to the private key for this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
-        match Secp256k1PublicKey::from_secret_key(&SECP256K1_ENGINE, &self.0) {
-            Ok(pk) => PublicKey::from_slice(&pk.serialize()[..]),
-            Err(e) => fail!(KeyInvalid, "{}", e),
-        }
+        let pk = Secp256k1PublicKey::from_secret_key(&SECP256K1_ENGINE, &self.0);
+        PublicKey::from_slice(&pk.serialize()[..])
     }
 }
 
@@ -46,10 +44,8 @@ impl RawDigestDERSigner<Secp256k1> for ECDSASigner {
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
     fn sign_digest_der(&self, msg: &GenericArray<u8, U32>) -> Result<DERSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
-        match SECP256K1_ENGINE.sign(&m, &self.0) {
-            Ok(sig) => Ok(DERSignature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap()),
-            Err(e) => fail!(ProviderError, "{}", e),
-        }
+        let sig = SECP256K1_ENGINE.sign(&m, &self.0);
+        Ok(DERSignature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap())
     }
 }
 
@@ -57,12 +53,8 @@ impl RawDigestFixedSigner<Secp256k1> for ECDSASigner {
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
     fn sign_digest_fixed(&self, msg: &GenericArray<u8, U32>) -> Result<FixedSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
-        match SECP256K1_ENGINE.sign(&m, &self.0) {
-            Ok(sig) => Ok(FixedSignature::from_bytes(
-                &sig.serialize_compact(&SECP256K1_ENGINE)[..],
-            ).unwrap()),
-            Err(e) => fail!(ProviderError, "{}", e),
-        }
+        let sig = SECP256K1_ENGINE.sign(&m, &self.0);
+        Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
     }
 }
 
