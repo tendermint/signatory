@@ -34,7 +34,9 @@ mod secp256k1_ecdsa {
     }
 
     fn verify_ecdsa(c: &mut Criterion) {
-        let public_key = PublicKey::from_untagged_point(GenericArray::from_slice(TEST_VECTOR.pk));
+        let public_key = PublicKey::from_compressed_point(GenericArray::clone_from_slice(
+            TEST_VECTOR.pk,
+        )).unwrap();
         let signature = FixedSignature::from_bytes(TEST_VECTOR.sig).unwrap();
 
         c.bench_function("secp256k1: ECDSA verifier", move |b| {
