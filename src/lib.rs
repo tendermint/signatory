@@ -55,7 +55,7 @@ extern crate rand;
 #[cfg(feature = "ring-provider")]
 extern crate ring;
 #[cfg(feature = "secp256k1-provider")]
-extern crate secp256k1;
+extern crate secp256k1 as secp256k1_crate;
 #[cfg(feature = "sha2")]
 extern crate sha2;
 #[cfg(feature = "sodiumoxide-provider")]
