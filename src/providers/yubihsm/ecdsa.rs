@@ -1,6 +1,9 @@
 //! ECDSA provider for the YubiHSM2 crate (supporting NIST P-256 and secp256k1)
 
-use generic_array::typenum::{U32, Unsigned};
+use generic_array::{
+    typenum::{U32, Unsigned},
+    GenericArray,
+};
 use std::{
     marker::PhantomData,
     sync::{Arc, Mutex},
@@ -8,7 +11,11 @@ use std::{
 use yubihsm_crate;
 
 use super::{KeyId, Session};
-use ecdsa::{curve::WeierstrassCurve, signer::*, DERSignature, PublicKey};
+use ecdsa::{
+    curve::{WeierstrassCurve, WeierstrassCurveKind},
+    signer::*,
+    DERSignature, PublicKey,
+};
 use error::Error;
 
 /// ECDSA signature provider for yubihsm-client
@@ -52,11 +59,10 @@ where
     Connector: yubihsm_crate::Connector,
 {
     /// Get the expected `yubihsm::AsymmetricAlgorithm` for this `Curve`
-    fn asymmetric_algorithm() -> Option<yubihsm_crate::AsymmetricAlgorithm> {
-        match Curve::ID {
-            "nistp256" => Some(yubihsm_crate::AsymmetricAlgorithm::EC_P256),
-            "secp256k1" => Some(yubihsm_crate::AsymmetricAlgorithm::EC_K256),
-            _ => None,
+    fn asymmetric_algorithm() -> yubihsm_crate::AsymmetricAlgorithm {
+        match Curve::CURVE_KIND {
+            WeierstrassCurveKind::NISTP256 => yubihsm_crate::AsymmetricAlgorithm::EC_P256,
+            WeierstrassCurveKind::Secp256k1 => yubihsm_crate::AsymmetricAlgorithm::EC_K256,
         }
     }
 }
@@ -73,16 +79,18 @@ where
         let pubkey = yubihsm_crate::get_pubkey(&mut session, self.signing_key_id)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        if Some(pubkey.algorithm) != Self::asymmetric_algorithm() {
+        if pubkey.algorithm != Self::asymmetric_algorithm() {
             fail!(
                 KeyInvalid,
                 "expected a {} key, got: {:?}",
-                Curve::ID,
+                Curve::CURVE_KIND.to_str(),
                 pubkey.algorithm
             );
         }
 
-        Ok(PublicKey::from_bytes(pubkey.as_ref()).unwrap())
+        Ok(PublicKey::from_untagged_point(GenericArray::from_slice(
+            pubkey.as_ref(),
+        )))
     }
 }
 
@@ -111,7 +119,7 @@ where
             fail!(
                 ProviderError,
                 "unexpected signature size for {}: {}",
-                Curve::ID,
+                Curve::CURVE_KIND.to_str(),
                 length
             );
         }
@@ -141,7 +149,7 @@ where
             fail!(
                 ProviderError,
                 "unexpected signature size for {}: {}",
-                Curve::ID,
+                Curve::CURVE_KIND.to_str(),
                 length
             );
         }
@@ -152,23 +160,30 @@ where
 
 #[cfg(test)]
 mod tests {
-    // TODO: fix secp256k1
-    #![allow(unused_imports)]
-
     #[cfg(feature = "ring-provider")]
     use providers::ring;
-    #[cfg(feature = "secp256k1-provider")]
+    #[cfg(
+        all(
+            feature = "secp256k1-provider",
+            not(feature = "yubihsm-mockhsm")
+        )
+    )]
     use providers::secp256k1;
     use std::marker::PhantomData;
     use std::sync::{Arc, Mutex};
     use yubihsm_crate;
 
     use super::{ECDSASigner, KeyId, Signer};
-    use ecdsa::{
-        curve::{NISTP256, Secp256k1, WeierstrassCurve},
-        signer::SHA256DERSigner,
-        verifier::SHA256DERVerifier,
-    };
+    #[cfg(feature = "ring-provider")]
+    use ecdsa::curve::NISTP256;
+    #[cfg(
+        all(
+            feature = "secp256k1-provider",
+            not(feature = "yubihsm-mockhsm")
+        )
+    )]
+    use ecdsa::curve::Secp256k1;
+    use ecdsa::{curve::WeierstrassCurve, signer::SHA256DERSigner, verifier::SHA256DERVerifier};
 
     /// Default authentication key identifier
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
@@ -244,7 +259,7 @@ mod tests {
             TEST_SIGNING_KEY_LABEL.into(),
             TEST_SIGNING_KEY_DOMAINS,
             TEST_SIGNING_KEY_CAPABILITIES,
-            ECDSASigner::<Curve>::asymmetric_algorithm().unwrap(),
+            ECDSASigner::<Curve>::asymmetric_algorithm(),
         ).unwrap();
     }
 
@@ -268,23 +283,25 @@ mod tests {
 
     // We need secp256k1 to verify secp256k1 ECDSA signatures.
     // The MockHSM does not presently support secp256k1
-    // TODO: completely refactor our handling of compressed vs uncompressed keys to get this working
-    //    #[cfg(
-    //        all(
-    //            feature = "secp256k1-provider",
-    //            not(feature = "yubihsm-mockhsm")
-    //        )
-    //    )]
-    //    #[test]
-    //    fn ecdsa_secp256k1_sign_test() {
-    //        let signer = create_signer::<Secp256k1>(101);
-    //
-    //        let public_key = signer.public_key().unwrap();
-    //        let signature = signer.sign_sha256_der(TEST_MESSAGE).unwrap();
-    //
-    //        assert!(
-    //            secp256k1::ECDSAVerifier::verify_sha256_der_signature(&public_key, TEST_MESSAGE, &signature)
-    //                .is_ok()
-    //        );
-    //    }
+    #[cfg(
+        all(
+            feature = "secp256k1-provider",
+            not(feature = "yubihsm-mockhsm")
+        )
+    )]
+    #[test]
+    fn ecdsa_secp256k1_sign_test() {
+        let signer = create_signer::<Secp256k1>(101);
+
+        let public_key = signer.public_key().unwrap();
+        let signature = signer.sign_sha256_der(TEST_MESSAGE).unwrap();
+
+        assert!(
+            secp256k1::ECDSAVerifier::verify_sha256_der_signature(
+                &public_key,
+                TEST_MESSAGE,
+                &signature
+            ).is_ok()
+        );
+    }
 }

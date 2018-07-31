@@ -1,6 +1,7 @@
 //! ECDSA provider for the *ring* crate (supporting NIST P-256)
 
 use generic_array::typenum::Unsigned;
+use generic_array::GenericArray;
 use ring::{
     self,
     rand::SystemRandom,
@@ -45,9 +46,13 @@ where
         let keypair = ring::signature::key_pair_from_pkcs8(alg, Input::from(pkcs8_bytes))
             .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 key"))?;
 
-        let public_key = PublicKey::from_bytes(
-            &pkcs8_bytes[(pkcs8_bytes.len() - C::DERPublicKeySize::to_usize() + 1)..],
-        )?;
+        let pk_bytes_pos = pkcs8_bytes
+            .len()
+            .checked_sub(C::UntaggedPointSize::to_usize())
+            .unwrap();
+
+        let public_key =
+            PublicKey::from_untagged_point(&GenericArray::from_slice(&pkcs8_bytes[pk_bytes_pos..]));
 
         let csrng = SystemRandom::new();
 
@@ -192,6 +197,8 @@ fn test_vector_to_pkcs8(vector: &TestVector) -> ::std::vec::Vec<u8> {
 
 #[cfg(test)]
 mod tests {
+    use generic_array::GenericArray;
+
     use super::{P256DERSigner, P256DERVerifier, P256FixedSigner, P256FixedVerifier};
     use ecdsa::{
         curve::nistp256::{
@@ -241,7 +248,8 @@ mod tests {
             let signer = P256FixedSigner::from_test_vector(vector);
 
             // Make sure we compute the vector's public key
-            let public_key = PublicKey::from_bytes(vector.pk).unwrap();
+            let public_key = PublicKey::from_untagged_point(&GenericArray::from_slice(vector.pk));
+
             assert_eq!(signer.public_key().unwrap(), public_key);
 
             // Compute a signature with a random `k`

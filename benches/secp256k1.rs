@@ -5,11 +5,14 @@
 
 #[macro_use]
 extern crate criterion;
+#[cfg(feature = "ecdsa")]
+extern crate generic_array;
 extern crate signatory;
 
 #[cfg(feature = "secp256k1-provider")]
 mod secp256k1_ecdsa {
     use criterion::Criterion;
+    use generic_array::GenericArray;
     use signatory::ecdsa::{
         curve::secp256k1::SHA256_FIXED_SIZE_TEST_VECTORS, signer::*, verifier::*, FixedSignature,
         PublicKey,
@@ -31,7 +34,7 @@ mod secp256k1_ecdsa {
     }
 
     fn verify_ecdsa(c: &mut Criterion) {
-        let public_key = PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
+        let public_key = PublicKey::from_untagged_point(GenericArray::from_slice(TEST_VECTOR.pk));
         let signature = FixedSignature::from_bytes(TEST_VECTOR.sig).unwrap();
 
         c.bench_function("secp256k1: ECDSA verifier", move |b| {

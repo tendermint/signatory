@@ -8,9 +8,9 @@
 #[cfg(feature = "test-vectors")]
 mod test_vectors;
 
-use generic_array::typenum::{U32, U33, U64, U73};
+use generic_array::typenum::{U32, U33, U64, U65, U73};
 
-use super::WeierstrassCurve;
+use super::{WeierstrassCurve, WeierstrassCurveKind};
 
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
@@ -20,23 +20,23 @@ pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 pub struct Secp256k1;
 
 impl WeierstrassCurve for Secp256k1 {
-    /// Signatory's ID for this curve
-    const ID: &'static str = "secp256k1";
-
-    /// SECG identifier for this curve
-    const SECG_ID: &'static str = "secp256k1";
-
-    /// We expect compressed public keys with secp256k1
-    const COMPRESSED_PUBLIC_KEY: bool = true;
+    /// Elliptic curve kind
+    const CURVE_KIND: WeierstrassCurveKind = WeierstrassCurveKind::Secp256k1;
 
     /// Random 256-bit (32-byte) private scalar
     type PrivateScalarSize = U32;
 
-    /// 32 byte compressed public point + 1-byte DER OCTET STRING tag
-    // NOTE: P-256 uses uncompressed public keys, but compressed are more
-    // popular among cryptocurrencies and so we go with convention over
-    // consistency for consistency's sake
-    type DERPublicKeySize = U33;
+    /// Size of a compressed elliptic curve point serialized using
+    /// `Octet-String-to-Elliptic-Curve-Point` encoding
+    type CompressedPointSize = U33;
+
+    /// Size of a raw uncompressed elliptic curve point sans the `0x04`
+    /// tag byte added in the `UncompressedPointSize` value.
+    type UntaggedPointSize = U64;
+
+    /// Size of a raw uncompressed elliptic curve point (i.e sans the `0x04`
+    /// tag added by `Octet-String-to-Elliptic-Curve-Point` encoding)
+    type UncompressedPointSize = U65;
 
     /// Maximum size of an ASN.1 DER encoded signature
     // TODO: double check this calculation

@@ -36,7 +36,7 @@ impl Signer<Secp256k1> for ECDSASigner {
     /// Return the public key that corresponds to the private key for this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
         match Secp256k1PublicKey::from_secret_key(&SECP256K1_ENGINE, &self.0) {
-            Ok(pk) => PublicKey::from_der(&pk.serialize()[..]),
+            Ok(pk) => PublicKey::from_slice(&pk.serialize()[..]),
             Err(e) => fail!(KeyInvalid, "{}", e),
         }
     }
@@ -173,7 +173,7 @@ mod tests {
     pub fn fixed_signature_vectors() {
         for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
             let signer = ECDSASigner::from_bytes(vector.sk).unwrap();
-            let public_key = PublicKey::from_bytes(vector.pk).unwrap();
+            let public_key = PublicKey::from_slice(vector.pk).unwrap();
             assert_eq!(signer.public_key().unwrap(), public_key);
 
             let signature = signer.sign_sha256_fixed(vector.msg).unwrap();
