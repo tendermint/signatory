@@ -6,8 +6,6 @@
 //! When the "nightly" feature is enabled, ed25519-dalek should provide the
 //! best performance (on x86-64 at least) of the available Ed25519 backends
 //! for both signing and signature verification.
-//!
-//! This provider is enabled by default.
 
 mod ed25519;
 

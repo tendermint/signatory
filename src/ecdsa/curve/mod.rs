@@ -14,6 +14,17 @@ pub use self::secp256k1::Secp256k1;
 pub trait WeierstrassCurve:
     Clone + Debug + Default + Hash + Eq + PartialEq + Send + Sized + Sync
 {
+    /// Signatory's ID for this curve (same as the `signatory::ecdsa::curve` module name)
+    const ID: &'static str;
+
+    /// SECG identifier for this curve
+    const SECG_ID: &'static str;
+
+    /// Do we expect public keys for this curve to be represented as compressed
+    /// points as opposed to uncompressed?
+    // TODO: ensure we're handling this correctly, and perhaps find a better abstraction
+    const COMPRESSED_PUBLIC_KEY: bool;
+
     /// Size of a private scalar for this elliptic curve in bytes
     type PrivateScalarSize: ArrayLength<u8>;
 
@@ -26,9 +37,4 @@ pub trait WeierstrassCurve:
 
     /// Size of a compact, fixed-sized signature for this curve
     type FixedSignatureSize: ArrayLength<u8>;
-
-    /// Do we expect public keys for this curve to be represented as compressed
-    /// points as opposed to uncompressed?
-    // TODO: ensure we're handling this correctly, and perhaps find a better abstraction
-    const COMPRESSED_PUBLIC_KEY: bool;
 }

@@ -20,6 +20,15 @@ pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 pub struct Secp256k1;
 
 impl WeierstrassCurve for Secp256k1 {
+    /// Signatory's ID for this curve
+    const ID: &'static str = "secp256k1";
+
+    /// SECG identifier for this curve
+    const SECG_ID: &'static str = "secp256k1";
+
+    /// We expect compressed public keys with secp256k1
+    const COMPRESSED_PUBLIC_KEY: bool = true;
+
     /// Random 256-bit (32-byte) private scalar
     type PrivateScalarSize = U32;
 
@@ -35,9 +44,6 @@ impl WeierstrassCurve for Secp256k1 {
 
     /// Concatenated `r || s` values (32-bytes each)
     type FixedSignatureSize = U64;
-
-    /// We expect compressed public keys with secp256k1
-    const COMPRESSED_PUBLIC_KEY: bool = true;
 }
 
 /// secp256k1 public key

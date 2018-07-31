@@ -4,28 +4,27 @@
 //! call the appropriate signer methods to obtain signers.
 
 use std::sync::{Arc, Mutex};
-use yubihsm::Session as YubiHSMSession;
-use yubihsm::{self, AsymmetricAlgorithm, Connector, HttpConnector};
+use yubihsm_crate;
 
 use super::{KeyId, Session};
 use ed25519::{PublicKey, Signature, Signer};
 use error::{Error, ErrorKind};
 
 /// Ed25519 signature provider for yubihsm-client
-pub struct Ed25519Signer<C = HttpConnector>
+pub struct Ed25519Signer<C = yubihsm_crate::HttpConnector>
 where
-    C: Connector,
+    C: yubihsm_crate::Connector,
 {
     /// Session with the YubiHSM
-    session: Arc<Mutex<YubiHSMSession<C>>>,
+    session: Arc<Mutex<yubihsm_crate::Session<C>>>,
 
     /// ID of an Ed25519 key to perform signatures with
     signing_key_id: KeyId,
 }
 
-impl Ed25519Signer<HttpConnector> {
+impl Ed25519Signer<yubihsm_crate::HttpConnector> {
     /// Create a new YubiHSM-backed Ed25519 signer
-    pub fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
+    pub(crate) fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
             session: session.0.clone(),
             signing_key_id,
@@ -38,14 +37,14 @@ impl Ed25519Signer<HttpConnector> {
     }
 }
 
-impl<C: Connector> Signer for Ed25519Signer<C> {
+impl<C: yubihsm_crate::Connector> Signer for Ed25519Signer<C> {
     fn public_key(&self) -> Result<PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
+        let pubkey = yubihsm_crate::get_pubkey(&mut session, self.signing_key_id)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        if pubkey.algorithm != AsymmetricAlgorithm::EC_ED25519 {
+        if pubkey.algorithm != yubihsm_crate::AsymmetricAlgorithm::EC_ED25519 {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
@@ -55,7 +54,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
     fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let signature = yubihsm::sign_ed25519(&mut session, self.signing_key_id, msg)
+        let signature = yubihsm_crate::sign_ed25519(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         Ok(Signature::from_bytes(signature.as_ref()).unwrap())
@@ -65,13 +64,7 @@ impl<C: Connector> Signer for Ed25519Signer<C> {
 #[cfg(test)]
 mod tests {
     use std::sync::{Arc, Mutex};
-    #[cfg(feature = "yubihsm-mockhsm")]
-    use yubihsm::mockhsm::MockHSM;
-    #[cfg(feature = "yubihsm-mockhsm")]
-    use yubihsm::AuthKey;
-    #[cfg(not(feature = "yubihsm-mockhsm"))]
-    use yubihsm::Session;
-    use yubihsm::{self, AsymmetricAlgorithm, Capability, Domain, ObjectType};
+    use yubihsm_crate;
 
     use super::{Ed25519Signer, KeyId, Signer};
 
@@ -79,40 +72,39 @@ mod tests {
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
 
     /// Key ID to use for test key
-    const TEST_SIGNING_KEY_ID: KeyId = 123;
+    const TEST_SIGNING_KEY_ID: KeyId = 200;
 
     /// Domain IDs for test key
-    const TEST_SIGNING_KEY_DOMAINS: Domain = Domain::DOM1;
+    const TEST_SIGNING_KEY_DOMAINS: yubihsm_crate::Domain = yubihsm_crate::Domain::DOM1;
 
     /// Capability for test key
-    const TEST_SIGNING_KEY_CAPABILITIES: Capability = Capability::ASYMMETRIC_SIGN_EDDSA;
+    const TEST_SIGNING_KEY_CAPABILITIES: yubihsm_crate::Capability =
+        yubihsm_crate::Capability::ASYMMETRIC_SIGN_EDDSA;
 
     /// Label for test key
     const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
 
     /// Example message to sign
     const TEST_MESSAGE: &[u8] =
-        b"The Edwards-curve Digital Signature AsymmetricAlgorithm  (EdDSA) is a \
+        b"The Edwards-curve Digital Signature yubihsm_crate::AsymmetricAlgorithm  (EdDSA) is a \
         variant of Schnorr's signature system with (possibly twisted) Edwards curves.";
 
-    // We need dalek to actually verify the signature
-    #[cfg(feature = "dalek-provider")]
     #[test]
-    fn generates_signature_verifiable_by_dalek() {
+    fn ed25519_sign_test() {
         #[cfg(not(feature = "yubihsm-mockhsm"))]
         let session = Arc::new(Mutex::new(
-            Session::create(
+            yubihsm_crate::Session::create(
                 Default::default(),
                 DEFAULT_AUTH_KEY_ID,
-                AuthKey::default(),
+                yubihsm_crate::AuthKey::default(),
                 true,
             ).unwrap_or_else(|err| panic!("error creating session: {}", err)),
         ));
 
         #[cfg(feature = "yubihsm-mockhsm")]
         let session = Arc::new(Mutex::new(
-            MockHSM::new()
-                .create_session(DEFAULT_AUTH_KEY_ID, AuthKey::default())
+            yubihsm_crate::mockhsm::MockHSM::new()
+                .create_session(DEFAULT_AUTH_KEY_ID, yubihsm_crate::AuthKey::default())
                 .unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
         ));
 
@@ -121,16 +113,20 @@ mod tests {
 
             // Delete the key in TEST_KEY_ID slot it exists
             // Ignore errors since the object may not exist yet
-            let _ = yubihsm::delete_object(&mut s, TEST_SIGNING_KEY_ID, ObjectType::AsymmetricKey);
+            let _ = yubihsm_crate::delete_object(
+                &mut s,
+                TEST_SIGNING_KEY_ID,
+                yubihsm_crate::ObjectType::AsymmetricKey,
+            );
 
             // Create a new key for testing
-            yubihsm::generate_asymmetric_key(
+            yubihsm_crate::generate_asymmetric_key(
                 &mut s,
                 TEST_SIGNING_KEY_ID,
                 TEST_SIGNING_KEY_LABEL.into(),
                 TEST_SIGNING_KEY_DOMAINS,
                 TEST_SIGNING_KEY_CAPABILITIES,
-                AsymmetricAlgorithm::EC_ED25519,
+                yubihsm_crate::AsymmetricAlgorithm::EC_ED25519,
             ).unwrap();
         }
 

@@ -91,7 +91,7 @@ impl Signer<NISTP256> for P256DERSigner {
 }
 
 impl SHA256DERSigner<NISTP256> for P256DERSigner {
-    /// Compute an ASN.1 DER-encoded signature of the given 32-byte message
+    /// Compute an ASN.1 DER-encoded signature of the given message
     fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature<NISTP256>, Error> {
         DERSignature::from_bytes(self.0.sign(msg)?)
     }
@@ -123,7 +123,7 @@ impl Signer<NISTP256> for P256FixedSigner {
 }
 
 impl SHA256FixedSigner<NISTP256> for P256FixedSigner {
-    /// Compute a compact, fixed-sized signature of the given 32-byte message
+    /// Compute a compact, fixed-sized signature of the given message
     fn sign_sha256_fixed(&self, msg: &[u8]) -> Result<FixedSignature<NISTP256>, Error> {
         FixedSignature::from_bytes(self.0.sign(msg)?)
     }

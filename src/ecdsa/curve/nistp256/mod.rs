@@ -29,6 +29,15 @@ pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 pub struct NISTP256;
 
 impl WeierstrassCurve for NISTP256 {
+    /// Signatory's ID for this curve
+    const ID: &'static str = "nistp256";
+
+    /// SECG identifier for this curve
+    const SECG_ID: &'static str = "secp256r1";
+
+    /// We expect uncompressed public keys with P-256
+    const COMPRESSED_PUBLIC_KEY: bool = false;
+
     /// Random 256-bit (32-byte) private scalar
     type PrivateScalarSize = U32;
 
@@ -41,9 +50,6 @@ impl WeierstrassCurve for NISTP256 {
 
     /// Concatenated `r || s` values (32-bytes each)
     type FixedSignatureSize = U64;
-
-    /// We expect uncompressed public keys with P-256
-    const COMPRESSED_PUBLIC_KEY: bool = false;
 }
 
 /// NIST P-256 public key

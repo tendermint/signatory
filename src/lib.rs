@@ -63,7 +63,7 @@ extern crate sodiumoxide;
 #[cfg(feature = "ring-provider")]
 extern crate untrusted;
 #[cfg(feature = "yubihsm-provider")]
-extern crate yubihsm;
+extern crate yubihsm as yubihsm_crate;
 
 #[macro_use]
 mod error;

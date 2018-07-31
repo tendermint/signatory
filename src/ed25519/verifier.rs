@@ -5,6 +5,15 @@
 use core::fmt::Debug;
 use core::hash::Hash;
 
+use super::{PublicKey, Signature};
+use error::Error;
+
+/// Verifier for Ed25519 signatures
+pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Send + Sync {
+    /// Verify an Ed25519 signature against the given public key
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error>;
+}
+
 #[cfg(feature = "dalek-provider")]
 pub use providers::dalek::Ed25519Verifier as DefaultVerifier;
 
@@ -19,36 +28,3 @@ pub use providers::ring::Ed25519Verifier as DefaultVerifier;
     )
 )]
 pub use providers::sodiumoxide::Ed25519Verifier as DefaultVerifier;
-
-use super::{PublicKey, Signature};
-use error::Error;
-
-/// Verifier for Ed25519 signatures
-pub trait Verifier: Clone + Debug + Hash + Eq + PartialEq + Send + Sync {
-    /// Verify an Ed25519 signature against the given public key
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error>;
-}
-
-/// A panicking default verifier if no providers have been selected
-#[cfg(
-    all(
-        not(feature = "dalek-provider"),
-        not(feature = "ring-provider"),
-        not(feature = "sodiumoxide-provider")
-    )
-)]
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct DefaultVerifier {}
-
-#[cfg(
-    all(
-        not(feature = "dalek-provider"),
-        not(feature = "ring-provider"),
-        not(feature = "sodiumoxide-provider")
-    )
-)]
-impl Verifier for DefaultVerifier {
-    fn verify(_key: &PublicKey, _msg: &[u8], _signature: &Signature) -> Result<(), Error> {
-        panic!("no Ed25519 providers available");
-    }
-}
