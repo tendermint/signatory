@@ -5,11 +5,14 @@
 
 #[macro_use]
 extern crate criterion;
+#[cfg(feature = "ecdsa")]
+extern crate generic_array;
 extern crate signatory;
 
 #[cfg(feature = "ring-provider")]
 mod ring_ecdsa {
     use criterion::Criterion;
+    use generic_array::GenericArray;
     use signatory::ecdsa::{curve::nistp256, signer::*, verifier::*, FixedSignature, PublicKey};
     use signatory::{
         providers::ring::{P256FixedSigner, P256FixedVerifier},
@@ -28,7 +31,7 @@ mod ring_ecdsa {
     }
 
     fn verify_ecdsa_p256(c: &mut Criterion) {
-        let public_key = PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
+        let public_key = PublicKey::from_untagged_point(GenericArray::from_slice(TEST_VECTOR.pk));
         let signature = FixedSignature::from_bytes(TEST_VECTOR.sig).unwrap();
 
         c.bench_function("ring: ECDSA (nistp256) verifier", move |b| {

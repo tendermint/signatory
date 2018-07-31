@@ -77,6 +77,9 @@ pub enum ErrorKind {
     /// Malformatted or otherwise invalid cryptographic key
     KeyInvalid,
 
+    /// Error parsing a file format or other data
+    ParseError,
+
     /// Internal error within a cryptographic provider
     ProviderError,
 
@@ -90,6 +93,7 @@ impl ErrorKind {
     pub fn as_str(self) -> &'static str {
         match self {
             ErrorKind::KeyInvalid => "malformed or corrupt cryptographic key",
+            ErrorKind::ParseError => "parse error",
             ErrorKind::ProviderError => "error inside cryptographic provider",
             ErrorKind::SignatureInvalid => "bad signature",
         }
