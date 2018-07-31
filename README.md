@@ -44,10 +44,11 @@ the corresponding [cargo feature] for a given crate:
 
 ### ECDSA providers
 
-| [Cargo Feature]      | Crate          | Type | Curve(s)   |
-|----------------------|----------------|------|------------|
-| `ring-provider`      | [ring]         | Soft | NIST P-256 |
-| `secp256k1-provider` | [secp256k1-rs] | Soft | secp256k1  |
+| [Cargo Feature]      | Crate          | Type | NIST P-256 | secp256k1 |
+|----------------------|----------------|------|------------|-----------|
+| `ring-provider`      | [ring]         | Soft | ✅         | ⛔        |        
+| `secp256k1-provider` | [secp256k1-rs] | Soft | ⛔️         | ✅        |
+| `yubihsm-provider`   | [yubihsm-rs]   | Hard | ✅         | ✅        |
 
 ### Ed25519 providers
 
