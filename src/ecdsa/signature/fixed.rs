@@ -33,10 +33,7 @@ impl<C: WeierstrassCurve> FixedSignature<C> {
             bytes.as_ref().len()
         );
 
-        Ok(Self {
-            bytes: GenericArray::clone_from_slice(bytes.as_ref()),
-            curve: PhantomData,
-        })
+        Ok(Self::from(GenericArray::clone_from_slice(bytes.as_ref())))
     }
 
     /// Obtain signature as a byte array reference
@@ -63,5 +60,14 @@ impl<C: WeierstrassCurve> Debug for FixedSignature<C> {
         write!(f, "signatory::ecdsa::FixedSignature<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
+    }
+}
+
+impl<C: WeierstrassCurve> From<GenericArray<u8, C::FixedSignatureSize>> for FixedSignature<C> {
+    fn from(bytes: GenericArray<u8, C::FixedSignatureSize>) -> Self {
+        Self {
+            bytes,
+            curve: PhantomData,
+        }
     }
 }
