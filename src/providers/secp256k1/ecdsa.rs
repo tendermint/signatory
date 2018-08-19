@@ -5,6 +5,8 @@ use secp256k1_crate::{
     self, key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message,
     Secp256k1 as Secp256k1Engine, Signature as Secp256k1Signature,
 };
+// TODO: remove hacks around yubihsm-mockhsm
+#[cfg(feature = "yubihsm-mockhsm")]
 use sha2::{Digest, Sha256};
 
 use ecdsa::{
@@ -40,33 +42,31 @@ impl Signer<Secp256k1> for ECDSASigner {
     }
 }
 
-impl RawDigestDERSigner<Secp256k1> for ECDSASigner {
+impl RawDigestSigner<Secp256k1> for ECDSASigner {
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
-    fn sign_digest_der(&self, msg: &GenericArray<u8, U32>) -> Result<DERSignature, Error> {
+    fn sign_raw_digest_der(&self, msg: &GenericArray<u8, U32>) -> Result<DERSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(DERSignature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap())
     }
-}
 
-impl RawDigestFixedSigner<Secp256k1> for ECDSASigner {
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
-    fn sign_digest_fixed(&self, msg: &GenericArray<u8, U32>) -> Result<FixedSignature, Error> {
+    fn sign_raw_digest_fixed(&self, msg: &GenericArray<u8, U32>) -> Result<FixedSignature, Error> {
         let m = Message::from_slice(msg.as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
     }
 }
 
-impl SHA256DERSigner<Secp256k1> for ECDSASigner {
+// TODO: remove hacks around yubihsm-mockhsm
+#[cfg(feature = "yubihsm-mockhsm")]
+impl SHA256Signer<Secp256k1> for ECDSASigner {
     fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature, Error> {
-        self.sign_digest_der(&Sha256::digest(msg))
+        self.sign_raw_digest_der(&Sha256::digest(msg))
     }
-}
 
-impl SHA256FixedSigner<Secp256k1> for ECDSASigner {
     fn sign_sha256_fixed(&self, msg: &[u8]) -> Result<FixedSignature, Error> {
-        self.sign_digest_fixed(&Sha256::digest(msg))
+        self.sign_raw_digest_fixed(&Sha256::digest(msg))
     }
 }
 
@@ -74,9 +74,9 @@ impl SHA256FixedSigner<Secp256k1> for ECDSASigner {
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ECDSAVerifier;
 
-impl RawDigestDERVerifier<Secp256k1> for ECDSAVerifier {
+impl RawDigestVerifier<Secp256k1> for ECDSAVerifier {
     /// Verify an ASN.1 DER-encoded ECDSA signature against the given public key
-    fn verify_digest_der_signature(
+    fn verify_raw_digest_der_signature(
         key: &PublicKey,
         msg: &GenericArray<u8, U32>,
         signature: &DERSignature,
@@ -86,11 +86,9 @@ impl RawDigestDERVerifier<Secp256k1> for ECDSAVerifier {
 
         verify_signature(key, msg.as_slice(), &sig)
     }
-}
 
-impl RawDigestFixedVerifier<Secp256k1> for ECDSAVerifier {
     /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature against the given public key
-    fn verify_digest_fixed_signature(
+    fn verify_raw_digest_fixed_signature(
         key: &PublicKey,
         msg: &GenericArray<u8, U32>,
         signature: &FixedSignature,

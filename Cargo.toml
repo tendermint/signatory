@@ -16,6 +16,7 @@ circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
 clear_on_drop = { version = "0.2", optional = true, default-features = false }
+digest = { version = "0.7", optional = true, default-features = false }
 ed25519-dalek = { version = "0.8", optional = true, features = ["sha2"] }
 generic-array = { version = "0.9", optional = true }
 lazy_static = { version = "1", optional = true }
@@ -25,7 +26,7 @@ secp256k1 = { version = "0.10", optional = true }
 sha2 = { version = "0.7", optional = true }
 sodiumoxide = { version = "0.1", optional = true }
 untrusted = { version = "0.6", optional = true }
-yubihsm = { version = "0.14", optional = true }
+yubihsm = { version = "0.15", optional = true }
 
 [dev-dependencies]
 criterion = "0.2"
@@ -39,7 +40,7 @@ ecdsa = ["generic-array"]
 ed25519 = ["clear_on_drop", "rand"]
 std = []
 ring-provider = ["ecdsa", "ed25519", "ring", "untrusted"]
-secp256k1-provider = ["ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
+secp256k1-provider = ["digest", "ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
 sodiumoxide-provider = ["ed25519", "sodiumoxide", "std"]
 test-vectors = []
 yubihsm-provider = ["ecdsa", "ed25519", "std", "yubihsm"]
@@ -50,7 +51,6 @@ features = [
     "dalek-provider",
     "ring-provider",
     "secp256k1-provider",
-    #"sodiumoxide-provider",
     "yubihsm-provider"
 ]
 rustc-args = ["-Ctarget-feature=+aes"]

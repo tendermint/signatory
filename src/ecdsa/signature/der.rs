@@ -224,10 +224,10 @@ impl<C: WeierstrassCurve> Debug for DERSignature<C> {
     }
 }
 
-impl<C: WeierstrassCurve> From<FixedSignature<C>> for DERSignature<C> {
+impl<'s, C: WeierstrassCurve> From<&'s FixedSignature<C>> for DERSignature<C> {
     /// Parse `r` and `s` values from a fixed-width signature and reserialize
     /// them as ASN.1 DER.
-    fn from(fixed_signature: FixedSignature<C>) -> Self {
+    fn from(fixed_signature: &FixedSignature<C>) -> Self {
         let fixed_bytes = fixed_signature.as_bytes();
         let mut der_array = GenericArray::default();
 
@@ -305,8 +305,8 @@ impl<C: WeierstrassCurve> From<FixedSignature<C>> for DERSignature<C> {
     }
 }
 
-impl<C: WeierstrassCurve> From<DERSignature<C>> for FixedSignature<C> {
-    fn from(der_signature: DERSignature<C>) -> FixedSignature<C> {
+impl<'s, C: WeierstrassCurve> From<&'s DERSignature<C>> for FixedSignature<C> {
+    fn from(der_signature: &DERSignature<C>) -> FixedSignature<C> {
         let mut bytes = GenericArray::default();
         let (r, s) = der_signature.parse().unwrap();
 
@@ -321,7 +321,8 @@ impl<C: WeierstrassCurve> From<DERSignature<C>> for FixedSignature<C> {
 /// encoding is signed, so its leading bit must have value 0; it must also be
 /// of minimal length (so leading bytes of value 0 must be removed, except if
 /// that would contradict the rule about the sign bit).
-pub(crate) fn asn1_int_length(x: &[u8]) -> usize {
+// TODO: refactor me so I look less like an ugly handrolled C ASN.1 parser
+fn asn1_int_length(x: &[u8]) -> usize {
     // Account for the INTEGER tag and length data
     let mut len = x.len().checked_add(2).unwrap();
 
@@ -335,7 +336,8 @@ pub(crate) fn asn1_int_length(x: &[u8]) -> usize {
 
 /// Serialize an integer as ASN.1 DER. Panics if `der_out` is too small to
 /// contain the serialized integer.
-pub(crate) fn asn1_int_serialize(der_out: &mut [u8], der_len: usize, value: &[u8], h_len: usize) {
+// TODO: refactor me so I look less like an ugly handrolled C ASN.1 parser
+fn asn1_int_serialize(der_out: &mut [u8], der_len: usize, value: &[u8], h_len: usize) {
     assert!(der_len <= 125, "oversized value");
 
     der_out[0] = asn1::Type::Integer.tag();
@@ -356,11 +358,11 @@ pub(crate) fn asn1_int_serialize(der_out: &mut [u8], der_len: usize, value: &[u8
 mod tests {
     use ecdsa::{
         curve::nistp256::{DERSignature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
-        signer::{SHA256FixedSigner, Signer},
-        verifier::SHA256DERVerifier,
+        signer::{SHA256Signer, Signer},
+        verifier::SHA256Verifier,
     };
     #[cfg(feature = "ring")]
-    use providers::ring::{P256DERVerifier, P256FixedSigner};
+    use providers::ring::{P256Signer, P256Verifier};
 
     #[test]
     fn test_fixed_to_der_signature_roundtrip() {
@@ -368,8 +370,8 @@ mod tests {
             let fixed_signature = FixedSignature::from_bytes(&vector.sig).unwrap();
 
             // Convert to DER and back
-            let der_signature = DERSignature::from(fixed_signature.clone());
-            let fixed_signature2 = FixedSignature::from(der_signature);
+            let der_signature = DERSignature::from(&fixed_signature);
+            let fixed_signature2 = FixedSignature::from(&der_signature);
 
             assert_eq!(fixed_signature, fixed_signature2);
         }
@@ -379,11 +381,11 @@ mod tests {
     #[test]
     fn test_fixed_to_asn1_transformed_signature_verifies() {
         for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
-            let signer = P256FixedSigner::from_test_vector(vector);
+            let signer = P256Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
             let public_key = signer.public_key().unwrap();
 
-            let der_signature = DERSignature::from(signer.sign_sha256_fixed(vector.msg).unwrap());
-            P256DERVerifier::verify_sha256_der_signature(&public_key, vector.msg, &der_signature)
+            let der_signature = DERSignature::from(&signer.sign_sha256_fixed(vector.msg).unwrap());
+            P256Verifier::verify_sha256_der_signature(&public_key, vector.msg, &der_signature)
                 .unwrap();
         }
     }
