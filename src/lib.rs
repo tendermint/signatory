@@ -43,6 +43,8 @@ extern crate std;
 
 #[cfg(feature = "ed25519")]
 extern crate clear_on_drop;
+#[cfg(feature = "digest")]
+extern crate digest;
 #[cfg(feature = "dalek-provider")]
 extern crate ed25519_dalek;
 #[cfg(feature = "ecdsa")]

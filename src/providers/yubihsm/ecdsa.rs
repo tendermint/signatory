@@ -1,14 +1,13 @@
 //! ECDSA provider for the YubiHSM2 crate (supporting NIST P-256 and secp256k1)
 
-use generic_array::{
-    typenum::{U32, Unsigned},
-    GenericArray,
-};
+use generic_array::{typenum::U32, GenericArray};
 use std::{
     marker::PhantomData,
     sync::{Arc, Mutex},
 };
 use yubihsm_crate;
+#[cfg(feature = "yubihsm-mockhsm")]
+use yubihsm_crate::mockhsm::MockConnector;
 
 use super::{KeyId, Session};
 use ecdsa::{
@@ -99,30 +98,23 @@ where
 // API since it's slightly incompatible with the API provided by the MockHSM
 // See: https://github.com/briansmith/ring/issues/253
 #[cfg(not(feature = "yubihsm-mockhsm"))]
-impl<Curve, Connector> SHA256DERSigner<Curve> for ECDSASigner<Curve, Connector>
+impl<Curve, Connector> RawDigestSigner<Curve> for ECDSASigner<Curve, Connector>
 where
-    Curve: WeierstrassCurve<PrivateScalarSize = U32>,
+    Curve: WeierstrassCurve,
     Connector: yubihsm_crate::Connector,
 {
     /// Compute an ASN.1 DER-encoded signature of the given message
-    fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature<Curve>, Error> {
+    fn sign_raw_digest_der(
+        &self,
+        digest: &GenericArray<u8, C::PrivateScalarSize>,
+    ) -> Result<DERSignature<Curve>, Error> {
         let mut session = self.session.lock().unwrap();
 
-        let signature = yubihsm_crate::sign_ecdsa_sha256(&mut session, self.signing_key_id, msg)
-            .map_err(|e| err!(ProviderError, "{}", e))?;
-
-        let length = signature.as_ref().len();
-
-        if length > Curve::DERSignatureMaxSize::to_usize()
-            || length <= Curve::FixedSignatureSize::to_usize()
-        {
-            fail!(
-                ProviderError,
-                "unexpected signature size for {}: {}",
-                Curve::CURVE_KIND.to_str(),
-                length
-            );
-        }
+        let signature = yubihsm_crate::sign_ecdsa_raw_digest(
+            &mut session,
+            self.signing_key_id,
+            digest.as_ref(),
+        ).map_err(|e| err!(ProviderError, "{}", e))?;
 
         DERSignature::from_bytes(signature)
     }
@@ -130,7 +122,7 @@ where
 
 // TODO: figure out how to keep the concrete MockConnector type from leaking out (see above)
 #[cfg(feature = "yubihsm-mockhsm")]
-impl<Curve> SHA256DERSigner<Curve> for ECDSASigner<Curve, yubihsm_crate::mockhsm::MockConnector>
+impl<Curve> SHA256Signer<Curve> for ECDSASigner<Curve, MockConnector>
 where
     Curve: WeierstrassCurve<PrivateScalarSize = U32>,
 {
@@ -140,19 +132,6 @@ where
 
         let signature = yubihsm_crate::sign_ecdsa_sha256(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
-
-        let length = signature.as_ref().len();
-
-        if length > Curve::DERSignatureMaxSize::to_usize()
-            || length <= Curve::FixedSignatureSize::to_usize()
-        {
-            fail!(
-                ProviderError,
-                "unexpected signature size for {}: {}",
-                Curve::CURVE_KIND.to_str(),
-                length
-            );
-        }
 
         DERSignature::from_bytes(signature)
     }
@@ -183,7 +162,7 @@ mod tests {
         )
     )]
     use ecdsa::curve::Secp256k1;
-    use ecdsa::{curve::WeierstrassCurve, signer::SHA256DERSigner, verifier::SHA256DERVerifier};
+    use ecdsa::{curve::WeierstrassCurve, signer::SHA256Signer, verifier::SHA256Verifier};
 
     /// Default authentication key identifier
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
@@ -273,11 +252,8 @@ mod tests {
         let signature = signer.sign_sha256_der(TEST_MESSAGE).unwrap();
 
         assert!(
-            ring::P256DERVerifier::verify_sha256_der_signature(
-                &public_key,
-                TEST_MESSAGE,
-                &signature
-            ).is_ok()
+            ring::P256Verifier::verify_sha256_der_signature(&public_key, TEST_MESSAGE, &signature)
+                .is_ok()
         );
     }
 

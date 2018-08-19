@@ -15,7 +15,7 @@ mod ring_ecdsa {
     use generic_array::GenericArray;
     use signatory::ecdsa::{curve::nistp256, signer::*, verifier::*, FixedSignature, PublicKey};
     use signatory::{
-        providers::ring::{P256FixedSigner, P256FixedVerifier},
+        providers::ring::{P256Signer, P256Verifier},
         test_vector::TestVector,
     };
 
@@ -23,7 +23,7 @@ mod ring_ecdsa {
     const TEST_VECTOR: &TestVector = &nistp256::SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
     fn sign_ecdsa_p256(c: &mut Criterion) {
-        let signer = P256FixedSigner::from_test_vector(TEST_VECTOR);
+        let signer = P256Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8()).unwrap();
 
         c.bench_function("ring: ECDSA (nistp256) signer", move |b| {
             b.iter(|| signer.sign_sha256_fixed(TEST_VECTOR.msg).unwrap())
@@ -36,7 +36,7 @@ mod ring_ecdsa {
 
         c.bench_function("ring: ECDSA (nistp256) verifier", move |b| {
             b.iter(|| {
-                P256FixedVerifier::verify_sha256_fixed_signature(
+                P256Verifier::verify_sha256_fixed_signature(
                     &public_key,
                     TEST_VECTOR.msg,
                     &signature,

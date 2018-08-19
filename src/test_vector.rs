@@ -24,6 +24,30 @@ pub struct TestVector {
     pub pass: bool,
 }
 
+impl TestVector {
+    /// Serialize this test vector as a PKCS#8 document
+    #[cfg(all(feature = "std", feature = "test-vectors"))]
+    pub fn to_pkcs8(&self) -> ::std::vec::Vec<u8> {
+        // TODO: support other algorithms besides ECDSA P-256
+        if self.alg != TestVectorAlgorithm::NISTP256 {
+            panic!("not a NIST P-256 test self: {:?}", self.alg);
+        }
+
+        // TODO: better serializer than giant hardcoded bytestring literals, like a PKCS#8 library,
+        // or at least a less bogus internal PKCS#8 implementation
+        let mut pkcs8_document = b"\x30\x81\x87\x02\x01\x00\x30\x13\
+            \x06\x07\x2a\x86\x48\xce\x3d\x02\x01\x06\x08\x2a\x86\x48\xce\x3d\
+            \x03\x01\x07\x04\x6d\x30\x6b\x02\x01\x01\x04\x20"
+            .to_vec();
+
+        pkcs8_document.extend_from_slice(&self.sk);
+        pkcs8_document.extend_from_slice(b"\xa1\x44\x03\x42\x00\x04");
+        pkcs8_document.extend_from_slice(&self.pk);
+
+        pkcs8_document
+    }
+}
+
 /// Algorithms for which we have test vectors
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum TestVectorAlgorithm {
