@@ -1,7 +1,5 @@
 //! ECDSA provider for the *ring* crate (supporting NIST P-256)
 
-use generic_array::typenum::Unsigned;
-use generic_array::GenericArray;
 use ring::{
     self,
     rand::SystemRandom,
@@ -10,15 +8,14 @@ use ring::{
         Signature, SigningAlgorithm,
     },
 };
-use untrusted::Input;
-
-use ecdsa::{
+use signatory::{
     curve::{nistp256::NISTP256, WeierstrassCurve},
-    signer::*,
-    verifier::*,
-    DERSignature, FixedSignature, PublicKey,
+    ecdsa::{signer::*, verifier::*, DERSignature, FixedSignature, PublicKey},
+    error::Error,
+    generic_array::{typenum::Unsigned, GenericArray},
 };
-use error::Error;
+
+use untrusted::Input;
 
 /// Generic ECDSA signer for use with *ring*
 struct ECDSASigner<C: WeierstrassCurve> {
@@ -128,15 +125,14 @@ impl SHA256Verifier<NISTP256> for P256Verifier {
 
 #[cfg(test)]
 mod tests {
-    use generic_array::GenericArray;
+    use signatory::generic_array::GenericArray;
 
     use super::{P256Signer, P256Verifier};
-    use ecdsa::{
+    use signatory::{
         curve::nistp256::{
             DERSignature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
-        signer::*,
-        verifier::*,
+        ecdsa::{signer::*, verifier::*},
     };
 
     #[test]

@@ -2,7 +2,8 @@ use core::fmt::Debug;
 use digest::Digest;
 
 use super::RawDigestVerifier;
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature, PublicKey};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature, PublicKey};
 use error::Error;
 
 /// Verifier for ECDSA signatures which takes a precomputed  `digest::Digest`,

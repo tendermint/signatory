@@ -1,0 +1,41 @@
+[package]
+name        = "signatory-ring"
+description = "Signatory ECDSA (NIST P-256) and Ed25519 provider for *ring*"
+version     = "0.0.0" # Also update html_root_url in lib.rs when bumping this
+license     = "MIT OR Apache-2.0"
+authors     = ["Tony Arcieri <tony@iqlusion.io>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-ring/"
+readme      = "README.md"
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["cryptography", "ecdsa", "ed25519", "no_std", "ring", "signatures"]
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
+
+[dependencies]
+ring = "0.13"
+untrusted = "0.6"
+
+[dependencies.signatory]
+version = "0.7.0-alpha0"
+default-features = false
+features = ["test-vectors"]
+path = "../.."
+
+[dev-dependencies]
+criterion = "0.2"
+
+[features]
+default = ["ecdsa", "ed25519", "std"]
+ecdsa = ["signatory/ecdsa"]
+ed25519 = ["signatory/ed25519"]
+std = ["signatory/std"]
+
+[[bench]]
+name = "ecdsa"
+harness = false
+
+[[bench]]
+name = "ed25519"
+harness = false

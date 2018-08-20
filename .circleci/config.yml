@@ -5,9 +5,6 @@ jobs:
     docker:
       - image: iqlusion/rust-ci:20180729.2 # bump cache keys when modifying this
     environment:
-      # All features except "dalek-nightly" and "dalek-avx2"
-      - CARGO_FEATURES: dalek-provider,ring-provider,secp256k1-provider,sodiumoxide-provider,yubihsm-mockhsm
-
     steps:
       - checkout
       - restore_cache:
@@ -16,30 +13,24 @@ jobs:
           name: rustfmt
           command: |
             cargo +$RUST_NIGHTLY_VERSION fmt --version
-            cargo +$RUST_NIGHTLY_VERSION fmt -- --check
+            cargo +$RUST_NIGHTLY_VERSION fmt --all -- --check
       - run:
           name: clippy
           command: |
             cargo +$RUST_NIGHTLY_VERSION clippy --version
-            cargo +$RUST_NIGHTLY_VERSION clippy --all-features
-      - run:
-          name: build (no features)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --benches
+            cargo +$RUST_NIGHTLY_VERSION clippy --all
       - run:
           name: build (ecdsa feature only)
           command: |
             rustc --version
             cargo --version
-            cargo build --benches --features=ecdsa
+            cargo build --features=ecdsa
       - run:
           name: build (ed25519 feature only)
           command: |
             rustc --version
             cargo --version
-            cargo build --benches --features=ed25519
+            cargo build --features=ed25519
       - run:
           name: build (--no-default-features + ecdsa + ed25519)
           command: |
@@ -47,29 +38,58 @@ jobs:
             cargo --version
             cargo build --no-default-features --features=ecdsa,ed25519
       - run:
-          name: build (all features except dalek-nightly and dalek-avx2)
+          name: build (default features)
           command: |
             rustc --version
             cargo --version
-            cargo build --benches --features=$CARGO_FEATURES
+            cargo build
       - run:
-          name: build (--all-features including dalek-nightly and dalek-avx2)
+          name: build (--all-features)
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version
-            cargo +$RUST_NIGHTLY_VERSION --version
-            cargo +$RUST_NIGHTLY_VERSION build --benches --all --all-features
+            rustc --version
+            cargo --version
+            cargo build --all-features
       - run:
-          name: test (all features except nightly)
+          name: tests
           command: |
             rustc --version
             cargo --version
             cargo test --features=$CARGO_FEATURES
       - run:
-          name: test (--all-features including nightly)
+          name: signatory-dalek crate
           command: |
-            rustup run $RUST_NIGHTLY_VERSION rustc --version
-            cargo +$RUST_NIGHTLY_VERSION --version
-            cargo +$RUST_NIGHTLY_VERSION test --all-features
+            rustc --version
+            cargo --version
+            cargo build --benches --package=signatory-dalek
+            cargo test --package=signatory-dalek
+      - run:
+          name: signatory-ring crate
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --benches --package=signatory-ring
+            cargo test --package=signatory-ring
+      - run:
+          name: signatory-secp256k1 crate
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --benches --package=signatory-secp256k1
+            cargo test --package=signatory-secp256k1
+      - run:
+          name: signatory-sodiumoxide crate
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --benches --package=signatory-sodiumoxide
+            cargo test --package=signatory-sodiumoxide
+      - run:
+          name: signatory-yubihsm crate
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --package=signatory-yubihsm
+            cd providers/signatory-yubihsm && cargo test --features=mockhsm
       - run:
           name: audit
           command: |

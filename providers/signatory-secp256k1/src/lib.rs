@@ -1,24 +1,52 @@
-//! ECDSA provider for the `secp256k1` crate
+//! ECDSA provider for the `secp256k1` crate (a.k.a. secp256k1-rs)
 
-use generic_array::{typenum::U32, GenericArray};
-use secp256k1_crate::{
-    self, key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message,
-    Secp256k1 as Secp256k1Engine, Signature as Secp256k1Signature,
+#![crate_name = "signatory_secp256k1"]
+#![crate_type = "lib"]
+#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
+#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
+    html_root_url = "https://docs.rs/signatory-secp256k1/0.0.0"
+)]
+
+#[macro_use]
+extern crate lazy_static;
+extern crate secp256k1;
+extern crate signatory;
+
+use secp256k1::{
+    key::PublicKey as Secp256k1PublicKey, key::SecretKey, Message, Secp256k1 as Secp256k1Engine,
+    Signature as Secp256k1Signature,
 };
-// TODO: remove hacks around yubihsm-mockhsm
-#[cfg(feature = "yubihsm-mockhsm")]
-use sha2::{Digest, Sha256};
 
-use ecdsa::{
+use signatory::{
     curve::secp256k1::{DERSignature, FixedSignature, PublicKey, Secp256k1},
-    signer::*,
-    verifier::*,
+    ecdsa::{signer::*, verifier::*},
+    generic_array::{typenum::U32, GenericArray},
+    Error,
 };
-use error::Error;
 
 lazy_static! {
     /// Lazily initialized secp256k1 engine
-    static ref SECP256K1_ENGINE: Secp256k1Engine<secp256k1_crate::All> = Secp256k1Engine::new();
+    static ref SECP256K1_ENGINE: Secp256k1Engine<secp256k1::All> = Secp256k1Engine::new();
+}
+
+/// Create a new error (of a given enum variant) with a formatted message
+macro_rules! err {
+    ($variant:ident, $msg:expr) => {{
+        ::signatory::error::Error::new(
+            ::signatory::error::ErrorKind::$variant,
+            Some(&format!("{}", $msg)),
+        )
+    }};
+}
+
+/// Create and return an error with a formatted message
+#[allow(unused_macros)]
+macro_rules! fail {
+    ($kind:ident, $msg:expr) => {
+        return Err(err!($kind, $msg).into());
+    };
 }
 
 /// ECDSA signature provider for the secp256k1 crate
@@ -29,7 +57,7 @@ impl ECDSASigner {
     pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
         match SecretKey::from_slice(&SECP256K1_ENGINE, bytes) {
             Ok(sk) => Ok(ECDSASigner(sk)),
-            Err(e) => fail!(KeyInvalid, "{}", e),
+            Err(e) => fail!(KeyInvalid, e),
         }
     }
 }
@@ -58,18 +86,6 @@ impl RawDigestSigner<Secp256k1> for ECDSASigner {
     }
 }
 
-// TODO: remove hacks around yubihsm-mockhsm
-#[cfg(feature = "yubihsm-mockhsm")]
-impl SHA256Signer<Secp256k1> for ECDSASigner {
-    fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature, Error> {
-        self.sign_raw_digest_der(&Sha256::digest(msg))
-    }
-
-    fn sign_sha256_fixed(&self, msg: &[u8]) -> Result<FixedSignature, Error> {
-        self.sign_raw_digest_fixed(&Sha256::digest(msg))
-    }
-}
-
 /// ECDSA verifier provider for the secp256k1 crate
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ECDSAVerifier;
@@ -82,7 +98,7 @@ impl RawDigestVerifier<Secp256k1> for ECDSAVerifier {
         signature: &DERSignature,
     ) -> Result<(), Error> {
         let sig = Secp256k1Signature::from_der(&SECP256K1_ENGINE, signature.as_bytes())
-            .map_err(|e| err!(SignatureInvalid, "{}", e))?;
+            .map_err(|e| err!(SignatureInvalid, e))?;
 
         verify_signature(key, msg.as_slice(), &sig)
     }
@@ -111,19 +127,18 @@ fn verify_signature(
 
     SECP256K1_ENGINE
         .verify(&Message::from_slice(msg).unwrap(), signature, &pk)
-        .map_err(|e| err!(SignatureInvalid, "{}", e))
+        .map_err(|e| err!(SignatureInvalid, e))
 }
 
 // TODO: test against actual test vectors, rather than just checking if signatures roundtrip
 #[cfg(test)]
 mod tests {
     use super::{ECDSASigner, ECDSAVerifier, Signer};
-    use ecdsa::{
+    use signatory::{
         curve::secp256k1::{
             DERSignature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
-        signer::*,
-        verifier::*,
+        ecdsa::{signer::*, verifier::*},
     };
 
     #[test]

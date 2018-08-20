@@ -5,8 +5,8 @@ use core::fmt;
 use generic_array::typenum::Unsigned;
 use generic_array::GenericArray;
 
-use super::curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
-use super::curve::WeierstrassCurve;
+use curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
+use curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
 

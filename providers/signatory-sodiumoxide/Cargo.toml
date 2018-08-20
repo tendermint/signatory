@@ -1,0 +1,29 @@
+[package]
+name        = "signatory-sodiumoxide"
+description = "Signatory Ed25519 provider for sodiumoxide"
+version     = "0.0.0" # Also update html_root_url in lib.rs when bumping this
+license     = "MIT OR Apache-2.0"
+authors     = ["Tony Arcieri <tony@iqlusion.io>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-sodiumoxide/"
+readme      = "README.md"
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["cryptography", "ed25519", "no_std", "sodiumoxide", "signatures"]
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
+
+[dependencies]
+sodiumoxide = "0.1"
+
+[dependencies.signatory]
+version = "0.7.0-alpha0"
+features = ["ed25519"]
+path = "../.."
+
+[dev-dependencies]
+criterion = "0.2"
+
+[[bench]]
+name = "ed25519"
+harness = false

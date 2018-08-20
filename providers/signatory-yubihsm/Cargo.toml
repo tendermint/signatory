@@ -1,0 +1,35 @@
+[package]
+name        = "signatory-yubihsm"
+description = "Signatory ECDSA (NIST P256 + secp256k1) and Ed25519 provider for yubihsm-rs"
+version     = "0.0.0" # Also update html_root_url in lib.rs when bumping this
+license     = "MIT OR Apache-2.0"
+authors     = ["Tony Arcieri <tony@iqlusion.io>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-yubihsm/"
+readme      = "README.md"
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["cryptography", "ecdsa", "ed25519", "signatures", "yubihsm"]
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
+
+[dependencies]
+yubihsm = "0.15"
+
+[dependencies.signatory]
+version = "0.7.0-alpha0"
+features = ["ecdsa", "ed25519"]
+path = "../.."
+
+[dev-dependencies]
+signatory-ring = { path = "../signatory-ring" }
+signatory-secp256k1 = { path = "../signatory-secp256k1" }
+
+[features]
+default = ["ecdsa", "ed25519"]
+ecdsa = []
+ed25519 = []
+mockhsm = ["yubihsm/mockhsm"]
+
+[package.metadata.docs.rs]
+rustc-args = ["-Ctarget-feature=+aes"]

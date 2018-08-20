@@ -1,7 +1,8 @@
 use generic_array::GenericArray;
 
 use super::Signer;
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature};
 use error::Error;
 
 /// Sign a raw digest the same size as the curve's field (i.e. without first

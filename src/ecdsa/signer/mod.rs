@@ -14,7 +14,8 @@
 //!   intended for providers to implement if they don't have a way
 //!   of easily computing SHA-256 first.
 
-use ecdsa::{curve::WeierstrassCurve, PublicKey};
+use curve::WeierstrassCurve;
+use ecdsa::PublicKey;
 use error::Error;
 
 #[cfg(feature = "digest")]

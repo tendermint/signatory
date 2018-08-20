@@ -1,11 +1,26 @@
-//! Digital signature (i.e. Ed25519) provider for *sodiumoxide*
+//! Signatory Ed25519 provider for *sodiumoxide*
 
-use sodiumoxide::crypto::sign::ed25519 as sodiumoxide_ed25519;
-use sodiumoxide::crypto::sign::ed25519::SecretKey;
-use sodiumoxide::crypto::sign::ed25519::Seed as SodiumOxideSeed;
+#![crate_name = "signatory_sodiumoxide"]
+#![crate_type = "lib"]
+#![no_std]
+#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
+#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
+    html_root_url = "https://docs.rs/signatory-sodiumoxide/0.0.0"
+)]
 
-use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier};
-use error::{Error, ErrorKind};
+#[cfg_attr(test, macro_use)]
+extern crate signatory;
+extern crate sodiumoxide;
+
+use signatory::{
+    ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier},
+    error::{Error, ErrorKind},
+};
+use sodiumoxide::crypto::sign::ed25519::{
+    self as sodiumoxide_ed25519, SecretKey, Seed as SodiumOxideSeed,
+};
 
 /// Ed25519 signature provider for *sodiumoxide*
 pub struct Ed25519Signer {

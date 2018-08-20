@@ -8,7 +8,6 @@ mod signature;
 mod signer;
 mod verifier;
 
-#[cfg(test)]
 #[macro_use]
 mod test_macros;
 
