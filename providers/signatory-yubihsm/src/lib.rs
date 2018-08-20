@@ -27,9 +27,9 @@ pub use yubihsm::connector::HttpConfig as Config;
 mod error;
 
 #[cfg(feature = "ecdsa")]
-mod ecdsa;
+pub mod ecdsa;
 #[cfg(feature = "ed25519")]
-mod ed25519;
+pub mod ed25519;
 
 #[cfg(feature = "ecdsa")]
 use self::ecdsa::ECDSASigner;
