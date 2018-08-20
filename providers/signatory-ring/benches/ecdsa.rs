@@ -12,6 +12,7 @@ use signatory::{
     curve::nistp256,
     ecdsa::{signer::*, verifier::*, FixedSignature, PublicKey},
     generic_array::GenericArray,
+    pkcs8::FromPKCS8,
     test_vector::TestVector,
 };
 use signatory_ring::ecdsa::{P256Signer, P256Verifier};

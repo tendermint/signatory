@@ -25,6 +25,7 @@ sha2 = { version = "0.7", optional = true }
 default = ["std", "test-vectors"]
 ecdsa = ["generic-array"]
 ed25519 = ["clear_on_drop", "rand"]
+pkcs8 = ["clear_on_drop"]
 std = []
 test-vectors = []
 

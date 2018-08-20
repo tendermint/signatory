@@ -69,6 +69,8 @@ pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]
 pub mod ed25519;
+#[cfg(feature = "pkcs8")]
+pub mod pkcs8;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
