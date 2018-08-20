@@ -22,6 +22,24 @@
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [yubihsm-rs]: https://github.com/tendermint/yubihsm-rs
 
+### Installation
+
+The [yubihsm-rs] crate depends on the `aes` crate, which uses hardware AES
+instructions via `core::arch` (Rust 1.27+).
+
+To access these features, you will need to pass the following as RUSTFLAGS:
+
+```
+RUSTFLAGS=-Ctarget-feature=+aes`
+```
+
+You can configure your `~/.cargo/config` to always pass these flags:
+
+```toml
+[build]
+rustflags = ["-Ctarget-feature=+aes"]
+```
+
 ## License
 
 Signatory is distributed under the terms of both the MIT license and the
