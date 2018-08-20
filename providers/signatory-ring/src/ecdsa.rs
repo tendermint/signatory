@@ -215,4 +215,16 @@ mod tests {
             "expected bad signature to cause validation error!"
         );
     }
+
+    #[test]
+    fn test_fixed_to_asn1_transformed_signature_verifies() {
+        for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
+            let signer = P256Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+            let public_key = signer.public_key().unwrap();
+
+            let der_signature = DERSignature::from(&signer.sign_sha256_fixed(vector.msg).unwrap());
+            P256Verifier::verify_sha256_der_signature(&public_key, vector.msg, &der_signature)
+                .unwrap();
+        }
+    }
 }

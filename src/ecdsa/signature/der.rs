@@ -357,12 +357,7 @@ fn asn1_int_serialize(der_out: &mut [u8], der_len: usize, value: &[u8], h_len: u
 #[allow(unused_imports)]
 mod tests {
     use curve::nistp256::{DERSignature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
-    use ecdsa::{
-        signer::{SHA256Signer, Signer},
-        verifier::SHA256Verifier,
-    };
-    #[cfg(feature = "ring")]
-    use providers::ring::{P256Signer, P256Verifier};
+    use ecdsa::signer::Signer;
 
     #[test]
     fn test_fixed_to_der_signature_roundtrip() {
@@ -374,19 +369,6 @@ mod tests {
             let fixed_signature2 = FixedSignature::from(&der_signature);
 
             assert_eq!(fixed_signature, fixed_signature2);
-        }
-    }
-
-    #[cfg(feature = "ring")]
-    #[test]
-    fn test_fixed_to_asn1_transformed_signature_verifies() {
-        for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
-            let signer = P256Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
-            let public_key = signer.public_key().unwrap();
-
-            let der_signature = DERSignature::from(&signer.sign_sha256_fixed(vector.msg).unwrap());
-            P256Verifier::verify_sha256_der_signature(&public_key, vector.msg, &der_signature)
-                .unwrap();
         }
     }
 }

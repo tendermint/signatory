@@ -20,6 +20,18 @@ jobs:
             cargo +$RUST_NIGHTLY_VERSION clippy --version
             cargo +$RUST_NIGHTLY_VERSION clippy --all
       - run:
+          name: build (--no-default-features)
+          command: |
+            rustc --version
+            cargo --version
+            cargo build --no-default-features
+      - run:
+          name: build (default features)
+          command: |
+            rustc --version
+            cargo --version
+            cargo build
+      - run:
           name: build (ecdsa feature only)
           command: |
             rustc --version
@@ -38,11 +50,11 @@ jobs:
             cargo --version
             cargo build --no-default-features --features=ecdsa,ed25519
       - run:
-          name: build (default features)
+          name: build (ecdsa + ed25519)
           command: |
             rustc --version
             cargo --version
-            cargo build
+            cargo build --features=ecdsa,ed25519
       - run:
           name: build (--all-features)
           command: |
@@ -50,11 +62,11 @@ jobs:
             cargo --version
             cargo build --all-features
       - run:
-          name: tests
+          name: test (--all-features)
           command: |
             rustc --version
             cargo --version
-            cargo test --features=$CARGO_FEATURES
+            cargo test --all-features
       - run:
           name: signatory-dalek crate
           command: |
