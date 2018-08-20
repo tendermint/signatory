@@ -1,14 +1,14 @@
 [package]
 name        = "signatory"
 description = "Multi-provider elliptic curve digital signature library with ECDSA and Ed25519 support"
-version     = "0.7.0-alpha0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.7.0-alpha1" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT OR Apache-2.0"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
 repository  = "https://github.com/tendermint/signatory/tree/master"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
-keywords    = ["cryptography", "ecdsa", "ed25519", "no_std", "security", "signatures"]
+keywords    = ["cryptography", "ecdsa", "ed25519", "signing", "signatures"]
 autobenches = false
 
 [badges]
