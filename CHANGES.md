@@ -1,3 +1,13 @@
+## [0.8.0] (2018-08-19)
+
+[0.8.0]: https://github.com/tendermint/signatory/compare/v0.7.0...v0.8.0
+
+* [#67](https://github.com/tendermint/signatory/pull/67)
+  Extract 'from_pkcs8' into a trait.
+
+* [#65](https://github.com/tendermint/signatory/pull/65)
+  signatory-yubihsm: Make ecdsa and ed25519 modules public.
+
 ## [0.7.0] (2018-08-19)
 
 [0.7.0]: https://github.com/tendermint/signatory/compare/v0.6.1...v0.7.1
