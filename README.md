@@ -67,25 +67,6 @@ Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.3
 [signatory-sodiumoxide]: https://crates.io/crates/signatory-sodiumoxide
 [signatory-yubihsm]: https://crates.io/crates/signatory-yubihsm
 
-### YubiHSM2 Provider Notes
-
-The [yubihsm-rs] crate depends on the `aesni` crate, which uses the new "stdsimd"
-API (coming soon to stable!) to invoke hardware AES instructions via `core::arch`.
-
-To access these features, you will need both a relatively recent
-Rust nightly and to pass the following as RUSTFLAGS:
-
-```
-RUSTFLAGS=-Ctarget-feature=+aes`
-```
-
-You can configure your `~/.cargo/config` to always pass these flags:
-
-```toml
-[build]
-rustflags = ["-Ctarget-feature=+aes"]
-```
-
 ## License
 
 Signatory is distributed under the terms of both the MIT license and the
