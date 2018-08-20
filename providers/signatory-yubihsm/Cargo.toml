@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-yubihsm"
 description = "Signatory ECDSA (NIST P256 + secp256k1) and Ed25519 provider for yubihsm-rs"
-version     = "0.7.0-alpha1" # Also update html_root_url in lib.rs when bumping this
+version     = "0.7.0" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT OR Apache-2.0"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -17,13 +17,13 @@ circle-ci = { repository = "tendermint/signatory" }
 yubihsm = "0.15"
 
 [dependencies.signatory]
-version = "0.7.0-alpha1"
+version = "0.7"
 features = ["digest", "ecdsa", "ed25519",  "sha2"]
 path = "../.."
 
 [dev-dependencies]
-signatory-ring = { version = "0.7.0-alpha1", path = "../signatory-ring" }
-signatory-secp256k1 = { version = "0.7.0-alpha1", path = "../signatory-secp256k1" }
+signatory-ring = { version = "0.7", path = "../signatory-ring" }
+signatory-secp256k1 = { version = "0.7", path = "../signatory-secp256k1" }
 
 [features]
 default = ["ecdsa", "ed25519"]

@@ -39,7 +39,7 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory/0.7.0-alpha1"
+    html_root_url = "https://docs.rs/signatory/0.7.0"
 )]
 
 #[cfg(any(feature = "std", test))]

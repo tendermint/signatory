@@ -1,3 +1,16 @@
+## [0.7.0] (2018-08-19)
+
+[0.7.0]: https://github.com/tendermint/signatory/compare/v0.6.1...v0.7.1
+
+* [#63](https://github.com/tendermint/signatory/pull/63)
+  Factor providers into their own 'signatory-*' crates.
+
+* [#62](https://github.com/tendermint/signatory/pull/62)
+  Unify ECDSA traits across DER and fixed-sized signatures.
+
+* [#61](https://github.com/tendermint/signatory/pull/61)
+  ECDSA DER signature parsing and serialization.
+
 ## [0.6.1] (2018-07-31)
 
 [0.6.1]: https://github.com/tendermint/signatory/compare/v0.6.0...v0.6.1
