@@ -7,6 +7,7 @@ use untrusted;
 use signatory::{
     ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier},
     error::{Error, ErrorKind},
+    pkcs8::FromPKCS8,
 };
 
 /// Ed25519 signature provider for *ring*
@@ -23,10 +24,10 @@ impl FromSeed for Ed25519Signer {
     }
 }
 
-impl Ed25519Signer {
+impl FromPKCS8 for Ed25519Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
-    pub fn from_pkcs8(bytes: &[u8]) -> Result<Self, Error> {
-        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(bytes))
+    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
+        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(pkcs8_bytes))
             .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 private key"))?;
 
         Ok(Ed25519Signer(keypair))

@@ -13,6 +13,7 @@ use signatory::{
     ecdsa::{signer::*, verifier::*, DERSignature, FixedSignature, PublicKey},
     error::Error,
     generic_array::{typenum::Unsigned, GenericArray},
+    pkcs8::FromPKCS8,
 };
 
 use untrusted::Input;
@@ -67,10 +68,10 @@ where
 /// NIST P-256 ECDSA signer which produces ASN.1 DER encoded signatures
 pub struct P256Signer(ECDSASigner<NISTP256>);
 
-impl P256Signer {
+impl FromPKCS8 for P256Signer {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    pub fn from_pkcs8(pkcs_bytes: &[u8]) -> Result<Self, Error> {
-        let signer = ECDSASigner::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs_bytes)?;
+    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
+        let signer = ECDSASigner::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8_bytes)?;
         Ok(P256Signer(signer))
     }
 }
@@ -133,6 +134,7 @@ mod tests {
             DERSignature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         ecdsa::{signer::*, verifier::*},
+        pkcs8::FromPKCS8,
     };
 
     #[test]
