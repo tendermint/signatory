@@ -18,7 +18,7 @@ yubihsm = "0.15"
 
 [dependencies.signatory]
 version = "0.7.0-alpha0"
-features = ["ecdsa", "ed25519"]
+features = ["digest", "ecdsa", "ed25519",  "sha2"]
 path = "../.."
 
 [dev-dependencies]
