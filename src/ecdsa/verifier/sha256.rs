@@ -7,7 +7,8 @@ use sha2::Sha256;
 
 #[cfg(all(feature = "digest", feature = "sha2"))]
 use super::DigestVerifier;
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature, PublicKey};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature, PublicKey};
 use error::Error;
 
 /// Verifier for ECDSA signatures which first hashes the input message using

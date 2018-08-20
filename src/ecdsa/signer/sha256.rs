@@ -1,31 +1,14 @@
-#[cfg(
-    all(
-        feature = "digest",
-        feature = "sha2",
-        not(feature = "yubihsm-mockhsm")
-    )
-)]
+#[cfg(all(feature = "digest", feature = "sha2"))]
 use digest::Input;
 use generic_array::typenum::U32;
-#[cfg(
-    all(
-        feature = "digest",
-        feature = "sha2",
-        not(feature = "yubihsm-mockhsm")
-    )
-)]
+#[cfg(all(feature = "digest", feature = "sha2"))]
 use sha2::Sha256;
 
-#[cfg(
-    all(
-        feature = "digest",
-        feature = "sha2",
-        not(feature = "yubihsm-mockhsm")
-    )
-)]
+#[cfg(all(feature = "digest", feature = "sha2"))]
 use super::DigestSigner;
 use super::Signer;
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature};
 use error::Error;
 
 /// ECDSA signer which computes SHA-256 digests of messages
@@ -46,14 +29,7 @@ where
     }
 }
 
-// TODO: remove hacks around yubihsm-mockhsm
-#[cfg(
-    all(
-        feature = "digest",
-        feature = "sha2",
-        not(feature = "yubihsm-mockhsm")
-    )
-)]
+#[cfg(all(feature = "digest", feature = "sha2"))]
 impl<C, S> SHA256Signer<C> for S
 where
     C: WeierstrassCurve<PrivateScalarSize = U32>,

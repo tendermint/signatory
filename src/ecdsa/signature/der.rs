@@ -9,7 +9,7 @@ use std::vec::Vec;
 
 use super::fixed::FixedSignature;
 use asn1;
-use ecdsa::curve::WeierstrassCurve;
+use curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
 
@@ -356,8 +356,8 @@ fn asn1_int_serialize(der_out: &mut [u8], der_len: usize, value: &[u8], h_len: u
 #[cfg(test)]
 #[allow(unused_imports)]
 mod tests {
+    use curve::nistp256::{DERSignature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
     use ecdsa::{
-        curve::nistp256::{DERSignature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
         signer::{SHA256Signer, Signer},
         verifier::SHA256Verifier,
     };

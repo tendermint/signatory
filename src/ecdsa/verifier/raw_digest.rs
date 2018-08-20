@@ -1,7 +1,8 @@
 use core::fmt::Debug;
 use generic_array::GenericArray;
 
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature, PublicKey};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature, PublicKey};
 use error::Error;
 
 /// Verify a raw message the same size as the curve's field (i.e. without first

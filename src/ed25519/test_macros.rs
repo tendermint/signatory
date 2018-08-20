@@ -1,11 +1,12 @@
 //! Macro for generating shared tests for all software Ed25519 implementations
 
-#[allow(unused_macros)]
+#[macro_export]
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
-        use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier, TEST_VECTORS};
-        use error::ErrorKind;
-        use std::vec::Vec;
+        use $crate::ed25519::{
+            FromSeed, PublicKey, Seed, Signature, Signer, Verifier, SIGNATURE_SIZE, TEST_VECTORS,
+        };
+        use $crate::error::ErrorKind;
 
         #[test]
         fn sign_rfc8032_test_vectors() {
@@ -33,13 +34,14 @@ macro_rules! ed25519_tests {
             for vector in TEST_VECTORS {
                 let pk = PublicKey::from_bytes(vector.pk).unwrap();
 
-                let mut tweaked_sig = Vec::from(vector.sig);
+                let mut tweaked_sig = [0u8; SIGNATURE_SIZE];
+                tweaked_sig.copy_from_slice(vector.sig);
                 tweaked_sig[0] ^= 0x42;
 
                 let result = $verifier::verify(
                     &pk,
                     vector.msg,
-                    &Signature::from_bytes(&tweaked_sig).unwrap(),
+                    &Signature::from_bytes(&tweaked_sig[..]).unwrap(),
                 );
 
                 assert!(

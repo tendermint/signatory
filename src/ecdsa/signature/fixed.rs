@@ -5,7 +5,7 @@ use core::marker::PhantomData;
 use generic_array::typenum::Unsigned;
 use generic_array::GenericArray;
 
-use ecdsa::curve::WeierstrassCurve;
+use curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
 

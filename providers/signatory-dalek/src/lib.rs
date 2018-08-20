@@ -1,12 +1,29 @@
-//! Ed25519 provider for ed25519-dalek
+//! Signatory Ed25519 provider for ed25519-dalek
+
+#![crate_name = "signatory_dalek"]
+#![crate_type = "lib"]
+#![no_std]
+#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
+#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
+    html_root_url = "https://docs.rs/signatory-dalek/0.0.0"
+)]
+
+extern crate ed25519_dalek;
+extern crate sha2;
+#[cfg_attr(test, macro_use)]
+extern crate signatory;
 
 use ed25519_dalek::PublicKey as DalekPublicKey;
 use ed25519_dalek::Signature as DalekSignature;
 use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
-use ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier};
-use error::{Error, ErrorKind};
+use signatory::{
+    ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier},
+    error::{Error, ErrorKind},
+};
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);
@@ -14,7 +31,7 @@ pub struct Ed25519Signer(Keypair);
 impl FromSeed for Ed25519Signer {
     /// Create a new DalekSigner from an unexpanded seed value
     fn from_seed<S: Into<Seed>>(seed: S) -> Self {
-        let sk = SecretKey::from_bytes(&seed.into().0[..]).unwrap();
+        let sk = SecretKey::from_bytes(&seed.into().as_secret_slice()).unwrap();
         let pk = DalekPublicKey::from_secret::<Sha512>(&sk);
 
         Ed25519Signer(Keypair {

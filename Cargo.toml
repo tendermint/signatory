@@ -1,14 +1,14 @@
 [package]
 name        = "signatory"
 description = "Multi-provider elliptic curve digital signature library with ECDSA and Ed25519 support"
-version     = "0.6.1" # Also update html_root_url in lib.rs when bumping this
+version     = "0.7.0-alpha0" # Also update html_root_url in lib.rs when bumping this
 license     = "MIT OR Apache-2.0"
-authors     = ["Tony Arcieri <bascule@gmail.com>"]
+authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
 repository  = "https://github.com/tendermint/signatory/tree/master"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
-keywords    = ["crypto", "cryptography", "no_std", "security", "signatures"]
+keywords    = ["cryptography", "ecdsa", "ed25519", "no_std", "security", "signatures"]
 autobenches = false
 
 [badges]
@@ -17,43 +17,25 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 clear_on_drop = { version = "0.2", optional = true, default-features = false }
 digest = { version = "0.7", optional = true, default-features = false }
-ed25519-dalek = { version = "0.8", optional = true, features = ["sha2"] }
 generic-array = { version = "0.9", optional = true }
-lazy_static = { version = "1", optional = true }
 rand = { version = "0.5", optional = true }
-ring = { version = "0.13", optional = true }
-secp256k1 = { version = "0.10", optional = true }
 sha2 = { version = "0.7", optional = true }
-sodiumoxide = { version = "0.1", optional = true }
-untrusted = { version = "0.6", optional = true }
-yubihsm = { version = "0.15", optional = true }
-
-[dev-dependencies]
-criterion = "0.2"
 
 [features]
-dalek-provider = ["ed25519", "ed25519-dalek", "sha2"]
-dalek-avx2 = ["dalek-provider", "ed25519-dalek/avx2_backend"]
-dalek-nightly = ["dalek-provider", "clear_on_drop/nightly", "ed25519-dalek/nightly"]
 default = ["std", "test-vectors"]
 ecdsa = ["generic-array"]
 ed25519 = ["clear_on_drop", "rand"]
 std = []
-ring-provider = ["ecdsa", "ed25519", "ring", "untrusted"]
-secp256k1-provider = ["digest", "ecdsa", "lazy_static", "secp256k1", "sha2", "std"]
-sodiumoxide-provider = ["ed25519", "sodiumoxide", "std"]
 test-vectors = []
-yubihsm-provider = ["ecdsa", "ed25519", "std", "yubihsm"]
-yubihsm-mockhsm = ["yubihsm-provider", "yubihsm/mockhsm"]
 
-[package.metadata.docs.rs]
-features = [
-    "dalek-provider",
-    "ring-provider",
-    "secp256k1-provider",
-    "yubihsm-provider"
+[workspace]
+members = [
+    "providers/signatory-dalek",
+    "providers/signatory-ring",
+    "providers/signatory-secp256k1",
+    "providers/signatory-sodiumoxide",
+    "providers/signatory-yubihsm",
 ]
-rustc-args = ["-Ctarget-feature=+aes"]
 
 [profile.release]
 opt-level = 3
@@ -71,19 +53,3 @@ rpath = false
 lto = false
 debug-assertions = false
 codegen-units = 1
-
-[[bench]]
-name = "dalek"
-harness = false
-
-[[bench]]
-name = "ring"
-harness = false
-
-[[bench]]
-name = "secp256k1"
-harness = false
-
-[[bench]]
-name = "sodiumoxide"
-harness = false

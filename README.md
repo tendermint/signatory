@@ -39,30 +39,33 @@ specific providers selected at runtime.
 
 ## Provider Support
 
-Signatory includes the following providers, which can be enabled by selecting
-the corresponding [cargo feature] for a given crate:
+Signatory includes the following providers, which are each packaged into their
+own respective crates:
 
 ### ECDSA providers
 
-| [Cargo Feature]      | Crate          | Type | P-256 | secp256k1 |
-|----------------------|----------------|------|-------|-----------|
-| `ring-provider`      | [ring]         | Soft | ✅    | ⛔        |
-| `secp256k1-provider` | [secp256k1-rs] | Soft | ⛔    | ✅        |
-| `yubihsm-provider`   | [yubihsm-rs]   | Hard | ✅    | ✅        |
+| Provider Crate        | Backend Crate  | Type | P-256 | secp256k1 |
+|-----------------------|----------------|------|-------|-----------|
+| [signatory-ring]      | [ring]         | Soft | ✅    | ⛔        |
+| [signatory-secp256k1] | [secp256k1-rs] | Soft | ⛔    | ✅        |
+| [signatory-yubihsm]   | [yubihsm-rs]   | Hard | ✅    | ✅        |
 
 ### Ed25519 providers
 
-| [Cargo Feature]        | Crate           | Type | Signing | Verification |
-|------------------------|-----------------|------|---------|--------------|
-| `dalek-provider`       | [ed25519-dalek] | Soft | 51 k/s  | 18 k/s       |
-| `ring-provider`        | [ring]          | Soft | 47 k/s  | 16 k/s       |
-| `sodiumoxide-provider` | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
-| `yubihsm-provider`     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
+| Provider Crate          | Backend Crate   | Type | Signing | Verification |
+|-------------------------|-----------------|------|---------|--------------|
+| [signatory-dalek]       | [ed25519-dalek] | Soft | 51 k/s  | 18 k/s       |
+| [signatory-ring]        | [ring]          | Soft | 47 k/s  | 16 k/s       |
+| [signatory-sodiumoxide] | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
+| [signatory-yubihsm]     | [yubihsm-rs]    | Hard | ~8/s    | N/A          |
 
-Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @
-3.30GHz with the `nightly` cargo feature enabled.
+Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.30GHz.
 
-[cargo feature]: https://doc.rust-lang.org/cargo/reference/manifest.html#the-features-section
+[signatory-dalek]: https://crates.io/crates/signatory-dalek
+[signatory-ring]: https://crates.io/crates/signatory-ring
+[signatory-secp256k1]: https://crates.io/crates/signatory-secp256k1
+[signatory-sodiumoxide]: https://crates.io/crates/signatory-sodiumoxide
+[signatory-yubihsm]: https://crates.io/crates/signatory-yubihsm
 
 ### YubiHSM2 Provider Notes
 

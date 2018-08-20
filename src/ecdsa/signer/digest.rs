@@ -1,7 +1,8 @@
 use digest::Digest;
 
 use super::{RawDigestSigner, Signer};
-use ecdsa::{curve::WeierstrassCurve, DERSignature, FixedSignature};
+use curve::WeierstrassCurve;
+use ecdsa::{DERSignature, FixedSignature};
 use error::Error;
 
 /// Compute the signature of the given `digest::Digest`, whose output size
