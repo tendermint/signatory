@@ -10,19 +10,23 @@
     html_root_url = "https://docs.rs/signatory-dalek/0.8.0"
 )]
 
+extern crate digest;
 extern crate ed25519_dalek;
 extern crate sha2;
 #[cfg_attr(test, macro_use)]
 extern crate signatory;
 
+use digest::Digest;
 use ed25519_dalek::PublicKey as DalekPublicKey;
 use ed25519_dalek::Signature as DalekSignature;
 use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
 use signatory::{
-    ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
     error::{Error, ErrorKind},
+    generic_array::typenum::U64,
+    DigestSigner, PublicKeyed, Signature, Signer,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -41,13 +45,32 @@ impl FromSeed for Ed25519Signer {
     }
 }
 
-impl Signer for Ed25519Signer {
+impl PublicKeyed<PublicKey> for Ed25519Signer {
     fn public_key(&self) -> Result<PublicKey, Error> {
         Ok(PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
     }
+}
 
-    fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
-        Ok(Signature::from_bytes(&self.0.sign::<Sha512>(msg).to_bytes()[..]).unwrap())
+impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
+    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
+        Ok(Ed25519Signature::from_bytes(&self.0.sign::<Sha512>(msg).to_bytes()[..]).unwrap())
+    }
+}
+
+// TODO: test vectors!
+impl<D> DigestSigner<D, Ed25519Signature> for Ed25519Signer
+where
+    D: Digest<OutputSize = U64> + Default,
+{
+    fn sign_digest(&self, digest: D) -> Result<Ed25519Signature, Error> {
+        // TODO: context support
+        let context: Option<&'static [u8]> = None;
+
+        let signature = Ed25519Signature::from_bytes(
+            &self.0.sign_prehashed(digest, context).to_bytes()[..],
+        ).unwrap();
+
+        Ok(signature)
     }
 }
 
@@ -56,7 +79,7 @@ impl Signer for Ed25519Signer {
 pub struct Ed25519Verifier;
 
 impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
         let pk = DalekPublicKey::from_bytes(key.as_ref()).unwrap();
         let sig = DalekSignature::from_bytes(signature.as_ref()).unwrap();
 

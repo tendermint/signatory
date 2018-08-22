@@ -32,7 +32,7 @@ pub mod ecdsa;
 pub mod ed25519;
 
 #[cfg(feature = "ecdsa")]
-use self::ecdsa::ECDSASigner;
+use self::ecdsa::EcdsaSigner;
 #[cfg(feature = "ed25519")]
 use self::ed25519::Ed25519Signer;
 #[cfg(feature = "ecdsa")]
@@ -107,11 +107,11 @@ impl Session {
     /// * `signatory::curve::Secp256k1`: secp256k1 elliptic curve
     ///   (used by Bitcoin)
     #[cfg(feature = "ecdsa")]
-    pub fn ecdsa_signer<C>(&self, signing_key_id: KeyId) -> Result<ECDSASigner<C>, Error>
+    pub fn ecdsa_signer<C>(&self, signing_key_id: KeyId) -> Result<EcdsaSigner<C>, Error>
     where
         C: WeierstrassCurve,
     {
-        ECDSASigner::new(self, signing_key_id)
+        EcdsaSigner::new(self, signing_key_id)
     }
 
     /// Create an Ed25519 signer which uses this session

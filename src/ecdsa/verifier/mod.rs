@@ -16,9 +16,9 @@
 #[cfg(feature = "digest")]
 mod digest;
 mod raw_digest;
-mod sha256;
+mod sha2;
 
 #[cfg(feature = "digest")]
 pub use self::digest::DigestVerifier;
 pub use self::raw_digest::RawDigestVerifier;
-pub use self::sha256::SHA256Verifier;
+pub use self::sha2::Sha256Verifier;

@@ -9,11 +9,12 @@ extern crate signatory_ring;
 
 use criterion::Criterion;
 use signatory::{
-    curve::nistp256,
-    ecdsa::{signer::*, verifier::*, FixedSignature, PublicKey},
+    curve::nistp256::{self, FixedSignature},
+    ecdsa::{verifier::*, PublicKey},
     generic_array::GenericArray,
-    pkcs8::FromPKCS8,
+    pkcs8::FromPkcs8,
     test_vector::TestVector,
+    Signature,
 };
 use signatory_ring::ecdsa::{P256Signer, P256Verifier};
 
@@ -24,7 +25,7 @@ fn sign_ecdsa_p256(c: &mut Criterion) {
     let signer = P256Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8()).unwrap();
 
     c.bench_function("ring: ECDSA (nistp256) signer", move |b| {
-        b.iter(|| signer.sign_sha256_fixed(TEST_VECTOR.msg).unwrap())
+        b.iter(|| signatory::sign_sha256::<FixedSignature>(&signer, TEST_VECTOR.msg).unwrap())
     });
 }
 

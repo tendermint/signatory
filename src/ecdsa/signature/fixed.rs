@@ -5,9 +5,11 @@ use core::marker::PhantomData;
 use generic_array::typenum::Unsigned;
 use generic_array::GenericArray;
 
+use super::{EcdsaSignature, EcdsaSignatureKind};
 use curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
+use Signature;
 
 /// ECDSA signatures serialized in a compact, fixed-sized form
 #[derive(Clone, PartialEq, Eq)]
@@ -19,12 +21,12 @@ pub struct FixedSignature<C: WeierstrassCurve> {
     curve: PhantomData<C>,
 }
 
-impl<C: WeierstrassCurve> FixedSignature<C> {
+impl<C> Signature for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
     /// Create an ECDSA signature from its serialized byte representation
-    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
-    where
-        B: AsRef<[u8]>,
-    {
+    fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
         ensure!(
             bytes.as_ref().len() == C::FixedSignatureSize::to_usize(),
             SignatureInvalid,
@@ -35,13 +37,19 @@ impl<C: WeierstrassCurve> FixedSignature<C> {
 
         Ok(Self::from(GenericArray::clone_from_slice(bytes.as_ref())))
     }
+}
 
-    /// Obtain signature as a byte array reference
-    #[inline]
-    pub fn as_bytes(&self) -> &[u8] {
-        self.bytes.as_slice()
-    }
+impl<C> EcdsaSignature for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
+    const SIGNATURE_KIND: EcdsaSignatureKind = EcdsaSignatureKind::Fixed;
+}
 
+impl<C> FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
     /// Convert signature into owned byte array
     #[inline]
     pub fn into_bytes(self) -> GenericArray<u8, C::FixedSignatureSize> {
@@ -49,13 +57,19 @@ impl<C: WeierstrassCurve> FixedSignature<C> {
     }
 }
 
-impl<C: WeierstrassCurve> AsRef<[u8]> for FixedSignature<C> {
+impl<C> AsRef<[u8]> for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
     fn as_ref(&self) -> &[u8] {
-        self.as_bytes()
+        self.bytes.as_slice()
     }
 }
 
-impl<C: WeierstrassCurve> Debug for FixedSignature<C> {
+impl<C> Debug for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ecdsa::FixedSignature<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
@@ -63,7 +77,10 @@ impl<C: WeierstrassCurve> Debug for FixedSignature<C> {
     }
 }
 
-impl<C: WeierstrassCurve> From<GenericArray<u8, C::FixedSignatureSize>> for FixedSignature<C> {
+impl<C> From<GenericArray<u8, C::FixedSignatureSize>> for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
     fn from(bytes: GenericArray<u8, C::FixedSignatureSize>) -> Self {
         Self {
             bytes,

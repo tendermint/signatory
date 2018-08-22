@@ -50,7 +50,7 @@ extern crate std;
 extern crate clear_on_drop;
 #[cfg(feature = "digest")]
 extern crate digest;
-#[cfg(feature = "ecdsa")]
+#[cfg(feature = "generic-array")]
 pub extern crate generic_array;
 #[cfg(feature = "rand")]
 extern crate rand;
@@ -71,8 +71,26 @@ pub mod ecdsa;
 pub mod ed25519;
 #[cfg(feature = "pkcs8")]
 pub mod pkcs8;
+mod public_key;
+mod signature;
+mod signer;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
 
 pub use error::{Error, ErrorKind};
+pub use public_key::{public_key, PublicKey, PublicKeyed};
+pub use signature::Signature;
+#[cfg(all(feature = "digest", feature = "generic-array"))]
+pub use signer::digest::sign_digest;
+pub use signer::*;
+pub use signer::{bytes::sign_bytes, sha2::sign_sha256};
+
+/// Sign the given byte slice with the given signer (alias for `sign_bytes`)
+#[inline]
+pub fn sign<'a, S>(signer: &ByteSigner<'a, S>, msg: &'a [u8]) -> Result<S, Error>
+where
+    S: Signature,
+{
+    signer.sign(msg)
+}

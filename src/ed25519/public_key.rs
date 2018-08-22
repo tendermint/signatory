@@ -1,9 +1,10 @@
 //! Ed25519 public keys
 
-use core::fmt;
+use core::fmt::{self, Debug};
 
 use error::Error;
 use util::fmt_colon_delimited_hex;
+use PublicKey as PublicKeyTrait;
 
 /// Size of an Ed25519 public key in bytes (256-bits)
 pub const PUBLIC_KEY_SIZE: usize = 32;
@@ -51,10 +52,12 @@ impl AsRef<[u8]> for PublicKey {
     }
 }
 
-impl fmt::Debug for PublicKey {
+impl Debug for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ed25519::PublicKey(")?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
     }
 }
+
+impl PublicKeyTrait for PublicKey {}

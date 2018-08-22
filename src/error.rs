@@ -5,9 +5,11 @@
 use core::fmt;
 
 #[cfg(feature = "std")]
-use std::error::Error as StdError;
-#[cfg(feature = "std")]
-use std::string::{String, ToString};
+use std::{
+    error::Error as StdError,
+    io,
+    string::{String, ToString},
+};
 
 /// Error type
 #[derive(Debug)]
@@ -74,6 +76,9 @@ impl From<ErrorKind> for Error {
 /// Kinds of errors
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum ErrorKind {
+    /// Input/output error
+    Io,
+
     /// Malformatted or otherwise invalid cryptographic key
     KeyInvalid,
 
@@ -92,9 +97,10 @@ impl ErrorKind {
     /// bound to `std`
     pub fn as_str(self) -> &'static str {
         match self {
-            ErrorKind::KeyInvalid => "malformed or corrupt cryptographic key",
+            ErrorKind::Io => "I/O error",
+            ErrorKind::KeyInvalid => "invalid cryptographic key",
             ErrorKind::ParseError => "parse error",
-            ErrorKind::ProviderError => "error inside cryptographic provider",
+            ErrorKind::ProviderError => "internal crypto provider error",
             ErrorKind::SignatureInvalid => "bad signature",
         }
     }
@@ -154,4 +160,11 @@ macro_rules! ensure {
             return Err(err!($variant, $fmt, $($arg)+).into());
         }
     };
+}
+
+#[cfg(feature = "std")]
+impl From<io::Error> for Error {
+    fn from(err: io::Error) -> Self {
+        err!(Io, &err.to_string())
+    }
 }

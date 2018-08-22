@@ -3,7 +3,7 @@ use digest::Digest;
 
 use super::RawDigestVerifier;
 use curve::WeierstrassCurve;
-use ecdsa::{DERSignature, FixedSignature, PublicKey};
+use ecdsa::{Asn1Signature, FixedSignature, PublicKey};
 use error::Error;
 
 /// Verifier for ECDSA signatures which takes a precomputed  `digest::Digest`,
@@ -15,10 +15,10 @@ where
 {
     /// Verify an ASN.1 DER-encoded ECDSA signature for a given pre-hashed
     /// message `Digest` using the given public key.
-    fn verify_digest_der_signature(
+    fn verify_digest_asn1_signature(
         key: &PublicKey<C>,
         digest: D,
-        signature: &DERSignature<C>,
+        signature: &Asn1Signature<C>,
     ) -> Result<(), Error> {
         Self::verify_digest_fixed_signature(key, digest, &FixedSignature::from(signature))
     }
@@ -30,7 +30,7 @@ where
         digest: D,
         signature: &FixedSignature<C>,
     ) -> Result<(), Error> {
-        Self::verify_digest_der_signature(key, digest, &DERSignature::from(signature))
+        Self::verify_digest_asn1_signature(key, digest, &Asn1Signature::from(signature))
     }
 }
 
@@ -40,12 +40,12 @@ where
     D: Digest<OutputSize = C::PrivateScalarSize> + Default,
     V: RawDigestVerifier<C>,
 {
-    fn verify_digest_der_signature(
+    fn verify_digest_asn1_signature(
         key: &PublicKey<C>,
         digest: D,
-        signature: &DERSignature<C>,
+        signature: &Asn1Signature<C>,
     ) -> Result<(), Error> {
-        Self::verify_raw_digest_der_signature(key, &digest.fixed_result(), signature)
+        Self::verify_raw_digest_asn1_signature(key, &digest.fixed_result(), signature)
     }
 
     fn verify_digest_fixed_signature(

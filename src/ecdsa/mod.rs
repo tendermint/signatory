@@ -3,9 +3,9 @@
 
 mod public_key;
 mod signature;
-pub mod signer;
 pub mod verifier;
 
 pub use self::public_key::PublicKey;
-pub use self::signature::der::DERSignature;
-pub use self::signature::fixed::FixedSignature;
+pub use self::signature::{
+    asn1::Asn1Signature, fixed::FixedSignature, EcdsaSignature, EcdsaSignatureKind,
+};

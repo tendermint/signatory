@@ -1,14 +1,14 @@
 //! ECDSA public keys: compressed or uncompressed Weierstrass elliptic
 //! curve points.
 
-use core::fmt;
-use generic_array::typenum::Unsigned;
-use generic_array::GenericArray;
+use core::fmt::{self, Debug};
+use generic_array::{typenum::Unsigned, GenericArray};
 
 use curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
 use curve::WeierstrassCurve;
 use error::Error;
 use util::fmt_colon_delimited_hex;
+use PublicKey as PublicKeyTrait;
 
 /// ECDSA public keys
 #[derive(Clone, PartialEq)]
@@ -91,17 +91,25 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> AsRef<[u8]> for PublicKey<C> {
+impl<C> AsRef<[u8]> for PublicKey<C>
+where
+    C: WeierstrassCurve,
+{
     #[inline]
     fn as_ref(&self) -> &[u8] {
         self.as_bytes()
     }
 }
 
-impl<C: WeierstrassCurve> fmt::Debug for PublicKey<C> {
+impl<C> Debug for PublicKey<C>
+where
+    C: WeierstrassCurve,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ecdsa::PublicKey<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
     }
 }
+
+impl<C: WeierstrassCurve> PublicKeyTrait for PublicKey<C> {}
