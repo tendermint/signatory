@@ -1,7 +1,7 @@
 //! An ECDSA signature comprises 2 integers: `r` and `s`. The integers are
-//! the same size as the curve's modulus, i.e. for an elliptic curve based
-//! on a ~256-bit prime, they will also be 256-bit (i.e. the same size as
-//! `PrivateScalarSize`)
+//! the same size as the curve's modulus, i.e. for an elliptic curve over
+//! a ~256-bit prime field, they will also be 256-bit (i.e. the `ScalarSize`
+//! for a particular `WeierstrassCurve`)
 //!
 //! The `IntPair` type provides a "view" of these two integers for either
 //! ASN.1 DER encoded or fixed-size signatures, and also provides a convenient
@@ -19,22 +19,21 @@ use error::Error;
 use signature::Signature;
 
 /// ECDSA signature `r` and `s` values
-pub(crate) struct IntPair<'a, C: WeierstrassCurve> {
+pub(crate) struct IntPair<'a, C: WeierstrassCurve>
+where
+    C::ScalarSize: 'a,
+{
     /// `r` integer value
-    // TODO: use a `GenericArray` reference or const generic array reference
-    r: &'a [u8],
+    r: &'a GenericArray<u8, C::ScalarSize>,
 
     /// `s` integer value
-    // TODO: use a `GenericArray` reference or const generic array reference
-    s: &'a [u8],
-
-    /// Placeholder for elliptic curve type
-    curve: PhantomData<C>,
+    s: &'a GenericArray<u8, C::ScalarSize>,
 }
 
 impl<'a, C> IntPair<'a, C>
 where
     C: WeierstrassCurve,
+    C::ScalarSize: 'a,
 {
     /// Parse the given ASN.1 DER-encoded ECDSA signature, obtaining the
     /// `r` and `s` integer pair
@@ -172,9 +171,8 @@ where
         }
 
         Ok(Self {
-            r,
-            s,
-            curve: PhantomData,
+            r: GenericArray::from_slice(r),
+            s: GenericArray::from_slice(s),
         })
     }
 
@@ -183,9 +181,8 @@ where
     pub(crate) fn from_fixed_signature(signature: &'a FixedSignature<C>) -> Self {
         let int_len = Self::fixed_int_length();
         Self {
-            r: &signature.as_ref()[..int_len],
-            s: &signature.as_ref()[int_len..],
-            curve: PhantomData,
+            r: GenericArray::from_slice(&signature.as_ref()[..int_len]),
+            s: GenericArray::from_slice(&signature.as_ref()[int_len..]),
         }
     }
 

@@ -11,7 +11,7 @@ use error::Error;
 pub trait DigestVerifier<C, D>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
     C: WeierstrassCurve,
-    D: Digest<OutputSize = C::PrivateScalarSize> + Default,
+    D: Digest<OutputSize = C::ScalarSize> + Default,
 {
     /// Verify an ASN.1 DER-encoded ECDSA signature for a given pre-hashed
     /// message `Digest` using the given public key.
@@ -37,7 +37,7 @@ where
 impl<C, D, V> DigestVerifier<C, D> for V
 where
     C: WeierstrassCurve,
-    D: Digest<OutputSize = C::PrivateScalarSize> + Default,
+    D: Digest<OutputSize = C::ScalarSize> + Default,
     V: RawDigestVerifier<C>,
 {
     fn verify_digest_asn1_signature(

@@ -15,7 +15,7 @@ where
     /// whose length matches the size of the curve's field.
     fn verify_raw_digest_asn1_signature(
         key: &PublicKey<C>,
-        digest: &GenericArray<u8, C::PrivateScalarSize>,
+        digest: &GenericArray<u8, C::ScalarSize>,
         signature: &Asn1Signature<C>,
     ) -> Result<(), Error> {
         Self::verify_raw_digest_fixed_signature(key, digest, &FixedSignature::from(signature))
@@ -25,7 +25,7 @@ where
     /// whose length matches the size of the curve's field.
     fn verify_raw_digest_fixed_signature(
         key: &PublicKey<C>,
-        digest: &GenericArray<u8, C::PrivateScalarSize>,
+        digest: &GenericArray<u8, C::ScalarSize>,
         signature: &FixedSignature<C>,
     ) -> Result<(), Error> {
         Self::verify_raw_digest_asn1_signature(key, digest, &Asn1Signature::from(signature))
