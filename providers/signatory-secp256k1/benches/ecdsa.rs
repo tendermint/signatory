@@ -10,21 +10,22 @@ extern crate signatory_secp256k1;
 
 use criterion::Criterion;
 use signatory::{
-    curve::secp256k1::SHA256_FIXED_SIZE_TEST_VECTORS,
-    ecdsa::{signer::*, verifier::*, FixedSignature, PublicKey},
+    curve::secp256k1::{FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
+    ecdsa::{verifier::*, PublicKey},
     generic_array::GenericArray,
     test_vector::TestVector,
+    Signature,
 };
-use signatory_secp256k1::{ECDSASigner, ECDSAVerifier};
+use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier};
 
 /// Test vector to use for benchmarking
 const TEST_VECTOR: &TestVector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
 fn sign_ecdsa(c: &mut Criterion) {
-    let signer = ECDSASigner::from_bytes(TEST_VECTOR.sk).unwrap();
+    let signer = EcdsaSigner::from_bytes(TEST_VECTOR.sk).unwrap();
 
     c.bench_function("secp256k1: ECDSA signer", move |b| {
-        b.iter(|| signer.sign_sha256_fixed(TEST_VECTOR.msg).unwrap())
+        b.iter(|| signatory::sign_sha256::<FixedSignature>(&signer, TEST_VECTOR.msg).unwrap())
     });
 }
 
@@ -35,7 +36,7 @@ fn verify_ecdsa(c: &mut Criterion) {
 
     c.bench_function("secp256k1: ECDSA verifier", move |b| {
         b.iter(|| {
-            ECDSAVerifier::verify_sha256_fixed_signature(&public_key, TEST_VECTOR.msg, &signature)
+            EcdsaVerifier::verify_sha256_fixed_signature(&public_key, TEST_VECTOR.msg, &signature)
                 .unwrap()
         })
     });

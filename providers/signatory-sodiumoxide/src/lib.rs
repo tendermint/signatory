@@ -15,8 +15,9 @@ extern crate signatory;
 extern crate sodiumoxide;
 
 use signatory::{
-    ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
     error::{Error, ErrorKind},
+    PublicKeyed, Signature, Signer,
 };
 use sodiumoxide::crypto::sign::ed25519::{
     self as sodiumoxide_ed25519, SecretKey, Seed as SodiumOxideSeed,
@@ -41,14 +42,16 @@ impl FromSeed for Ed25519Signer {
     }
 }
 
-impl Signer for Ed25519Signer {
+impl PublicKeyed<PublicKey> for Ed25519Signer {
     fn public_key(&self) -> Result<PublicKey, Error> {
         Ok(self.public_key)
     }
+}
 
-    fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
+impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
+    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
         let signature = sodiumoxide_ed25519::sign_detached(msg, &self.secret_key);
-        Ok(Signature::from_bytes(&signature.0[..]).unwrap())
+        Ok(Ed25519Signature::from_bytes(&signature.0[..]).unwrap())
     }
 }
 
@@ -57,7 +60,7 @@ impl Signer for Ed25519Signer {
 pub struct Ed25519Verifier;
 
 impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+    fn verify(key: &PublicKey, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
         let pk = sodiumoxide_ed25519::PublicKey::from_slice(key.as_bytes()).unwrap();
         let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
 

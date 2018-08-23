@@ -6,13 +6,10 @@
 use clear_on_drop::clear::Clear;
 use error::Error;
 #[cfg(feature = "std")]
-use std::io::Read;
+use std::{fs::File, io::Read, path::Path};
 
 /// Instantiate this type from a `PKCS#8` private key
-pub trait FromPKCS8
-where
-    Self: Sized,
-{
+pub trait FromPkcs8: Sized {
     /// Load the given `PKCS#8`-encoded private key, returning `Self` or an
     /// error if the given data couldn't be loaded
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error>;
@@ -27,5 +24,11 @@ where
         let result = Self::from_pkcs8(&bytes);
         bytes.as_mut_slice().clear();
         result
+    }
+
+    /// Read `PKCS#8` data from the file at the given path
+    #[cfg(feature = "std")]
+    fn read_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+        Self::read_pkcs8(File::open(path)?)
     }
 }

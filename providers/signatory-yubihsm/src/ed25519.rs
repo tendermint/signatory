@@ -4,8 +4,9 @@
 //! call the appropriate signer methods to obtain signers.
 
 use signatory::{
-    ed25519::{PublicKey, Signature, Signer},
+    ed25519::{Ed25519Signature, PublicKey},
     error::{Error, ErrorKind},
+    PublicKeyed, Signature, Signer,
 };
 use std::sync::{Arc, Mutex};
 use yubihsm;
@@ -39,7 +40,10 @@ impl Ed25519Signer<yubihsm::HttpConnector> {
     }
 }
 
-impl<C: yubihsm::Connector> Signer for Ed25519Signer<C> {
+impl<C> PublicKeyed<PublicKey> for Ed25519Signer<C>
+where
+    C: yubihsm::Connector,
+{
     fn public_key(&self) -> Result<PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
@@ -52,20 +56,25 @@ impl<C: yubihsm::Connector> Signer for Ed25519Signer<C> {
 
         Ok(PublicKey::from_bytes(pubkey.as_ref()).unwrap())
     }
+}
 
-    fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
+impl<'a, C> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer<C>
+where
+    C: yubihsm::Connector,
+{
+    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
         let mut session = self.session.lock().unwrap();
 
         let signature = yubihsm::sign_ed25519(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        Ok(Signature::from_bytes(signature.as_ref()).unwrap())
+        Ok(Ed25519Signature::from_bytes(signature.as_ref()).unwrap())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use signatory::ed25519::Verifier;
+    use signatory::{ed25519::Verifier, PublicKeyed};
     use signatory_ring::ed25519::Ed25519Verifier;
     use std::sync::{Arc, Mutex};
     use yubihsm;

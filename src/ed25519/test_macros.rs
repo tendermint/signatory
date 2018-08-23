@@ -3,10 +3,13 @@
 #[macro_export]
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
-        use $crate::ed25519::{
-            FromSeed, PublicKey, Seed, Signature, Signer, Verifier, SIGNATURE_SIZE, TEST_VECTORS,
+        use $crate::{
+            ed25519::{
+                Ed25519Signature, FromSeed, PublicKey, Seed, Verifier, SIGNATURE_SIZE, TEST_VECTORS,
+            },
+            error::ErrorKind,
+            Signature, Signer,
         };
-        use $crate::error::ErrorKind;
 
         #[test]
         fn sign_rfc8032_test_vectors() {
@@ -21,7 +24,7 @@ macro_rules! ed25519_tests {
         fn verify_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
                 let pk = PublicKey::from_bytes(vector.pk).unwrap();
-                let sig = Signature::from_bytes(vector.sig).unwrap();
+                let sig = Ed25519Signature::from_bytes(vector.sig).unwrap();
                 assert!(
                     $verifier::verify(&pk, vector.msg, &sig).is_ok(),
                     "expected signature to verify"
@@ -41,7 +44,7 @@ macro_rules! ed25519_tests {
                 let result = $verifier::verify(
                     &pk,
                     vector.msg,
-                    &Signature::from_bytes(&tweaked_sig[..]).unwrap(),
+                    &Ed25519Signature::from_bytes(&tweaked_sig[..]).unwrap(),
                 );
 
                 assert!(

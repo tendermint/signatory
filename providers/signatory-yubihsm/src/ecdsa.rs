@@ -1,12 +1,15 @@
 //! ECDSA provider for the YubiHSM2 crate (supporting NIST P-256 and secp256k1)
 
+#[cfg(not(feature = "mockhsm"))]
+use signatory::{curve::CurveDigest, Signer};
 #[cfg(feature = "mockhsm")]
-use signatory::curve::NISTP256;
+use signatory::{curve::NistP256, Sha256Signer};
 use signatory::{
     curve::{WeierstrassCurve, WeierstrassCurveKind},
-    ecdsa::{signer::*, DERSignature, PublicKey},
+    ecdsa::{Asn1Signature, PublicKey},
     error::Error,
     generic_array::GenericArray,
+    PublicKeyed, Signature,
 };
 use std::{
     marker::PhantomData,
@@ -19,7 +22,7 @@ use yubihsm::mockhsm::MockConnector;
 use super::{KeyId, Session};
 
 /// ECDSA signature provider for yubihsm-client
-pub struct ECDSASigner<Curve, Connector = yubihsm::HttpConnector>
+pub struct EcdsaSigner<Curve, Connector = yubihsm::HttpConnector>
 where
     Curve: WeierstrassCurve,
     Connector: yubihsm::Connector,
@@ -34,7 +37,7 @@ where
     curve: PhantomData<Curve>,
 }
 
-impl<Curve> ECDSASigner<Curve, yubihsm::HttpConnector>
+impl<Curve> EcdsaSigner<Curve, yubihsm::HttpConnector>
 where
     Curve: WeierstrassCurve,
 {
@@ -53,21 +56,22 @@ where
     }
 }
 
-impl<Curve, Connector> ECDSASigner<Curve, Connector>
+impl<Curve, Connector> EcdsaSigner<Curve, Connector>
 where
     Curve: WeierstrassCurve,
     Connector: yubihsm::Connector,
 {
     /// Get the expected `yubihsm::AsymmetricAlgorithm` for this `Curve`
-    fn asymmetric_algorithm() -> yubihsm::AsymmetricAlgorithm {
+    fn asymmetric_algorithm() -> Option<yubihsm::AsymmetricAlgorithm> {
         match Curve::CURVE_KIND {
-            WeierstrassCurveKind::NISTP256 => yubihsm::AsymmetricAlgorithm::EC_P256,
-            WeierstrassCurveKind::Secp256k1 => yubihsm::AsymmetricAlgorithm::EC_K256,
+            WeierstrassCurveKind::NistP256 => Some(yubihsm::AsymmetricAlgorithm::EC_P256),
+            WeierstrassCurveKind::Secp256k1 => Some(yubihsm::AsymmetricAlgorithm::EC_K256),
+            _ => None,
         }
     }
 }
 
-impl<Curve, Connector> Signer<Curve> for ECDSASigner<Curve, Connector>
+impl<Curve, Connector> PublicKeyed<PublicKey<Curve>> for EcdsaSigner<Curve, Connector>
 where
     Curve: WeierstrassCurve,
     Connector: yubihsm::Connector,
@@ -79,7 +83,7 @@ where
         let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        if pubkey.algorithm != Self::asymmetric_algorithm() {
+        if Some(pubkey.algorithm) != Self::asymmetric_algorithm() {
             fail!(
                 KeyInvalid,
                 "expected a {} key, got: {:?}",
@@ -99,37 +103,35 @@ where
 // API since it's slightly incompatible with the API provided by the MockHSM
 // See: https://github.com/briansmith/ring/issues/253
 #[cfg(not(feature = "mockhsm"))]
-impl<Curve, Connector> RawDigestSigner<Curve> for ECDSASigner<Curve, Connector>
+impl<Curve, Connector> Signer<CurveDigest<Curve>, Asn1Signature<Curve>>
+    for EcdsaSigner<Curve, Connector>
 where
     Curve: WeierstrassCurve,
     Connector: yubihsm::Connector,
 {
-    /// Compute an ASN.1 DER-encoded signature of the given message
-    fn sign_raw_digest_der(
-        &self,
-        digest: &GenericArray<u8, Curve::PrivateScalarSize>,
-    ) -> Result<DERSignature<Curve>, Error> {
+    /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<Curve>) -> Result<Asn1Signature<Curve>, Error> {
         let mut session = self.session.lock().unwrap();
 
         let signature =
             yubihsm::sign_ecdsa_raw_digest(&mut session, self.signing_key_id, digest.as_ref())
                 .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        DERSignature::from_bytes(signature)
+        Asn1Signature::from_bytes(signature)
     }
 }
 
 // TODO: figure out how to keep the concrete MockConnector type from leaking out (see above)
 #[cfg(feature = "mockhsm")]
-impl SHA256Signer<NISTP256> for ECDSASigner<NISTP256, MockConnector> {
+impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for EcdsaSigner<NistP256, MockConnector> {
     /// Compute an ASN.1 DER-encoded signature of the given message
-    fn sign_sha256_der(&self, msg: &[u8]) -> Result<DERSignature<NISTP256>, Error> {
+    fn sign_sha256(&self, msg: &'a [u8]) -> Result<Asn1Signature<NistP256>, Error> {
         let mut session = self.session.lock().unwrap();
 
         let signature = yubihsm::sign_ecdsa_sha256(&mut session, self.signing_key_id, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        DERSignature::from_bytes(signature)
+        Asn1Signature::from_bytes(signature)
     }
 }
 
@@ -145,8 +147,10 @@ mod tests {
     #[cfg(not(feature = "mockhsm"))]
     use signatory::curve::Secp256k1;
     use signatory::{
-        curve::{NISTP256, WeierstrassCurve},
-        ecdsa::{signer::SHA256Signer, verifier::SHA256Verifier},
+        self,
+        curve::{NistP256, WeierstrassCurve},
+        ecdsa::{verifier::Sha256Verifier, Asn1Signature},
+        PublicKeyed,
     };
     use signatory_ring;
     #[cfg(not(feature = "mockhsm"))]
@@ -177,7 +181,7 @@ mod tests {
     type ConnectorType = MockConnector;
 
     /// Create the signer for this test
-    fn create_signer<Curve>(key_id: KeyId) -> ECDSASigner<Curve, ConnectorType>
+    fn create_signer<Curve>(key_id: KeyId) -> EcdsaSigner<Curve, ConnectorType>
     where
         Curve: WeierstrassCurve,
     {
@@ -198,7 +202,7 @@ mod tests {
                 .unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
         ));
 
-        let signer = ECDSASigner {
+        let signer = EcdsaSigner {
             session,
             signing_key_id: key_id,
             curve: PhantomData,
@@ -209,7 +213,7 @@ mod tests {
     }
 
     /// Create the key on the YubiHSM to use for this test
-    fn create_yubihsm_key<Curve>(signer: &ECDSASigner<Curve, ConnectorType>, key_id: KeyId)
+    fn create_yubihsm_key<Curve>(signer: &EcdsaSigner<Curve, ConnectorType>, key_id: KeyId)
     where
         Curve: WeierstrassCurve,
     {
@@ -226,20 +230,20 @@ mod tests {
             TEST_SIGNING_KEY_LABEL.into(),
             TEST_SIGNING_KEY_DOMAINS,
             TEST_SIGNING_KEY_CAPABILITIES,
-            ECDSASigner::<Curve>::asymmetric_algorithm(),
+            EcdsaSigner::<Curve>::asymmetric_algorithm().unwrap(),
         ).unwrap();
     }
 
     // We need *ring* to verify NIST P-256 ECDSA signatures
     #[test]
     fn ecdsa_nistp256_sign_test() {
-        let signer = create_signer::<NISTP256>(100);
+        let signer = create_signer::<NistP256>(100);
 
         let public_key = signer.public_key().unwrap();
-        let signature = signer.sign_sha256_der(TEST_MESSAGE).unwrap();
+        let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
         assert!(
-            signatory_ring::ecdsa::P256Verifier::verify_sha256_der_signature(
+            signatory_ring::ecdsa::P256Verifier::verify_sha256_asn1_signature(
                 &public_key,
                 TEST_MESSAGE,
                 &signature
@@ -255,10 +259,10 @@ mod tests {
         let signer = create_signer::<Secp256k1>(101);
 
         let public_key = signer.public_key().unwrap();
-        let signature = signer.sign_sha256_der(TEST_MESSAGE).unwrap();
+        let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
         assert!(
-            signatory_secp256k1::ECDSAVerifier::verify_sha256_der_signature(
+            signatory_secp256k1::EcdsaVerifier::verify_sha256_asn1_signature(
                 &public_key,
                 TEST_MESSAGE,
                 &signature

@@ -9,8 +9,9 @@ extern crate signatory_ring;
 
 use criterion::Criterion;
 use signatory::{
-    ed25519::{FromSeed, PublicKey, Seed, Signature, Signer, Verifier, TEST_VECTORS},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier, TEST_VECTORS},
     test_vector::TestVector,
+    Signature,
 };
 use signatory_ring::ed25519::{Ed25519Signer, Ed25519Verifier};
 
@@ -21,13 +22,13 @@ fn sign_ed25519(c: &mut Criterion) {
     let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("ring: Ed25519 signer", move |b| {
-        b.iter(|| signer.sign(TEST_VECTOR.msg).unwrap())
+        b.iter(|| signatory::sign(&signer, TEST_VECTOR.msg).unwrap())
     });
 }
 
 fn verify_ed25519(c: &mut Criterion) {
     let public_key = PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
-    let signature = Signature::from_bytes(TEST_VECTOR.sig).unwrap();
+    let signature = Ed25519Signature::from_bytes(TEST_VECTOR.sig).unwrap();
 
     c.bench_function("ring: Ed25519 verifier", move |b| {
         b.iter(|| Ed25519Verifier::verify(&public_key, TEST_VECTOR.msg, &signature).unwrap())

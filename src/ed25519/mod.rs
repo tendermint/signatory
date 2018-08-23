@@ -5,7 +5,6 @@
 mod public_key;
 mod seed;
 mod signature;
-mod signer;
 mod verifier;
 
 #[macro_use]
@@ -19,8 +18,7 @@ mod test_vectors;
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::{
     public_key::{PublicKey, PUBLIC_KEY_SIZE},
-    seed::{Seed, SEED_SIZE},
-    signature::{Signature, SIGNATURE_SIZE},
-    signer::*,
+    seed::{FromSeed, Seed, SEED_SIZE},
+    signature::{Ed25519Signature, SIGNATURE_SIZE},
     verifier::*,
 };

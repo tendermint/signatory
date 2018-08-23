@@ -1,14 +1,15 @@
-//! Elliptic Curves (Weierstrass form) supported for use with ECDSA
-
-pub mod nistp256;
-pub mod secp256k1;
-
-pub mod point;
+//! Elliptic Curves (presently Weierstrass form only)
 
 use core::{fmt::Debug, hash::Hash, str::FromStr};
 use generic_array::ArrayLength;
+#[cfg(feature = "digest")]
+use generic_array::GenericArray;
 
-pub use self::nistp256::NISTP256;
+pub mod nistp256;
+pub mod point;
+pub mod secp256k1;
+
+pub use self::nistp256::NistP256;
 pub use self::secp256k1::Secp256k1;
 use error::Error;
 
@@ -38,7 +39,7 @@ pub trait WeierstrassCurve:
     type UncompressedPointSize: ArrayLength<u8>;
 
     /// Maximum size of an ASN.1 DER encoded ECDSA signature using this curve
-    type DERSignatureMaxSize: ArrayLength<u8>;
+    type Asn1SignatureMaxSize: ArrayLength<u8>;
 
     /// Size of a compact, fixed-sized ECDSA signature using this curve
     type FixedSignatureSize: ArrayLength<u8>;
@@ -47,11 +48,18 @@ pub trait WeierstrassCurve:
 /// Types of Weierstrass curves known to this library
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum WeierstrassCurveKind {
+    /// Placeholder type for unknown elliptic curves. This can be used for
+    /// unsupported curve types and also to prevent exhaustiveness checking
+    /// so new curve types can be added to this enum without breaking existing
+    /// providers (i.e. when matching on this enum, providers should include
+    /// an `other` or `_` option to handle unsupported curve types.
+    Unknown,
+
     /// The NIST P-256 (a.k.a. prime256v1, secp256r1) elliptic curve defined in
     /// FIPS 186-4: Digital Signature Standard (DSS)
     ///
     /// <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf>
-    NISTP256,
+    NistP256,
 
     /// The secp256k1 elliptic curve as defined by Certicom's SECG in
     /// SEC 2: Recommended Elliptic Curve Domain Parameters:
@@ -64,9 +72,9 @@ impl FromStr for WeierstrassCurveKind {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        #[allow(unused_variables)]
+        #[allow(unused_variables)] // for no_std
         match s {
-            "nistp256" => Ok(WeierstrassCurveKind::NISTP256),
+            "nistp256" => Ok(WeierstrassCurveKind::NistP256),
             "secp256k1" => Ok(WeierstrassCurveKind::Secp256k1),
             other => fail!(ParseError, "invalid elliptic curve type: {}", other),
         }
@@ -75,19 +83,26 @@ impl FromStr for WeierstrassCurveKind {
 
 impl WeierstrassCurveKind {
     /// Get the string identifier for this elliptic curve. This name matches
-    /// the Signatory module name for this curve.
+    /// the Signatory module name for this curve (or `"unknown"`).
     pub fn to_str(self) -> &'static str {
         match self {
-            WeierstrassCurveKind::NISTP256 => "nistp256",
+            WeierstrassCurveKind::Unknown => "unknown",
+            WeierstrassCurveKind::NistP256 => "nistp256",
             WeierstrassCurveKind::Secp256k1 => "secp256k1",
         }
     }
 
-    /// Get the SECG identifier name for this particular elliptic curve.
-    pub fn to_secg_name(self) -> &'static str {
+    /// Get the SECG identifier name for this particular elliptic curve
+    /// (if applicable).
+    pub fn to_secg_name(self) -> Option<&'static str> {
         match self {
-            WeierstrassCurveKind::NISTP256 => "secp256r1",
-            WeierstrassCurveKind::Secp256k1 => "secp256k1",
+            WeierstrassCurveKind::NistP256 => Some("secp256r1"),
+            WeierstrassCurveKind::Secp256k1 => Some("secp256k1"),
+            _ => None,
         }
     }
 }
+
+/// Digest input type for a particular Weierstrass curve
+#[cfg(feature = "digest")]
+pub type CurveDigest<C> = GenericArray<u8, <C as WeierstrassCurve>::PrivateScalarSize>;

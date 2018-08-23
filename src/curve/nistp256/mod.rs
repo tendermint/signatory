@@ -26,11 +26,11 @@ pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 ///
 /// NIST P-256 is also known as prime256v1 (ANSI X9.62) and secp256r1 (SECG)
 #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
-pub struct NISTP256;
+pub struct NistP256;
 
-impl WeierstrassCurve for NISTP256 {
+impl WeierstrassCurve for NistP256 {
     /// Elliptic curve kind
-    const CURVE_KIND: WeierstrassCurveKind = WeierstrassCurveKind::NISTP256;
+    const CURVE_KIND: WeierstrassCurveKind = WeierstrassCurveKind::NistP256;
 
     /// Random 256-bit (32-byte) private scalar
     type PrivateScalarSize = U32;
@@ -49,17 +49,17 @@ impl WeierstrassCurve for NISTP256 {
 
     /// Maximum size of an ASN.1 DER encoded signature
     // TODO: double check this calculation
-    type DERSignatureMaxSize = U73;
+    type Asn1SignatureMaxSize = U73;
 
     /// Concatenated `r || s` values (32-bytes each)
     type FixedSignatureSize = U64;
 }
 
 /// NIST P-256 public key
-pub type PublicKey = ::ecdsa::PublicKey<NISTP256>;
+pub type PublicKey = ::ecdsa::PublicKey<NistP256>;
 
 /// ASN.1 DER encoded secp256k1 ECDSA signature
-pub type DERSignature = ::ecdsa::DERSignature<NISTP256>;
+pub type Asn1Signature = ::ecdsa::Asn1Signature<NistP256>;
 
 /// Compact, fixed-sized secp256k1 ECDSA signature
-pub type FixedSignature = ::ecdsa::FixedSignature<NISTP256>;
+pub type FixedSignature = ::ecdsa::FixedSignature<NistP256>;

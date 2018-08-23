@@ -40,7 +40,7 @@ impl WeierstrassCurve for Secp256k1 {
 
     /// Maximum size of an ASN.1 DER encoded signature
     // TODO: double check this calculation
-    type DERSignatureMaxSize = U73;
+    type Asn1SignatureMaxSize = U73;
 
     /// Concatenated `r || s` values (32-bytes each)
     type FixedSignatureSize = U64;
@@ -50,7 +50,7 @@ impl WeierstrassCurve for Secp256k1 {
 pub type PublicKey = ::ecdsa::PublicKey<Secp256k1>;
 
 /// ASN.1 DER encoded secp256k1 ECDSA signature
-pub type DERSignature = ::ecdsa::DERSignature<Secp256k1>;
+pub type Asn1Signature = ::ecdsa::Asn1Signature<Secp256k1>;
 
 /// Compact, fixed-sized secp256k1 ECDSA signature
 pub type FixedSignature = ::ecdsa::FixedSignature<Secp256k1>;
