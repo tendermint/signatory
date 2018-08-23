@@ -24,7 +24,7 @@ impl WeierstrassCurve for Secp256k1 {
     const CURVE_KIND: WeierstrassCurveKind = WeierstrassCurveKind::Secp256k1;
 
     /// Random 256-bit (32-byte) private scalar
-    type PrivateScalarSize = U32;
+    type ScalarSize = U32;
 
     /// Size of a compressed elliptic curve point serialized using
     /// `Octet-String-to-Elliptic-Curve-Point` encoding

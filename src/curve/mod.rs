@@ -20,8 +20,13 @@ pub trait WeierstrassCurve:
     /// Elliptic curve kind
     const CURVE_KIND: WeierstrassCurveKind;
 
-    /// Size of a private scalar for this elliptic curve in bytes
-    type PrivateScalarSize: ArrayLength<u8>;
+    // TODO: unify these sizes, either with `typenum` or after const generics
+    // hopefully make this kind of type-level arithmetic easy to do.
+
+    /// Size of an integer modulo p (i.e. the curve's order) when serialized
+    /// as octets (i.e. bytes). This also describes the size of an ECDSA
+    /// private key, as well as half the size of a fixed-width signature.
+    type ScalarSize: ArrayLength<u8>;
 
     /// Size of a compressed point for this curve in bytes when serialized
     /// using `Octet-String-to-Elliptic-Curve-Point` encoding defined in
@@ -105,4 +110,4 @@ impl WeierstrassCurveKind {
 
 /// Digest input type for a particular Weierstrass curve
 #[cfg(feature = "digest")]
-pub type CurveDigest<C> = GenericArray<u8, <C as WeierstrassCurve>::PrivateScalarSize>;
+pub type CurveDigest<C> = GenericArray<u8, <C as WeierstrassCurve>::ScalarSize>;

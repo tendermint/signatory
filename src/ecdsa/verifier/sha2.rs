@@ -19,7 +19,7 @@ use error::Error;
 /// digest sizes. If you are interested in this, please open an issue.
 pub trait Sha256Verifier<C>: Clone + Debug + Eq + PartialEq + Send + Sync
 where
-    C: WeierstrassCurve<PrivateScalarSize = U32>,
+    C: WeierstrassCurve<ScalarSize = U32>,
 {
     /// Verify an ASN.1 DER-encoded ECDSA signature for a given message using
     /// the given public key.
@@ -45,7 +45,7 @@ where
 #[cfg(feature = "sha2")]
 impl<C, V> Sha256Verifier<C> for V
 where
-    C: WeierstrassCurve<PrivateScalarSize = U32>,
+    C: WeierstrassCurve<ScalarSize = U32>,
     V: DigestVerifier<C, Sha256>,
 {
     fn verify_sha256_asn1_signature(
