@@ -4,7 +4,13 @@
 use clear_on_drop::clear::Clear;
 use rand::{CryptoRng, OsRng, RngCore};
 
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use encoding::Encode;
+#[cfg(feature = "encoding")]
+use encoding::{Decode, Encoding};
 use error::Error;
+#[allow(unused_imports)]
+use prelude::*;
 
 /// Size of the "seed" value for an Ed25519 private key
 pub const SEED_SIZE: usize = 32;
@@ -16,6 +22,11 @@ pub const KEYPAIR_SIZE: usize = 64;
 pub struct Seed(pub [u8; SEED_SIZE]);
 
 impl Seed {
+    /// Create an Ed25519 seed from a 32-byte array
+    pub fn new(bytes: [u8; SEED_SIZE]) -> Self {
+        Seed(bytes)
+    }
+
     /// Generate a new Ed25519 seed using the operating system's
     /// cryptographically secure random number generator
     pub fn generate() -> Self {
@@ -30,26 +41,24 @@ impl Seed {
         Self::new(bytes)
     }
 
-    /// Create an Ed25519 seed from a 32-byte array
-    pub fn new(bytes: [u8; SEED_SIZE]) -> Self {
-        Seed(bytes)
-    }
-
     /// Create an Ed25519 seed from a byte slice, returning `KeyInvalid` if the
     /// slice is not the correct size (32-bytes)
-    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
+    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
+    where
+        B: AsRef<[u8]>,
+    {
         ensure!(
-            slice.len() == SEED_SIZE,
+            bytes.as_ref().len() == SEED_SIZE,
             KeyInvalid,
-            "invalid {}-byte seed (expected {})",
-            slice.len(),
-            SEED_SIZE
+            "expected {}-byte seed (got {})",
+            SEED_SIZE,
+            bytes.as_ref().len()
         );
 
-        let mut bytes = [0u8; SEED_SIZE];
-        bytes.copy_from_slice(slice);
+        let mut seed = [0u8; SEED_SIZE];
+        seed.copy_from_slice(bytes.as_ref());
 
-        Ok(Seed::new(bytes))
+        Ok(Seed::new(seed))
     }
 
     /// Create an Ed25519 seed from a keypair: i.e. a seed and its assocaited
@@ -64,12 +73,54 @@ impl Seed {
         );
 
         // TODO: ensure public key part of keypair is correct
-        Self::from_slice(&keypair[..SEED_SIZE])
+        Self::from_bytes(&keypair[..SEED_SIZE])
+    }
+
+    /// Decode a `Seed` from an encoded (hex or Base64) Ed25519 keypair
+    #[cfg(feature = "encoding")]
+    pub fn decode_keypair(encoded_keypair: &[u8], encoding: Encoding) -> Result<Self, Error> {
+        let mut decoded_keypair = [0u8; SEED_SIZE * 2];
+        let decoded_len = encoding.decode(encoded_keypair, &mut decoded_keypair)?;
+
+        ensure!(
+            decoded_len == SEED_SIZE * 2,
+            KeyInvalid,
+            "malformed keypair (incorrect length)"
+        );
+
+        Self::from_keypair(&decoded_keypair)
     }
 
     /// Expose the secret values of the `Seed` as a byte slice
     pub fn as_secret_slice(&self) -> &[u8] {
         self.0.as_ref()
+    }
+}
+
+#[cfg(feature = "encoding")]
+impl Decode for Seed {
+    /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
+    fn decode(encoded_seed: &[u8], encoding: Encoding) -> Result<Self, Error> {
+        let mut decoded_seed = [0u8; SEED_SIZE];
+        let decoded_len = encoding.decode(encoded_seed, &mut decoded_seed)?;
+
+        ensure!(
+            decoded_len == SEED_SIZE,
+            KeyInvalid,
+            "invalid {}-byte seed (expected {})",
+            decoded_len,
+            SEED_SIZE
+        );
+
+        Ok(Self::new(decoded_seed))
+    }
+}
+
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+impl Encode for Seed {
+    /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
+    fn encode(&self, encoding: Encoding) -> Vec<u8> {
+        encoding.encode_vec(self.as_secret_slice())
     }
 }
 

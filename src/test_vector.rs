@@ -1,5 +1,7 @@
 //! Test vector structure for signatures
 
+use prelude::*;
+
 /// Signature test vector
 pub struct TestVector {
     /// Algorithm name
@@ -26,8 +28,8 @@ pub struct TestVector {
 
 impl TestVector {
     /// Serialize this test vector as a PKCS#8 document
-    #[cfg(all(feature = "std", feature = "test-vectors"))]
-    pub fn to_pkcs8(&self) -> ::std::vec::Vec<u8> {
+    #[cfg(all(feature = "alloc", feature = "test-vectors"))]
+    pub fn to_pkcs8(&self) -> Vec<u8> {
         // TODO: support other algorithms besides ECDSA P-256
         if self.alg != TestVectorAlgorithm::NISTP256 {
             panic!("not a NIST P-256 test self: {:?}", self.alg);

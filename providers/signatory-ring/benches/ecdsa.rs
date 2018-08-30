@@ -11,8 +11,8 @@ use criterion::Criterion;
 use signatory::{
     curve::nistp256::{self, FixedSignature},
     ecdsa::{verifier::*, PublicKey},
+    encoding::FromPkcs8,
     generic_array::GenericArray,
-    pkcs8::FromPkcs8,
     test_vector::TestVector,
     Signature,
 };

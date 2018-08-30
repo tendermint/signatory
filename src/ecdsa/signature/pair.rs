@@ -13,8 +13,8 @@ use generic_array::{typenum::Unsigned, GenericArray};
 
 use super::asn1::Asn1Signature;
 use super::fixed::FixedSignature;
-use asn1;
 use curve::WeierstrassCurve;
+use encoding::asn1;
 use error::Error;
 use signature::Signature;
 

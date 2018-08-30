@@ -3,6 +3,7 @@
 //! [RFC 5208]: https://tools.ietf.org/html/rfc5208
 //! [RFC 5915]: https://tools.ietf.org/html/rfc5915
 
+#[cfg(feature = "std")]
 use clear_on_drop::clear::Clear;
 use error::Error;
 #[cfg(feature = "std")]
@@ -28,7 +29,7 @@ pub trait FromPkcs8: Sized {
 
     /// Read `PKCS#8` data from the file at the given path
     #[cfg(feature = "std")]
-    fn read_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+    fn from_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         Self::read_pkcs8(File::open(path)?)
     }
 }

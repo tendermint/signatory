@@ -35,6 +35,10 @@
 #![crate_name = "signatory"]
 #![crate_type = "lib"]
 #![no_std]
+#![cfg_attr(
+    all(feature = "nightly", not(feature = "std")),
+    feature(alloc)
+)]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
@@ -46,7 +50,7 @@
 #[macro_use]
 extern crate std;
 
-#[cfg(feature = "ed25519")]
+#[cfg(any(feature = "encoding", feature = "ed25519"))]
 extern crate clear_on_drop;
 #[cfg(feature = "digest")]
 extern crate digest;
@@ -61,16 +65,15 @@ extern crate sha2;
 pub mod error;
 
 #[cfg(feature = "ecdsa")]
-pub(crate) mod asn1;
-#[cfg(feature = "ecdsa")]
 pub mod curve;
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]
 pub mod ed25519;
-#[cfg(feature = "pkcs8")]
-pub mod pkcs8;
+#[cfg(feature = "encoding")]
+pub mod encoding;
+pub(crate) mod prelude;
 mod public_key;
 mod signature;
 mod signer;

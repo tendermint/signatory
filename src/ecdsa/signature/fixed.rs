@@ -7,7 +7,13 @@ use generic_array::GenericArray;
 
 use super::{EcdsaSignature, EcdsaSignatureKind};
 use curve::WeierstrassCurve;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use encoding::Encode;
+#[cfg(feature = "encoding")]
+use encoding::{Decode, Encoding};
 use error::Error;
+#[allow(unused_imports)]
+use prelude::*;
 use util::fmt_colon_delimited_hex;
 use Signature;
 
@@ -74,6 +80,41 @@ where
         write!(f, "signatory::ecdsa::FixedSignature<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
+    }
+}
+
+#[cfg(feature = "encoding")]
+impl<C> Decode for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
+    /// Decode an ASN.1 encoded ECDSA signature from a byte slice with the
+    /// given encoding (e.g. hex, Base64)
+    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+        let mut array = GenericArray::default();
+        let decoded_len = encoding.decode(encoded_signature, array.as_mut_slice())?;
+
+        ensure!(
+            decoded_len == C::FixedSignatureSize::to_usize(),
+            SignatureInvalid,
+            "expected {}-byte signature (got {})",
+            C::FixedSignatureSize::to_usize(),
+            decoded_len
+        );
+
+        Ok(Self::from(array))
+    }
+}
+
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+impl<C> Encode for FixedSignature<C>
+where
+    C: WeierstrassCurve,
+{
+    /// Encode an ASN.1 encoded ECDSA signature with the given encoding
+    /// (e.g. hex, Base64)
+    fn encode(&self, encoding: Encoding) -> Vec<u8> {
+        encoding.encode_vec(self.as_ref())
     }
 }
 

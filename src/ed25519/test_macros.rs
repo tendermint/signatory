@@ -14,7 +14,7 @@ macro_rules! ed25519_tests {
         #[test]
         fn sign_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
-                let seed = Seed::from_slice(vector.sk).unwrap();
+                let seed = Seed::from_bytes(vector.sk).unwrap();
                 let mut signer = $signer::from_seed(seed);
                 assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
             }

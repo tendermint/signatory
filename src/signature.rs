@@ -1,6 +1,8 @@
 use core::fmt::Debug;
 
 use error::Error;
+#[allow(unused_imports)]
+use prelude::*;
 
 /// Common trait for all signatures
 pub trait Signature: AsRef<[u8]> + Debug + Sized {
@@ -14,9 +16,9 @@ pub trait Signature: AsRef<[u8]> + Debug + Sized {
     }
 
     /// Convert signature into owned byte array
-    #[cfg(feature = "std")]
+    #[cfg(feature = "alloc")]
     #[inline]
-    fn into_vec(self) -> ::std::vec::Vec<u8> {
+    fn into_vec(self) -> Vec<u8> {
         self.as_slice().into()
     }
 }

@@ -15,9 +15,9 @@ use signatory::{
     ecdsa::{
         verifier::*, Asn1Signature, EcdsaSignature, EcdsaSignatureKind, FixedSignature, PublicKey,
     },
+    encoding::FromPkcs8,
     error::Error,
     generic_array::{typenum::Unsigned, GenericArray},
-    pkcs8::FromPkcs8,
     PublicKeyed, Sha256Signer, Signature,
 };
 
@@ -168,7 +168,7 @@ mod tests {
             Asn1Signature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         ecdsa::verifier::*,
-        pkcs8::FromPkcs8,
+        encoding::FromPkcs8,
         PublicKeyed, Signature,
     };
 
