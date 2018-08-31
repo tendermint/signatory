@@ -2,7 +2,13 @@
 
 use core::fmt::{self, Debug};
 
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use encoding::Encode;
+#[cfg(feature = "encoding")]
+use encoding::{Decode, Encoding};
 use error::Error;
+#[allow(unused_imports)]
+use prelude::*;
 use util::fmt_colon_delimited_hex;
 use Signature;
 
@@ -14,6 +20,11 @@ pub const SIGNATURE_SIZE: usize = 64;
 pub struct Ed25519Signature(pub [u8; SIGNATURE_SIZE]);
 
 impl Ed25519Signature {
+    /// Create an Ed25519 signature from a 32-byte array
+    pub fn new(bytes: [u8; SIGNATURE_SIZE]) -> Self {
+        Ed25519Signature(bytes)
+    }
+
     /// Obtain signature as a byte array reference
     #[inline]
     pub fn as_bytes(&self) -> &[u8; SIGNATURE_SIZE] {
@@ -41,13 +52,41 @@ impl Debug for Ed25519Signature {
     }
 }
 
+#[cfg(feature = "encoding")]
+impl Decode for Ed25519Signature {
+    /// Decode an Ed25519 signature from a byte slice with the given encoding
+    /// (e.g. hex, Base64)
+    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+        let mut decoded_signature = [0u8; SIGNATURE_SIZE];
+        let decoded_len = encoding.decode(encoded_signature, &mut decoded_signature)?;
+
+        ensure!(
+            decoded_len == SIGNATURE_SIZE,
+            SignatureInvalid,
+            "invalid {}-byte signature (expected {})",
+            decoded_len,
+            SIGNATURE_SIZE
+        );
+
+        Ok(Self::new(decoded_signature))
+    }
+}
+
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+impl Encode for Ed25519Signature {
+    /// Encode an Ed25519 signature with the given encoding (e.g. hex, Base64)
+    fn encode(&self, encoding: Encoding) -> Vec<u8> {
+        encoding.encode_vec(self.as_ref())
+    }
+}
+
+impl Eq for Ed25519Signature {}
+
 impl PartialEq for Ed25519Signature {
     fn eq(&self, other: &Self) -> bool {
         self.0[..] == other.0[..]
     }
 }
-
-impl Eq for Ed25519Signature {}
 
 impl Signature for Ed25519Signature {
     /// Create an Ed25519 signature from its serialized byte representation

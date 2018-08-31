@@ -19,7 +19,7 @@ use signatory_ring::ed25519::{Ed25519Signer, Ed25519Verifier};
 const TEST_VECTOR: &TestVector = &TEST_VECTORS[4];
 
 fn sign_ed25519(c: &mut Criterion) {
-    let signer = Ed25519Signer::from_seed(Seed::from_slice(TEST_VECTOR.sk).unwrap());
+    let signer = Ed25519Signer::from_seed(Seed::from_bytes(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("ring: Ed25519 signer", move |b| {
         b.iter(|| signatory::sign(&signer, TEST_VECTOR.msg).unwrap())

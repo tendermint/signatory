@@ -6,8 +6,8 @@ use untrusted;
 
 use signatory::{
     ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
+    encoding::FromPkcs8,
     error::{Error, ErrorKind},
-    pkcs8::FromPkcs8,
     PublicKeyed, Signature, Signer,
 };
 

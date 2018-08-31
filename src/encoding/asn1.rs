@@ -2,7 +2,7 @@
 //! Presently specialized for Distinguished Encoding Rules (DER)
 
 /// ASN.1 tags
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(u8)]
 pub(crate) enum Tag {
     /// ASN.1 `INTEGER`

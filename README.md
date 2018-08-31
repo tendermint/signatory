@@ -73,3 +73,11 @@ Signatory is distributed under the terms of both the MIT license and the
 Apache License (Version 2.0).
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
+
+Constant-time(ish) Base64 and hex decoding implementations adapted from:
+
+<https://github.com/Sc00bz/ConstTimeEncoding/>
+
+Copyright (c) 2014 Steve "Sc00bz" Thomas (steve at tobtu dot com).
+Licensed under the terms of the MIT license. See [LICENSE-MIT](LICENSE-MIT)
+for details.

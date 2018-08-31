@@ -6,7 +6,13 @@ use generic_array::{typenum::Unsigned, GenericArray};
 
 use curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
 use curve::WeierstrassCurve;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use encoding::Encode;
+#[cfg(feature = "encoding")]
+use encoding::{Decode, Encoding};
 use error::Error;
+#[allow(unused_imports)]
+use prelude::*;
 use util::fmt_colon_delimited_hex;
 use PublicKey as PublicKeyTrait;
 
@@ -31,17 +37,18 @@ where
     /// 2.3.4 (page 11).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
-    pub fn from_slice(slice: &[u8]) -> Result<Self, Error> {
+    pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
+        let slice = bytes.as_ref();
         let length = slice.len();
 
         if length == C::CompressedPointSize::to_usize() {
-            Ok(PublicKey::Compressed(CompressedCurvePoint::new(
-                GenericArray::clone_from_slice(slice),
-            )?))
+            let array = GenericArray::clone_from_slice(slice);
+            let point = CompressedCurvePoint::new(array)?;
+            Ok(PublicKey::Compressed(point))
         } else if length == C::UncompressedPointSize::to_usize() {
-            Ok(PublicKey::Uncompressed(UncompressedCurvePoint::new(
-                GenericArray::clone_from_slice(slice),
-            )?))
+            let array = GenericArray::clone_from_slice(slice);
+            let point = UncompressedCurvePoint::new(array)?;
+            Ok(PublicKey::Uncompressed(point))
         } else {
             fail!(
                 KeyInvalid,
@@ -62,9 +69,8 @@ where
     where
         B: Into<GenericArray<u8, C::CompressedPointSize>>,
     {
-        Ok(PublicKey::Compressed(CompressedCurvePoint::new(
-            into_bytes,
-        )?))
+        let point = CompressedCurvePoint::new(into_bytes)?;
+        Ok(PublicKey::Compressed(point))
     }
 
     /// Create an ECDSA public key from a raw uncompressed point serialized
@@ -109,6 +115,43 @@ where
         write!(f, "signatory::ecdsa::PublicKey<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
+    }
+}
+
+#[cfg(feature = "encoding")]
+impl<C> Decode for PublicKey<C>
+where
+    C: WeierstrassCurve,
+{
+    /// Decode an ECDSA public key from an elliptic curve point
+    /// (compressed or uncompressed) encoded using given `Encoding`
+    /// with the underlying bytes serialized using the
+    /// `Octet-String-to-Elliptic-Curve-Point` algorithm described in
+    /// SEC 1: Elliptic Curve Cryptography (Version 2.0) section
+    /// 2.3.4 (page 11).
+    ///
+    /// <http://www.secg.org/sec1-v2.pdf>
+    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+        let mut array: GenericArray<u8, C::UncompressedPointSize> = GenericArray::default();
+        let decoded_len = encoding.decode(encoded_signature, array.as_mut_slice())?;
+        Self::from_bytes(&array.as_ref()[..decoded_len])
+    }
+}
+
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+impl<C> Encode for PublicKey<C>
+where
+    C: WeierstrassCurve,
+{
+    /// Encode this ECDSA public key (compressed or uncompressed) encoded
+    /// using given `Encoding` with the underlying bytes serialized using the
+    /// `Octet-String-to-Elliptic-Curve-Point` algorithm described in
+    /// SEC 1: Elliptic Curve Cryptography (Version 2.0) section
+    /// 2.3.4 (page 11).
+    ///
+    /// <http://www.secg.org/sec1-v2.pdf>
+    fn encode(&self, encoding: Encoding) -> Vec<u8> {
+        encoding.encode_vec(self.as_ref())
     }
 }
 
