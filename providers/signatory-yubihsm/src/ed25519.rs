@@ -74,7 +74,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use signatory::{ed25519::Verifier, PublicKeyed};
+    use signatory::{self, PublicKeyed};
     use signatory_ring::ed25519::Ed25519Verifier;
     use std::sync::{Arc, Mutex};
     use yubihsm;
@@ -148,9 +148,9 @@ mod tests {
             signing_key_id: TEST_SIGNING_KEY_ID,
         };
 
-        let public_key = signer.public_key().unwrap();
         let signature = signer.sign(TEST_MESSAGE).unwrap();
+        let verifier = Ed25519Verifier::from(&signer.public_key().unwrap());
 
-        assert!(Ed25519Verifier::verify(&public_key, TEST_MESSAGE, &signature).is_ok());
+        assert!(signatory::verify(&verifier, TEST_MESSAGE, &signature).is_ok());
     }
 }

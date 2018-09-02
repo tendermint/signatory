@@ -71,6 +71,8 @@ impl<C: WeierstrassCurve> Clone for CompressedCurvePoint<C> {
     }
 }
 
+impl<C: WeierstrassCurve> Eq for CompressedCurvePoint<C> {}
+
 impl<C: WeierstrassCurve> PartialEq for CompressedCurvePoint<C> {
     fn eq(&self, other: &CompressedCurvePoint<C>) -> bool {
         self.bytes == other.bytes
@@ -137,6 +139,8 @@ impl<C: WeierstrassCurve> Clone for UncompressedCurvePoint<C> {
         Self::new(self.bytes.clone()).unwrap()
     }
 }
+
+impl<C: WeierstrassCurve> Eq for UncompressedCurvePoint<C> {}
 
 impl<C: WeierstrassCurve> PartialEq for UncompressedCurvePoint<C> {
     fn eq(&self, other: &UncompressedCurvePoint<C>) -> bool {

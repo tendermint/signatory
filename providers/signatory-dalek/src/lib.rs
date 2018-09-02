@@ -17,16 +17,14 @@ extern crate sha2;
 extern crate signatory;
 
 use digest::Digest;
-use ed25519_dalek::PublicKey as DalekPublicKey;
-use ed25519_dalek::Signature as DalekSignature;
 use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed},
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
-    DigestSigner, PublicKeyed, Signature, Signer,
+    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -36,7 +34,7 @@ impl FromSeed for Ed25519Signer {
     /// Create a new DalekSigner from an unexpanded seed value
     fn from_seed<S: Into<Seed>>(seed: S) -> Self {
         let sk = SecretKey::from_bytes(&seed.into().as_secret_slice()).unwrap();
-        let pk = DalekPublicKey::from_secret::<Sha512>(&sk);
+        let pk = ed25519_dalek::PublicKey::from_secret::<Sha512>(&sk);
 
         Ed25519Signer(Keypair {
             secret: sk,
@@ -75,15 +73,35 @@ where
 }
 
 /// Ed25519 verifier provider for ed25519-dalek
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Ed25519Verifier;
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Ed25519Verifier(ed25519_dalek::PublicKey);
 
-impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
-        let pk = DalekPublicKey::from_bytes(key.as_ref()).unwrap();
-        let sig = DalekSignature::from_bytes(signature.as_ref()).unwrap();
+impl<'a> From<&'a PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a PublicKey) -> Self {
+        Ed25519Verifier(ed25519_dalek::PublicKey::from_bytes(public_key.as_ref()).unwrap())
+    }
+}
 
-        pk.verify::<Sha512>(msg, &sig)
+impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &'a [u8], signature: &Ed25519Signature) -> Result<(), Error> {
+        let sig = ed25519_dalek::Signature::from_bytes(signature.as_ref()).unwrap();
+        self.0
+            .verify::<Sha512>(msg, &sig)
+            .map_err(|_| ErrorKind::SignatureInvalid.into())
+    }
+}
+
+// TODO: test vectors!
+impl<D> DigestVerifier<D, Ed25519Signature> for Ed25519Verifier
+where
+    D: Digest<OutputSize = U64> + Default,
+{
+    fn verify_digest(&self, digest: D, signature: &Ed25519Signature) -> Result<(), Error> {
+        // TODO: context support
+        let context: Option<&'static [u8]> = None;
+        let sig = ed25519_dalek::Signature::from_bytes(signature.as_ref()).unwrap();
+        self.0
+            .verify_prehashed(digest, context, &sig)
             .map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }

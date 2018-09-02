@@ -15,13 +15,11 @@ extern crate signatory;
 extern crate sodiumoxide;
 
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed},
     error::{Error, ErrorKind},
-    PublicKeyed, Signature, Signer,
+    PublicKeyed, Signature, Signer, Verifier,
 };
-use sodiumoxide::crypto::sign::ed25519::{
-    self as sodiumoxide_ed25519, SecretKey, Seed as SodiumOxideSeed,
-};
+use sodiumoxide::crypto::sign::ed25519::{self as sodiumoxide_ed25519, SecretKey};
 
 /// Ed25519 signature provider for *sodiumoxide*
 pub struct Ed25519Signer {
@@ -32,8 +30,8 @@ pub struct Ed25519Signer {
 impl FromSeed for Ed25519Signer {
     /// Create a new SodiumOxideSigner from an unexpanded seed value
     fn from_seed<S: Into<Seed>>(seed: S) -> Self {
-        let sodium_oxide_seed = SodiumOxideSeed::from_slice(&seed.into().0[..]).unwrap();
-        let (public_key, secret_key) = sodiumoxide_ed25519::keypair_from_seed(&sodium_oxide_seed);
+        let sodiumoxide_seed = sodiumoxide_ed25519::Seed::from_slice(&seed.into().0[..]).unwrap();
+        let (public_key, secret_key) = sodiumoxide_ed25519::keypair_from_seed(&sodiumoxide_seed);
 
         Self {
             secret_key,
@@ -55,16 +53,20 @@ impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
     }
 }
 
-/// Ed25519 verifier provider for *sodiumoxide*
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Ed25519Verifier;
+/// Ed25519 verifier for sodiumoxide
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Ed25519Verifier(sodiumoxide_ed25519::PublicKey);
 
-impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
-        let pk = sodiumoxide_ed25519::PublicKey::from_slice(key.as_bytes()).unwrap();
+impl<'a> From<&'a PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a PublicKey) -> Self {
+        Ed25519Verifier(sodiumoxide_ed25519::PublicKey::from_slice(public_key.as_bytes()).unwrap())
+    }
+}
+
+impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &'a [u8], signature: &Ed25519Signature) -> Result<(), Error> {
         let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
-
-        if sodiumoxide_ed25519::verify_detached(&sig, msg, &pk) {
+        if sodiumoxide_ed25519::verify_detached(&sig, msg, &self.0) {
             Ok(())
         } else {
             Err(ErrorKind::SignatureInvalid.into())

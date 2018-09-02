@@ -52,8 +52,6 @@ extern crate std;
 
 #[cfg(any(feature = "encoding", feature = "ed25519"))]
 extern crate clear_on_drop;
-#[cfg(feature = "digest")]
-extern crate digest;
 #[cfg(feature = "generic-array")]
 pub extern crate generic_array;
 #[cfg(feature = "rand")]
@@ -66,6 +64,8 @@ pub mod error;
 
 #[cfg(feature = "ecdsa")]
 pub mod curve;
+#[cfg(feature = "digest")]
+pub mod digest;
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
@@ -80,14 +80,27 @@ mod signer;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
+mod verifier;
 
+#[cfg(all(feature = "digest", feature = "generic-array"))]
+pub use digest::DigestOutput;
 pub use error::{Error, ErrorKind};
 pub use public_key::{public_key, PublicKey, PublicKeyed};
 pub use signature::Signature;
 #[cfg(all(feature = "digest", feature = "generic-array"))]
 pub use signer::digest::sign_digest;
 pub use signer::*;
-pub use signer::{bytes::sign_bytes, sha2::sign_sha256};
+pub use signer::{
+    bytes::sign_bytes,
+    sha2::{sign_sha256, sign_sha384, sign_sha512},
+};
+#[cfg(all(feature = "digest", feature = "generic-array"))]
+pub use verifier::digest::verify_digest;
+pub use verifier::*;
+pub use verifier::{
+    bytes::verify_bytes,
+    sha2::{verify_sha256, verify_sha384, verify_sha512},
+};
 
 /// Sign the given byte slice with the given signer (alias for `sign_bytes`)
 #[inline]
@@ -96,4 +109,17 @@ where
     S: Signature,
 {
     signer.sign(msg)
+}
+
+/// Verify the given byte slice with the given signer (alias for `verify_bytes`)
+#[inline]
+pub fn verify<'a, S>(
+    verifier: &ByteVerifier<'a, S>,
+    msg: &'a [u8],
+    signature: &S,
+) -> Result<(), Error>
+where
+    S: Signature,
+{
+    verifier.verify(msg, signature)
 }

@@ -5,10 +5,10 @@ use ring::signature::Ed25519KeyPair;
 use untrusted;
 
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, Verifier},
+    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed},
     encoding::FromPkcs8,
-    error::{Error, ErrorKind},
-    PublicKeyed, Signature, Signer,
+    error::{Error, ErrorKind::SignatureInvalid},
+    PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for *ring*
@@ -47,18 +47,24 @@ impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
     }
 }
 
-/// Ed25519 verifier provider for *ring*
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Ed25519Verifier;
+/// Ed25519 verifier for *ring*
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Ed25519Verifier(PublicKey);
 
-impl Verifier for Ed25519Verifier {
-    fn verify(key: &PublicKey, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
+impl<'a> From<&'a PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a PublicKey) -> Self {
+        Ed25519Verifier(*public_key)
+    }
+}
+
+impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &'a [u8], signature: &Ed25519Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ring::signature::ED25519,
-            untrusted::Input::from(key.as_bytes()),
+            untrusted::Input::from(self.0.as_bytes()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_bytes()),
-        ).map_err(|_| ErrorKind::SignatureInvalid.into())
+        ).map_err(|_| SignatureInvalid.into())
     }
 }
 

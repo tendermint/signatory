@@ -5,7 +5,7 @@ use core::marker::PhantomData;
 use generic_array::typenum::Unsigned;
 use generic_array::GenericArray;
 
-use super::{EcdsaSignature, EcdsaSignatureKind};
+use super::EcdsaSignature;
 use curve::WeierstrassCurve;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
@@ -45,12 +45,7 @@ where
     }
 }
 
-impl<C> EcdsaSignature for FixedSignature<C>
-where
-    C: WeierstrassCurve,
-{
-    const SIGNATURE_KIND: EcdsaSignatureKind = EcdsaSignatureKind::Fixed;
-}
+impl<C: WeierstrassCurve> EcdsaSignature for FixedSignature<C> {}
 
 impl<C> FixedSignature<C>
 where

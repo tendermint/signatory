@@ -17,7 +17,7 @@ use util::fmt_colon_delimited_hex;
 use PublicKey as PublicKeyTrait;
 
 /// ECDSA public keys
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Eq, PartialEq)]
 pub enum PublicKey<C: WeierstrassCurve> {
     /// Compressed Weierstrass elliptic curve point
     Compressed(CompressedCurvePoint<C>),
