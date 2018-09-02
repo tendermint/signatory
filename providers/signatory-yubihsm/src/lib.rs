@@ -13,11 +13,12 @@
     html_root_url = "https://docs.rs/signatory-yubihsm/0.8.0"
 )]
 
+#[cfg(feature = "secp256k1")]
+#[macro_use]
+extern crate lazy_static;
+#[cfg(feature = "secp256k1")]
+extern crate secp256k1;
 extern crate signatory;
-#[cfg(all(test, feature = "ecdsa"))]
-extern crate signatory_ring;
-#[cfg(all(test, feature = "ecdsa"))]
-extern crate signatory_secp256k1;
 extern crate yubihsm;
 
 use std::sync::{Arc, Mutex};

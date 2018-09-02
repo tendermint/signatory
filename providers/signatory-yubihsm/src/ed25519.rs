@@ -74,8 +74,10 @@ where
 
 #[cfg(test)]
 mod tests {
+    extern crate signatory_ring;
+    use self::signatory_ring::ed25519::Ed25519Verifier;
+
     use signatory::{self, PublicKeyed};
-    use signatory_ring::ed25519::Ed25519Verifier;
     use std::sync::{Arc, Mutex};
     use yubihsm;
 
