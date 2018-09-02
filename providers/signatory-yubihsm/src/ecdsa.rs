@@ -149,8 +149,8 @@ mod tests {
     use signatory::{
         self,
         curve::{NistP256, WeierstrassCurve},
-        ecdsa::{verifier::Sha256Verifier, Asn1Signature},
-        PublicKeyed,
+        ecdsa::Asn1Signature,
+        PublicKeyed, Sha256Verifier,
     };
     use signatory_ring;
     #[cfg(not(feature = "mockhsm"))]
@@ -238,17 +238,10 @@ mod tests {
     #[test]
     fn ecdsa_nistp256_sign_test() {
         let signer = create_signer::<NistP256>(100);
-
-        let public_key = signer.public_key().unwrap();
         let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
-        assert!(
-            signatory_ring::ecdsa::P256Verifier::verify_sha256_asn1_signature(
-                &public_key,
-                TEST_MESSAGE,
-                &signature
-            ).is_ok()
-        );
+        let verifier = signatory_ring::ecdsa::P256Verifier::from(&signer.public_key().unwrap());
+        assert!(verifier.verify_sha256(TEST_MESSAGE, &signature).is_ok());
     }
 
     // We need secp256k1 to verify secp256k1 ECDSA signatures.
@@ -257,16 +250,10 @@ mod tests {
     #[test]
     fn ecdsa_secp256k1_sign_test() {
         let signer = create_signer::<Secp256k1>(101);
-
-        let public_key = signer.public_key().unwrap();
         let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
-        assert!(
-            signatory_secp256k1::EcdsaVerifier::verify_sha256_asn1_signature(
-                &public_key,
-                TEST_MESSAGE,
-                &signature
-            ).is_ok()
-        );
+        let verifier = signatory_secp256k1::EcdsaVerifier::from(&signer.public_key().unwrap());
+
+        assert!(verifier.verify_sha256(TEST_MESSAGE, &signature).is_ok());
     }
 }

@@ -1,4 +1,4 @@
-# ![Signatory](https://miscreant.io/images/signatory.svg)
+# ![Signatory](https://www.iqlusion.io/img/github/tendermint/signatory/signatory.svg)
 
 [![crate][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]

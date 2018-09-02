@@ -7,33 +7,39 @@ use ring::{
     rand::SystemRandom,
     signature::{
         ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED,
-        ECDSA_P256_SHA256_FIXED_SIGNING, KeyPair,
+        ECDSA_P256_SHA256_FIXED_SIGNING, KeyPair, SigningAlgorithm,
     },
 };
 use signatory::{
     curve::{nistp256::NistP256, WeierstrassCurve},
-    ecdsa::{
-        verifier::*, Asn1Signature, EcdsaSignature, EcdsaSignatureKind, FixedSignature, PublicKey,
-    },
+    ecdsa::{Asn1Signature, EcdsaSignature, FixedSignature, PublicKey},
     encoding::FromPkcs8,
     error::Error,
     generic_array::{typenum::Unsigned, GenericArray},
-    PublicKeyed, Sha256Signer, Signature,
+    PublicKeyed, Sha256Signer, Sha256Verifier, Signature,
 };
+use untrusted;
 
-use untrusted::Input;
-
-/// NIST P-256 ECDSA signer which produces ASN.1 DER encoded signatures
+/// NIST P-256 ECDSA signer
 pub struct P256Signer<S: EcdsaSignature>(EcdsaSigner<NistP256, S>);
 
-impl<S> FromPkcs8 for P256Signer<S>
-where
-    S: EcdsaSignature + Send + Sync,
-{
+impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        let signer = EcdsaSigner::from_pkcs8(pkcs8_bytes)?;
-        Ok(P256Signer(signer))
+        Ok(P256Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P256_SHA256_ASN1_SIGNING,
+            pkcs8_bytes,
+        )?))
+    }
+}
+
+impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
+    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
+        Ok(P256Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P256_SHA256_FIXED_SIGNING,
+            pkcs8_bytes,
+        )?))
     }
 }
 
@@ -59,36 +65,42 @@ impl<'a> Sha256Signer<'a, FixedSignature<NistP256>> for P256Signer<FixedSignatur
     }
 }
 
-/// NIST P-256 ECDSA verifier for ASN.1 DER encoded signatures
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct P256Verifier;
+/// NIST P-256 ECDSA verifier
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct P256Verifier(PublicKey<NistP256>);
 
-impl Sha256Verifier<NistP256> for P256Verifier {
-    /// Verify an ASN.1 DER-encoded ECDSA signature against the given public key
-    fn verify_sha256_asn1_signature(
-        pubkey: &PublicKey<NistP256>,
-        msg: &[u8],
+impl<'a> From<&'a PublicKey<NistP256>> for P256Verifier {
+    fn from(public_key: &'a PublicKey<NistP256>) -> Self {
+        P256Verifier(public_key.clone())
+    }
+}
+
+impl<'a> Sha256Verifier<'a, Asn1Signature<NistP256>> for P256Verifier {
+    fn verify_sha256(
+        &self,
+        msg: &'a [u8],
         signature: &Asn1Signature<NistP256>,
     ) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_ASN1,
-            Input::from(pubkey.as_ref()),
-            Input::from(msg),
-            Input::from(signature.as_ref()),
+            untrusted::Input::from(self.0.as_ref()),
+            untrusted::Input::from(msg),
+            untrusted::Input::from(signature.as_ref()),
         ).map_err(|_| err!(SignatureInvalid, "invalid signature"))
     }
+}
 
-    /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature against the given public key
-    fn verify_sha256_fixed_signature(
-        pubkey: &PublicKey<NistP256>,
-        msg: &[u8],
+impl<'a> Sha256Verifier<'a, FixedSignature<NistP256>> for P256Verifier {
+    fn verify_sha256(
+        &self,
+        msg: &'a [u8],
         signature: &FixedSignature<NistP256>,
     ) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_FIXED,
-            Input::from(pubkey.as_ref()),
-            Input::from(msg),
-            Input::from(signature.as_ref()),
+            untrusted::Input::from(self.0.as_ref()),
+            untrusted::Input::from(msg),
+            untrusted::Input::from(signature.as_ref()),
         ).map_err(|_| err!(SignatureInvalid, "invalid signature"))
     }
 }
@@ -110,20 +122,15 @@ struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
     signature: PhantomData<S>,
 }
 
-impl<S> FromPkcs8 for EcdsaSigner<NistP256, S>
+impl<S> EcdsaSigner<NistP256, S>
 where
     S: EcdsaSignature,
 {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        // TODO: support other elliptic curves besides P-256
-        let alg = match S::SIGNATURE_KIND {
-            EcdsaSignatureKind::Asn1 => &ECDSA_P256_SHA256_ASN1_SIGNING,
-            EcdsaSignatureKind::Fixed => &ECDSA_P256_SHA256_FIXED_SIGNING,
-        };
-
-        let keypair = ring::signature::key_pair_from_pkcs8(alg, Input::from(pkcs8_bytes))
-            .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 key"))?;
+    fn from_pkcs8(alg: &'static SigningAlgorithm, pkcs8_bytes: &[u8]) -> Result<Self, Error> {
+        let keypair =
+            ring::signature::key_pair_from_pkcs8(alg, untrusted::Input::from(pkcs8_bytes))
+                .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 key"))?;
 
         // TODO: less hokey way of parsing the public key/point from the PKCS#8 file?
         let pk_bytes_pos = pkcs8_bytes
@@ -152,7 +159,7 @@ where
 {
     /// Sign a message, returning a *ring* `Signature` type
     fn sign(&self, msg: &[u8]) -> Result<ring::signature::Signature, Error> {
-        ring::signature::sign(&self.keypair, &self.csrng, Input::from(msg))
+        ring::signature::sign(&self.keypair, &self.csrng, untrusted::Input::from(msg))
             .map_err(|_| err!(ProviderError, "signing failure"))
     }
 }
@@ -167,9 +174,8 @@ mod tests {
         curve::nistp256::{
             Asn1Signature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
-        ecdsa::verifier::*,
         encoding::FromPkcs8,
-        PublicKeyed, Signature,
+        PublicKeyed, Sha256Verifier, Signature,
     };
 
     #[test]
@@ -180,8 +186,8 @@ mod tests {
         let signer = P256Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
         let signature: Asn1Signature = signatory::sign_sha256(&signer, vector.msg).unwrap();
 
-        let public_key = signer.public_key().unwrap();
-        P256Verifier::verify_sha256_asn1_signature(&public_key, vector.msg, &signature).unwrap();
+        let verifier = P256Verifier::from(&signer.public_key().unwrap());
+        assert!(verifier.verify_sha256(vector.msg, &signature).is_ok());
     }
 
     #[test]
@@ -193,9 +199,8 @@ mod tests {
         let mut tweaked_signature = signature.into_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
-        let public_key = signer.public_key().unwrap();
-        let result = P256Verifier::verify_sha256_asn1_signature(
-            &public_key,
+        let verifier = P256Verifier::from(&signer.public_key().unwrap());
+        let result = verifier.verify_sha256(
             vector.msg,
             &Asn1Signature::from_bytes(tweaked_signature).unwrap(),
         );
@@ -219,15 +224,19 @@ mod tests {
             // Compute a signature with a random `k`
             // TODO: test deterministic `k`
             let signature: FixedSignature = signatory::sign_sha256(&signer, vector.msg).unwrap();
-            P256Verifier::verify_sha256_fixed_signature(&public_key, vector.msg, &signature)
-                .unwrap();
+
+            let verifier = P256Verifier::from(&signer.public_key().unwrap());
+            assert!(verifier.verify_sha256(vector.msg, &signature).is_ok());
 
             // Make sure the vector signature verifies
-            P256Verifier::verify_sha256_fixed_signature(
-                &public_key,
-                vector.msg,
-                &FixedSignature::from_bytes(&vector.sig).unwrap(),
-            ).unwrap();
+            assert!(
+                verifier
+                    .verify_sha256(
+                        vector.msg,
+                        &FixedSignature::from_bytes(&vector.sig).unwrap()
+                    )
+                    .is_ok()
+            );
         }
     }
 
@@ -240,9 +249,8 @@ mod tests {
         let mut tweaked_signature = signature.into_bytes();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
-        let public_key = signer.public_key().unwrap();
-        let result = P256Verifier::verify_sha256_fixed_signature(
-            &public_key,
+        let verifier = P256Verifier::from(&signer.public_key().unwrap());
+        let result = verifier.verify_sha256(
             vector.msg,
             &FixedSignature::from_bytes(tweaked_signature).unwrap(),
         );
@@ -257,14 +265,13 @@ mod tests {
     fn test_fixed_to_asn1_transformed_signature_verifies() {
         for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
             let signer = P256Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
-            let public_key = signer.public_key().unwrap();
 
             let fixed_signature: FixedSignature =
                 signatory::sign_sha256(&signer, vector.msg).unwrap();
             let asn1_signature = Asn1Signature::from(&fixed_signature);
 
-            P256Verifier::verify_sha256_asn1_signature(&public_key, vector.msg, &asn1_signature)
-                .unwrap();
+            let verifier = P256Verifier::from(&signer.public_key().unwrap());
+            assert!(verifier.verify_sha256(vector.msg, &asn1_signature).is_ok());
         }
     }
 }

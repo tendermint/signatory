@@ -5,7 +5,6 @@
 mod public_key;
 mod seed;
 mod signature;
-mod verifier;
 
 #[macro_use]
 mod test_macros;
@@ -20,5 +19,4 @@ pub use self::{
     public_key::{PublicKey, PUBLIC_KEY_SIZE},
     seed::{FromSeed, Seed, SEED_SIZE},
     signature::{Ed25519Signature, SIGNATURE_SIZE},
-    verifier::*,
 };

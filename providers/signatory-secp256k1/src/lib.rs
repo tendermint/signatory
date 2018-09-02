@@ -17,10 +17,9 @@ extern crate signatory;
 use secp256k1::{key::SecretKey, Message};
 
 use signatory::{
-    curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, Secp256k1},
-    ecdsa::verifier::*,
+    curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey},
     generic_array::{typenum::U32, GenericArray},
-    Error, PublicKeyed, Signature, Signer,
+    Error, PublicKeyed, Signature, Signer, Verifier,
 };
 
 lazy_static! {
@@ -86,47 +85,38 @@ impl Signer<GenericArray<u8, U32>, FixedSignature> for EcdsaSigner {
 }
 
 /// ECDSA verifier provider for the secp256k1 crate
-#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
-pub struct EcdsaVerifier;
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct EcdsaVerifier(secp256k1::key::PublicKey);
 
-impl RawDigestVerifier<Secp256k1> for EcdsaVerifier {
-    /// Verify an ASN.1 DER-encoded ECDSA signature against the given public key
-    fn verify_raw_digest_asn1_signature(
-        key: &PublicKey,
-        msg: &GenericArray<u8, U32>,
-        signature: &Asn1Signature,
-    ) -> Result<(), Error> {
-        let sig = secp256k1::Signature::from_der(&SECP256K1_ENGINE, signature.as_slice())
-            .map_err(|e| err!(SignatureInvalid, e))?;
-
-        verify_signature(key, msg.as_slice(), &sig)
-    }
-
-    /// Verify a fixed-sized (a.k.a. "compact") ECDSA signature against the given public key
-    fn verify_raw_digest_fixed_signature(
-        key: &PublicKey,
-        msg: &GenericArray<u8, U32>,
-        signature: &FixedSignature,
-    ) -> Result<(), Error> {
-        let sig =
-            secp256k1::Signature::from_compact(&SECP256K1_ENGINE, signature.as_slice()).unwrap();
-        verify_signature(key, msg.as_slice(), &sig)
+impl<'a> From<&'a PublicKey> for EcdsaVerifier {
+    fn from(public_key: &'a PublicKey) -> Self {
+        EcdsaVerifier(
+            secp256k1::key::PublicKey::from_slice(&SECP256K1_ENGINE, public_key.as_bytes())
+                .unwrap(),
+        )
     }
 }
 
-/// Verify a secp256k1 signature, abstract across the signature type
-///
-/// Panics is the message is not 32-bytes
-fn verify_signature(
-    key: &PublicKey,
-    msg: &[u8],
-    signature: &secp256k1::Signature,
-) -> Result<(), Error> {
-    let pk = secp256k1::key::PublicKey::from_slice(&SECP256K1_ENGINE, key.as_bytes()).unwrap();
+impl Verifier<GenericArray<u8, U32>, Asn1Signature> for EcdsaVerifier {
+    fn verify(&self, msg: GenericArray<u8, U32>, signature: &Asn1Signature) -> Result<(), Error> {
+        let sig = secp256k1::Signature::from_der(&SECP256K1_ENGINE, signature.as_slice())
+            .map_err(|e| err!(SignatureInvalid, e))?;
 
-    SECP256K1_ENGINE
-        .verify(&Message::from_slice(msg).unwrap(), signature, &pk)
-        .map_err(|e| err!(SignatureInvalid, e))
+        SECP256K1_ENGINE
+            .verify(&Message::from_slice(&msg).unwrap(), &sig, &self.0)
+            .map_err(|e| err!(SignatureInvalid, e))
+    }
+}
+
+impl Verifier<GenericArray<u8, U32>, FixedSignature> for EcdsaVerifier {
+    fn verify(&self, msg: GenericArray<u8, U32>, signature: &FixedSignature) -> Result<(), Error> {
+        let sig =
+            secp256k1::Signature::from_compact(&SECP256K1_ENGINE, signature.as_slice()).unwrap();
+
+        SECP256K1_ENGINE
+            .verify(&Message::from_slice(&msg).unwrap(), &sig, &self.0)
+            .map_err(|e| err!(SignatureInvalid, e))
+    }
 }
 
 // TODO: test against actual test vectors, rather than just checking if signatures roundtrip
@@ -138,8 +128,7 @@ mod tests {
         curve::secp256k1::{
             Asn1Signature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
-        ecdsa::verifier::*,
-        PublicKeyed, Signature,
+        PublicKeyed, Sha256Verifier, Signature,
     };
 
     #[test]
@@ -149,8 +138,8 @@ mod tests {
         let signer = EcdsaSigner::from_bytes(vector.sk).unwrap();
         let signature: Asn1Signature = signatory::sign_sha256(&signer, vector.msg).unwrap();
 
-        let public_key = signer.public_key().unwrap();
-        EcdsaVerifier::verify_sha256_asn1_signature(&public_key, vector.msg, &signature).unwrap();
+        let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
+        assert!(verifier.verify_sha256(vector.msg, &signature).is_ok());
     }
 
     #[test]
@@ -162,9 +151,8 @@ mod tests {
         let mut tweaked_signature = signature.into_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
-        let public_key = signer.public_key().unwrap();
-        let result = EcdsaVerifier::verify_sha256_asn1_signature(
-            &public_key,
+        let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
+        let result = verifier.verify_sha256(
             vector.msg,
             &Asn1Signature::from_bytes(tweaked_signature).unwrap(),
         );
@@ -185,7 +173,8 @@ mod tests {
             let signature: FixedSignature = signatory::sign_sha256(&signer, vector.msg).unwrap();
             assert_eq!(signature.as_ref(), vector.sig);
 
-            EcdsaVerifier::verify_sha256_fixed_signature(&public_key, vector.msg, &signature)
+            EcdsaVerifier::from(&public_key)
+                .verify_sha256(vector.msg, &signature)
                 .unwrap();
         }
     }
@@ -199,9 +188,8 @@ mod tests {
         let mut tweaked_signature = signature.into_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
-        let public_key = signer.public_key().unwrap();
-        let result = EcdsaVerifier::verify_sha256_fixed_signature(
-            &public_key,
+        let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
+        let result = verifier.verify_sha256(
             vector.msg,
             &FixedSignature::from_bytes(tweaked_signature).unwrap(),
         );
