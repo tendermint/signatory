@@ -14,7 +14,9 @@ keywords    = ["cryptography", "ecdsa", "ed25519", "signatures", "yubihsm"]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-yubihsm = "0.15"
+lazy_static = "1"
+secp256k1 = { version = "0.11", optional = true }
+yubihsm = "0.16.0-alpha1"
 
 [dependencies.signatory]
 version = "0.8"
@@ -33,3 +35,4 @@ mockhsm = ["yubihsm/mockhsm"]
 
 [package.metadata.docs.rs]
 rustc-args = ["-Ctarget-feature=+aes"]
+features = ["ecdsa", "ed25519", "mockhsm", "secp256k1"]

@@ -1,15 +1,20 @@
-//! ECDSA provider for the YubiHSM2 crate (supporting NIST P-256 and secp256k1)
+//! ECDSA provider for the YubiHSM2 crate (supporting NIST P-256 and secp256k1).
+//!
+//! To enable secp256k1 support, you need to build `signatory-yubihsm` with the
+//! `secp256k1` cargo feature enabled.
 
-#[cfg(not(feature = "mockhsm"))]
-use signatory::{curve::CurveDigest, Signer};
+#[cfg(feature = "secp256k1")]
+use secp256k1;
+#[cfg(feature = "secp256k1")]
+use signatory::curve::Secp256k1;
 #[cfg(feature = "mockhsm")]
-use signatory::{curve::NistP256, Sha256Signer};
+use signatory::Sha256Signer;
 use signatory::{
-    curve::{WeierstrassCurve, WeierstrassCurveKind},
-    ecdsa::{Asn1Signature, PublicKey},
+    curve::{CurveDigest, NistP256, WeierstrassCurve, WeierstrassCurveKind},
+    ecdsa::{Asn1Signature, FixedSignature, PublicKey},
     error::Error,
     generic_array::GenericArray,
-    PublicKeyed, Signature,
+    PublicKeyed, Signature, Signer,
 };
 use std::{
     marker::PhantomData,
@@ -20,6 +25,12 @@ use yubihsm;
 use yubihsm::mockhsm::MockConnector;
 
 use super::{KeyId, Session};
+
+#[cfg(feature = "secp256k1")]
+lazy_static! {
+    /// Lazily initialized secp256k1 engine
+    static ref SECP256K1_ENGINE: secp256k1::Secp256k1<secp256k1::All> = secp256k1::Secp256k1::new();
+}
 
 /// ECDSA signature provider for yubihsm-client
 pub struct EcdsaSigner<Curve, Connector = yubihsm::HttpConnector>
@@ -98,19 +109,11 @@ where
     }
 }
 
-// TODO: figure out how to keep the concrete MockConnector type from leaking out
-// The MockHSM implementation of ECDSA does some odd workarounds for the *ring*
-// API since it's slightly incompatible with the API provided by the MockHSM
-// See: https://github.com/briansmith/ring/issues/253
-#[cfg(not(feature = "mockhsm"))]
-impl<Curve, Connector> Signer<CurveDigest<Curve>, Asn1Signature<Curve>>
-    for EcdsaSigner<Curve, Connector>
-where
-    Curve: WeierstrassCurve,
-    Connector: yubihsm::Connector,
+impl Signer<CurveDigest<NistP256>, Asn1Signature<NistP256>>
+    for EcdsaSigner<NistP256, yubihsm::HttpConnector>
 {
-    /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
-    fn sign(&self, digest: CurveDigest<Curve>) -> Result<Asn1Signature<Curve>, Error> {
+    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<NistP256>) -> Result<Asn1Signature<NistP256>, Error> {
         let mut session = self.session.lock().unwrap();
 
         let signature =
@@ -121,7 +124,74 @@ where
     }
 }
 
-// TODO: figure out how to keep the concrete MockConnector type from leaking out (see above)
+impl Signer<CurveDigest<NistP256>, FixedSignature<NistP256>>
+    for EcdsaSigner<NistP256, yubihsm::HttpConnector>
+{
+    /// Compute a fixed-sized P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<NistP256>) -> Result<FixedSignature<NistP256>, Error> {
+        let sig: Asn1Signature<_> = self.sign(digest)?;
+        Ok(FixedSignature::from(&sig))
+    }
+}
+
+#[cfg(feature = "secp256k1")]
+impl Signer<CurveDigest<Secp256k1>, Asn1Signature<Secp256k1>>
+    for EcdsaSigner<Secp256k1, yubihsm::HttpConnector>
+{
+    /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<Asn1Signature<Secp256k1>, Error> {
+        let asn1_sig = self
+            .sign_secp256k1(digest)?
+            .serialize_der(&SECP256K1_ENGINE);
+        Ok(Asn1Signature::from_bytes(&asn1_sig).unwrap())
+    }
+}
+
+#[cfg(feature = "secp256k1")]
+impl Signer<CurveDigest<Secp256k1>, FixedSignature<Secp256k1>>
+    for EcdsaSigner<Secp256k1, yubihsm::HttpConnector>
+{
+    /// Compute a fixed-size secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<FixedSignature<Secp256k1>, Error> {
+        let fixed_sig = GenericArray::clone_from_slice(
+            &self
+                .sign_secp256k1(digest)?
+                .serialize_compact(&SECP256K1_ENGINE),
+        );
+
+        Ok(FixedSignature::from(fixed_sig))
+    }
+}
+
+#[cfg(feature = "secp256k1")]
+impl EcdsaSigner<Secp256k1, yubihsm::HttpConnector> {
+    /// Sign either an ASN.1 DER or fixed-sized signature using libsecp256k1
+    fn sign_secp256k1(
+        &self,
+        digest: CurveDigest<Secp256k1>,
+    ) -> Result<secp256k1::Signature, Error> {
+        let mut session = self.session.lock().unwrap();
+
+        // Sign the data using the YubiHSM, producing an ASN.1 DER encoded signature
+        let raw_sig =
+            yubihsm::sign_ecdsa_raw_digest(&mut session, self.signing_key_id, digest.as_ref())
+                .map_err(|e| err!(ProviderError, "{}", e))?;
+
+        // Parse the signature using libsecp256k1
+        let mut sig =
+            secp256k1::Signature::from_der_lax(&SECP256K1_ENGINE, raw_sig.as_ref()).unwrap();
+
+        // Normalize the signature to a "low S" form. libsecp256k1 will only
+        // accept signatures for which s is in the lower half of the field range.
+        // The signatures produced by the YubiHSM do not have this property, so
+        // we normalize them to maximize compatibility with secp256k1
+        // applications (e.g. Bitcoin).
+        sig.normalize_s(&SECP256K1_ENGINE);
+
+        Ok(sig)
+    }
+}
+
 #[cfg(feature = "mockhsm")]
 impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for EcdsaSigner<NistP256, MockConnector> {
     /// Compute an ASN.1 DER-encoded signature of the given message
@@ -137,6 +207,14 @@ impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for EcdsaSigner<NistP256, Moc
 
 #[cfg(test)]
 mod tests {
+    extern crate signatory_ring;
+    use self::signatory_ring::ecdsa::P256Verifier;
+
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
+    extern crate signatory_secp256k1;
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
+    use self::signatory_secp256k1::EcdsaVerifier as Secp256k1Verifier;
+
     use std::marker::PhantomData;
     use std::sync::{Arc, Mutex};
     use yubihsm;
@@ -144,7 +222,7 @@ mod tests {
     use yubihsm::HttpConnector;
 
     use super::*;
-    #[cfg(not(feature = "mockhsm"))]
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
     use signatory::curve::Secp256k1;
     use signatory::{
         self,
@@ -152,9 +230,6 @@ mod tests {
         ecdsa::Asn1Signature,
         PublicKeyed, Sha256Verifier,
     };
-    use signatory_ring;
-    #[cfg(not(feature = "mockhsm"))]
-    use signatory_secp256k1;
 
     /// Default authentication key identifier
     const DEFAULT_AUTH_KEY_ID: KeyId = 1;
@@ -234,25 +309,25 @@ mod tests {
         ).unwrap();
     }
 
-    // We need *ring* to verify NIST P-256 ECDSA signatures
+    // Use *ring* to verify NIST P-256 ECDSA signatures
     #[test]
     fn ecdsa_nistp256_sign_test() {
         let signer = create_signer::<NistP256>(100);
         let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
-        let verifier = signatory_ring::ecdsa::P256Verifier::from(&signer.public_key().unwrap());
+        let verifier = P256Verifier::from(&signer.public_key().unwrap());
         assert!(verifier.verify_sha256(TEST_MESSAGE, &signature).is_ok());
     }
 
-    // We need secp256k1 to verify secp256k1 ECDSA signatures.
+    // Use `secp256k1` crate to verify secp256k1 ECDSA signatures.
     // The MockHSM does not presently support secp256k1
-    #[cfg(not(feature = "mockhsm"))]
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
     #[test]
     fn ecdsa_secp256k1_sign_test() {
         let signer = create_signer::<Secp256k1>(101);
         let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
-        let verifier = signatory_secp256k1::EcdsaVerifier::from(&signer.public_key().unwrap());
+        let verifier = Secp256k1Verifier::from(&signer.public_key().unwrap());
 
         assert!(verifier.verify_sha256(TEST_MESSAGE, &signature).is_ok());
     }
