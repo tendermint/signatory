@@ -26,20 +26,16 @@ pub struct P256Signer<S: EcdsaSignature>(EcdsaSigner<NistP256, S>);
 impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P256Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P256_SHA256_ASN1_SIGNING,
-            pkcs8_bytes,
-        )?))
+        let signer = EcdsaSigner::from_pkcs8(&ECDSA_P256_SHA256_ASN1_SIGNING, pkcs8_bytes)?;
+        Ok(P256Signer(signer))
     }
 }
 
 impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P256Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P256_SHA256_FIXED_SIGNING,
-            pkcs8_bytes,
-        )?))
+        let signer = EcdsaSigner::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8_bytes)?;
+        Ok(P256Signer(signer))
     }
 }
 
@@ -268,8 +264,11 @@ mod tests {
 
             let fixed_signature: FixedSignature =
                 signatory::sign_sha256(&signer, vector.msg).unwrap();
-            let asn1_signature = Asn1Signature::from(&fixed_signature);
 
+            // Print this out in case it crashes
+            println!("fixed signature: {:?}", fixed_signature);
+
+            let asn1_signature = Asn1Signature::from(&fixed_signature);
             let verifier = P256Verifier::from(&signer.public_key().unwrap());
             assert!(verifier.verify_sha256(vector.msg, &asn1_signature).is_ok());
         }

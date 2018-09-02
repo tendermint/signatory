@@ -14,6 +14,9 @@ extern crate ring;
 #[cfg_attr(all(test, feature = "ed25519"), macro_use)]
 extern crate signatory;
 extern crate untrusted;
+#[cfg(test)]
+#[macro_use]
+extern crate std;
 
 #[macro_use]
 mod error;
