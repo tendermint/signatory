@@ -2,3 +2,5 @@
 /providers/signatory-*/target
 **/*.rs.bk
 Cargo.lock
+
+\.idea/

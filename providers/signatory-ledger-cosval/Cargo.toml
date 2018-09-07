@@ -1,0 +1,26 @@
+[package]
+name        = "signatory-ledger-cosval"
+description = "Signatory provider for ledger cosmos validator app"
+version     = "0.0.1" # Also update html_root_url in lib.rs when bumping this
+license     = "MIT OR Apache-2.0"
+authors     = ["ZondaX GmbH <info@zondax.ch>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-ledger-cosval/"
+readme      = "README.md"
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["cryptography", "tendermint", "cosmos", "ecdsa", "signatures", "validator"]
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
+
+[dependencies]
+lazy_static = "1"
+ledger-cosmos-rs ="0.0.3"
+
+[dependencies.signatory]
+version = "0.8"
+features = ["digest", "ed25519", "generic-array", "test-vectors"]
+path = "../.."
+
+[dev-dependencies]
+criterion = "0.2"
