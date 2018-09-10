@@ -35,8 +35,8 @@ impl Ed25519CosmosAppSigner {
         // TODO: Maybe use this to pass other derivation path
 
         match ledger_cosmos::CosmosValidatorApp::connect() {
-            Ok(_x) => {
-                let app = Arc::new(Mutex::new(_x));
+            Ok(validator_app) => {
+                let app = Arc::new(Mutex::new(validator_app));
                 Ok(Ed25519CosmosAppSigner { app })
             },
             Err(err) => Err(
@@ -67,8 +67,8 @@ impl Signer<Vec<u8>, Ed25519Signature> for Ed25519CosmosAppSigner {
 
         match app.sign(&msg) {
             Ok(sig) => Ok(Ed25519Signature(sig)),
-            Err(_x) => Err(
-                Error::new(ErrorKind::ProviderError, Some("Unknown"))
+            Err(err) => Err(
+                Error::new(ErrorKind::ProviderError, Some(&err.to_string()))
             )
         }
     }
