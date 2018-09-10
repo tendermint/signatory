@@ -18,7 +18,6 @@ use std::sync::Arc;
 use signatory::{
     ed25519::Ed25519Signature,
     ed25519::PublicKey,
-    generic_array::{typenum::U32, GenericArray},
     error::{Error, ErrorKind},
     PublicKeyed,
     Signer,
@@ -61,9 +60,9 @@ impl PublicKeyed<PublicKey> for Ed25519CosmosAppSigner {
     }
 }
 
-impl Signer<GenericArray<u8, U32>, Ed25519Signature> for Ed25519CosmosAppSigner {
-    /// c: Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
-    fn sign(&self, msg: GenericArray<u8, U32>) -> Result<Ed25519Signature, Error> {
+impl Signer<Vec<u8>, Ed25519Signature> for Ed25519CosmosAppSigner {
+    /// c: Compute a compact, fixed-sized signature of the given amino/json vote
+    fn sign(&self, msg: Vec<u8>) -> Result<Ed25519Signature, Error> {
         let app = self.app.lock().unwrap();
 
         match app.sign(&msg) {
@@ -75,10 +74,10 @@ impl Signer<GenericArray<u8, U32>, Ed25519Signature> for Ed25519CosmosAppSigner 
     }
 }
 
-// TODO: test against actual test vectors, rather than just checking if signatures roundtrip
-
 #[cfg(test)]
 mod tests {
+    // TODO: Improve tests once amino schema is defined
+
     #[test]
     fn public_key() {
         use Ed25519CosmosAppSigner;
@@ -92,13 +91,9 @@ mod tests {
     fn sign() {
         use Ed25519CosmosAppSigner;
         use signatory::Signer;
-        use signatory::generic_array::GenericArray;
 
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
-
         let some_message1 = b"{\"height\":1,\"other\":\"Some dummy data\",\"round\":0}";
-        let genarr = GenericArray::clone_from_slice(some_message1);
-
-        let _sig = signer.sign(genarr).unwrap();
+        let _sig = signer.sign(some_message1.to_vec() ).unwrap();
     }
 }
