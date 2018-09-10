@@ -15,7 +15,7 @@ circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
 lazy_static = "1"
-ledger-cosmos-rs ="0.0.6"
+ledger-cosmos ="0.0.6"
 #ledger-cosmos-rs = { path = "../../../ledger-cosmos-rs" }
 libc = "0.2.43"
 

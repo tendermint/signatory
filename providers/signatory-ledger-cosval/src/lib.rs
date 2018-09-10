@@ -10,7 +10,7 @@ html_root_url = "https://docs.rs/signatory-ledger-cosval/0.0.1"
 )]
 
 extern crate signatory;
-extern crate ledger_cosmos_rs;
+extern crate ledger_cosmos;
 
 use std::sync::Mutex;
 use std::sync::Arc;
@@ -26,7 +26,7 @@ use signatory::{
 /// ed25519 signature provider for the ledger cosmos validator app
 #[allow(dead_code)]
 pub struct Ed25519CosmosAppSigner {
-    app: Arc<Mutex<ledger_cosmos_rs::CosmosValidatorApp>>
+    app: Arc<Mutex<ledger_cosmos::CosmosValidatorApp>>
 }
 
 impl Ed25519CosmosAppSigner {
@@ -34,7 +34,7 @@ impl Ed25519CosmosAppSigner {
     pub fn connect() -> Result<Self, Error> {
         // TODO: Maybe use this to pass other derivation path
 
-        match ledger_cosmos_rs::CosmosValidatorApp::connect() {
+        match ledger_cosmos::CosmosValidatorApp::connect() {
             Ok(_x) => {
                 let app = Arc::new(Mutex::new(_x));
                 Ok(Ed25519CosmosAppSigner { app })
