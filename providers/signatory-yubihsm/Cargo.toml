@@ -16,7 +16,7 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 lazy_static = "1"
 secp256k1 = { version = "0.11", optional = true }
-yubihsm = "0.16.0-alpha1"
+yubihsm = { version = "0.16", default-features = false, features = ["passwords"] }
 
 [dependencies.signatory]
 version = "0.8"
@@ -28,11 +28,13 @@ signatory-ring = { version = "0.8", path = "../signatory-ring" }
 signatory-secp256k1 = { version = "0.8", path = "../signatory-secp256k1" }
 
 [features]
-default = ["ecdsa", "ed25519"]
+default = ["http", "ecdsa", "ed25519"]
 ecdsa = []
 ed25519 = []
+http = ["yubihsm/http"]
+usb = ["yubihsm/usb"]
 mockhsm = ["yubihsm/mockhsm"]
 
 [package.metadata.docs.rs]
 rustc-args = ["-Ctarget-feature=+aes"]
-features = ["ecdsa", "ed25519", "mockhsm", "secp256k1"]
+all-features = true

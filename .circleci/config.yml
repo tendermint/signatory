@@ -3,111 +3,111 @@ version: 2
 jobs:
   build:
     docker:
-      - image: iqlusion/rust-ci:20180729.2 # bump cache keys when modifying this
+    - image: iqlusion/rust-ci:20180905.2 # bump cache keys when modifying this
     steps:
-      - checkout
-      - restore_cache:
-           key: cache-20180729.2 # bump save_cache key below too
-      - run:
-          name: rustfmt
-          command: |
-            cargo +$RUST_NIGHTLY_VERSION fmt --version
-            cargo +$RUST_NIGHTLY_VERSION fmt --all -- --check
-      - run:
-          name: clippy
-          command: |
-            cargo +$RUST_NIGHTLY_VERSION clippy --version
-            cargo +$RUST_NIGHTLY_VERSION clippy --all
-      - run:
-          name: build (--no-default-features)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --no-default-features
-      - run:
-          name: build (default features)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build
-      - run:
-          name: build (ecdsa feature only)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --features=ecdsa
-      - run:
-          name: build (ed25519 feature only)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --features=ed25519
-      - run:
-          name: build (encoding feature only)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --features=encoding
-      - run:
-          name: build (--no-default-features + ecdsa + ed25519 + encoding + pkcs8)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --no-default-features --features=ecdsa,ed25519,encoding,pkcs8
-      - run:
-          name: build (default features + ecdsa + ed25519)
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --features=ecdsa,ed25519
-      - run:
-          name: test (default features + ecdsa + ed25519)
-          command: |
-            rustc --version
-            cargo --version
-            cargo test --features=ecdsa,ed25519
-      - run:
-          name: signatory-dalek crate
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --benches --package=signatory-dalek
-            cargo test --package=signatory-dalek
-      - run:
-          name: signatory-ring crate
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --benches --package=signatory-ring
-            cargo test --package=signatory-ring
-      - run:
-          name: signatory-secp256k1 crate
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --benches --package=signatory-secp256k1
-            cargo test --package=signatory-secp256k1
-      - run:
-          name: signatory-sodiumoxide crate
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --benches --package=signatory-sodiumoxide
-            cargo test --package=signatory-sodiumoxide
-      - run:
-          name: signatory-yubihsm crate
-          command: |
-            rustc --version
-            cargo --version
-            cargo build --package=signatory-yubihsm
-            cd providers/signatory-yubihsm && cargo test --features=mockhsm
-      - run:
-          name: audit
-          command: |
-            cargo audit --version
-            cargo audit
-      - save_cache:
-          key: cache-20180729.2 # bump restore_cache key above too
-          paths:
-            - "~/.cargo"
-            - "./target"
+    - checkout
+    - restore_cache:
+        key: cache-20180905.2 # bump save_cache key below too
+    - run:
+        name: rustfmt
+        command: |
+          cargo +$RUST_NIGHTLY_VERSION fmt --version
+          cargo +$RUST_NIGHTLY_VERSION fmt --all -- --check
+    - run:
+        name: clippy
+        command: |
+          cargo +$RUST_NIGHTLY_VERSION clippy --version
+          cargo +$RUST_NIGHTLY_VERSION clippy --all
+    - run:
+        name: build (--no-default-features)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --no-default-features
+    - run:
+        name: build (default features)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build
+    - run:
+        name: build (ecdsa feature only)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --features=ecdsa
+    - run:
+        name: build (ed25519 feature only)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --features=ed25519
+    - run:
+        name: build (encoding feature only)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --features=encoding
+    - run:
+        name: build (--no-default-features + ecdsa + ed25519 + encoding + pkcs8)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --no-default-features --features=ecdsa,ed25519,encoding,pkcs8
+    - run:
+        name: build (default features + ecdsa + ed25519)
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --features=ecdsa,ed25519
+    - run:
+        name: test (default features + ecdsa + ed25519)
+        command: |
+          rustc --version
+          cargo --version
+          cargo test --features=ecdsa,ed25519
+    - run:
+        name: signatory-dalek crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --benches --package=signatory-dalek
+          cargo test --package=signatory-dalek
+    - run:
+        name: signatory-ring crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --benches --package=signatory-ring
+          cargo test --package=signatory-ring
+    - run:
+        name: signatory-secp256k1 crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --benches --package=signatory-secp256k1
+          cargo test --package=signatory-secp256k1
+    - run:
+        name: signatory-sodiumoxide crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --benches --package=signatory-sodiumoxide
+          cargo test --package=signatory-sodiumoxide
+    - run:
+        name: signatory-yubihsm crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --package=signatory-yubihsm
+          cd providers/signatory-yubihsm && cargo test --features=mockhsm
+    - run:
+        name: audit
+        command: |
+          cargo audit --version
+          cargo audit
+    - save_cache:
+        key: cache-20180905.2 # bump restore_cache key above too
+        paths:
+        - "~/.cargo"
+        - "./target"

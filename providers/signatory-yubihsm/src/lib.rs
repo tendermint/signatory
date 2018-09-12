@@ -22,7 +22,6 @@ extern crate signatory;
 extern crate yubihsm;
 
 use std::sync::{Arc, Mutex};
-pub use yubihsm::connector::HttpConfig as Config;
 
 #[macro_use]
 mod error;
@@ -43,31 +42,57 @@ use signatory::Error;
 /// Identifiers for keys in the `YubiHSM`
 pub type KeyId = u16;
 
+/// HTTP sessions with `yubihsm-connector`
+#[cfg(feature = "http")]
+pub type HttpSession = Session<yubihsm::HttpAdapter>;
+
+/// Direct USB sessions with the HSM using `libusb`
+#[cfg(feature = "usb")]
+pub type UsbSession = Session<yubihsm::UsbAdapter>;
+
 /// End-to-end encrypted session with the `YubiHSM`
-pub struct Session(Arc<Mutex<yubihsm::Session>>);
+pub struct Session<A: yubihsm::Adapter>(Arc<Mutex<yubihsm::Session<A>>>);
 
-impl Session {
-    /// Create a new YubiHSM session from the given password
-    pub fn create_from_password(
-        config: Config,
-        auth_key_id: KeyId,
-        password: &str,
+impl<A: yubihsm::Adapter> Session<A> {
+    /// Connect to the YubiHSM and open a new session
+    pub fn create(
+        config: A::Config,
+        credentials: yubihsm::Credentials,
+        reconnect: bool,
     ) -> Result<Self, Error> {
-        let auth_key = yubihsm::AuthKey::derive_from_password(password.as_bytes());
-
-        Self::new(config, auth_key_id, auth_key)
+        yubihsm::Session::create(config, credentials, reconnect)
+            .map(|s| Session(Arc::new(Mutex::new(s))))
+            .map_err(|e| err!(ProviderError, "{}", e))
     }
 
-    /// Create a new session with the YubiHSM
-    pub fn new<K: Into<yubihsm::AuthKey>>(
-        config: Config,
-        auth_key_id: KeyId,
-        auth_key: K,
-    ) -> Result<Self, Error> {
-        let session = yubihsm::Session::create(config, auth_key_id, auth_key.into(), true)
-            .map_err(|e| err!(ProviderError, "{}", e))?;
+    /// Initialize a new encrypted session, deferring actually establishing
+    /// a session until `connect()` is called
+    pub fn new(config: A::Config, credentials: yubihsm::Credentials) -> Result<Self, Error> {
+        yubihsm::Session::new(config, credentials)
+            .map(|s| Session(Arc::new(Mutex::new(s))))
+            .map_err(|e| err!(ProviderError, "{}", e))
+    }
 
-        Ok(Session(Arc::new(Mutex::new(session))))
+    /// Connect to the YubiHSM
+    pub fn open(&mut self) -> Result<(), Error> {
+        let mut session = self.0.lock().unwrap();
+        if let Err(e) = session.open() {
+            fail!(ProviderError, "{}", e);
+        }
+        Ok(())
+    }
+
+    /// Do we currently have an open session with the HSM?
+    pub fn is_open(&self) -> bool {
+        let session = self.0.lock().unwrap();
+        session.is_open()
+    }
+
+    /// Get the current session ID
+    #[inline]
+    pub fn id(&self) -> Option<yubihsm::SessionId> {
+        let session = self.0.lock().unwrap();
+        session.id()
     }
 
     /// Create an ECDSA signer which uses this session. You will need to supply
@@ -108,7 +133,7 @@ impl Session {
     /// * `signatory::curve::Secp256k1`: secp256k1 elliptic curve
     ///   (used by Bitcoin)
     #[cfg(feature = "ecdsa")]
-    pub fn ecdsa_signer<C>(&self, signing_key_id: KeyId) -> Result<EcdsaSigner<C>, Error>
+    pub fn ecdsa_signer<C>(&self, signing_key_id: KeyId) -> Result<EcdsaSigner<A, C>, Error>
     where
         C: WeierstrassCurve,
     {
@@ -117,7 +142,7 @@ impl Session {
 
     /// Create an Ed25519 signer which uses this session
     #[cfg(feature = "ed25519")]
-    pub fn ed25519_signer(&self, signing_key_id: KeyId) -> Result<Ed25519Signer, Error> {
+    pub fn ed25519_signer(&self, signing_key_id: KeyId) -> Result<Ed25519Signer<A>, Error> {
         Ed25519Signer::new(self, signing_key_id)
     }
 }

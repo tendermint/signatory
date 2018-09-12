@@ -22,7 +22,7 @@ use std::{
 };
 use yubihsm;
 #[cfg(feature = "mockhsm")]
-use yubihsm::mockhsm::MockConnector;
+use yubihsm::mockhsm::MockAdapter;
 
 use super::{KeyId, Session};
 
@@ -33,27 +33,28 @@ lazy_static! {
 }
 
 /// ECDSA signature provider for yubihsm-client
-pub struct EcdsaSigner<Curve, Connector = yubihsm::HttpConnector>
+pub struct EcdsaSigner<A, C>
 where
-    Curve: WeierstrassCurve,
-    Connector: yubihsm::Connector,
+    A: yubihsm::Adapter,
+    C: WeierstrassCurve,
 {
     /// Session with the YubiHSM
-    session: Arc<Mutex<yubihsm::Session<Connector>>>,
+    session: Arc<Mutex<yubihsm::Session<A>>>,
 
     /// ID of an ECDSA key to perform signatures with
     signing_key_id: KeyId,
 
     /// Placeholder for elliptic curve type
-    curve: PhantomData<Curve>,
+    curve: PhantomData<C>,
 }
 
-impl<Curve> EcdsaSigner<Curve, yubihsm::HttpConnector>
+impl<A, C> EcdsaSigner<A, C>
 where
-    Curve: WeierstrassCurve,
+    A: yubihsm::Adapter,
+    C: WeierstrassCurve,
 {
     /// Create a new YubiHSM-backed ECDSA signer
-    pub(crate) fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
+    pub(crate) fn new(session: &Session<A>, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
             session: session.0.clone(),
             signing_key_id,
@@ -65,30 +66,24 @@ where
 
         Ok(signer)
     }
-}
 
-impl<Curve, Connector> EcdsaSigner<Curve, Connector>
-where
-    Curve: WeierstrassCurve,
-    Connector: yubihsm::Connector,
-{
-    /// Get the expected `yubihsm::AsymmetricAlgorithm` for this `Curve`
-    fn asymmetric_algorithm() -> Option<yubihsm::AsymmetricAlgorithm> {
-        match Curve::CURVE_KIND {
-            WeierstrassCurveKind::NistP256 => Some(yubihsm::AsymmetricAlgorithm::EC_P256),
-            WeierstrassCurveKind::Secp256k1 => Some(yubihsm::AsymmetricAlgorithm::EC_K256),
+    /// Get the expected `yubihsm::AsymmetricAlg` for this `Curve`
+    fn asymmetric_algorithm() -> Option<yubihsm::AsymmetricAlg> {
+        match C::CURVE_KIND {
+            WeierstrassCurveKind::NistP256 => Some(yubihsm::AsymmetricAlg::EC_P256),
+            WeierstrassCurveKind::Secp256k1 => Some(yubihsm::AsymmetricAlg::EC_K256),
             _ => None,
         }
     }
 }
 
-impl<Curve, Connector> PublicKeyed<PublicKey<Curve>> for EcdsaSigner<Curve, Connector>
+impl<A, C> PublicKeyed<PublicKey<C>> for EcdsaSigner<A, C>
 where
-    Curve: WeierstrassCurve,
-    Connector: yubihsm::Connector,
+    A: yubihsm::Adapter,
+    C: WeierstrassCurve,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<PublicKey<Curve>, Error> {
+    fn public_key(&self) -> Result<PublicKey<C>, Error> {
         let mut session = self.session.lock().unwrap();
 
         let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
@@ -98,7 +93,7 @@ where
             fail!(
                 KeyInvalid,
                 "expected a {} key, got: {:?}",
-                Curve::CURVE_KIND.to_str(),
+                C::CURVE_KIND.to_str(),
                 pubkey.algorithm
             );
         }
@@ -109,47 +104,65 @@ where
     }
 }
 
+#[cfg(feature = "http")]
 impl Signer<CurveDigest<NistP256>, Asn1Signature<NistP256>>
-    for EcdsaSigner<NistP256, yubihsm::HttpConnector>
+    for EcdsaSigner<yubihsm::HttpAdapter, NistP256>
 {
     /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: CurveDigest<NistP256>) -> Result<Asn1Signature<NistP256>, Error> {
-        let mut session = self.session.lock().unwrap();
-
-        let signature =
-            yubihsm::sign_ecdsa_raw_digest(&mut session, self.signing_key_id, digest.as_ref())
-                .map_err(|e| err!(ProviderError, "{}", e))?;
-
-        Asn1Signature::from_bytes(signature)
+        self.sign_nistp256_asn1(digest)
     }
 }
 
+#[cfg(feature = "usb")]
+impl Signer<CurveDigest<NistP256>, Asn1Signature<NistP256>>
+    for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
+{
+    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<NistP256>) -> Result<Asn1Signature<NistP256>, Error> {
+        self.sign_nistp256_asn1(digest)
+    }
+}
+
+#[cfg(feature = "http")]
 impl Signer<CurveDigest<NistP256>, FixedSignature<NistP256>>
-    for EcdsaSigner<NistP256, yubihsm::HttpConnector>
+    for EcdsaSigner<yubihsm::HttpAdapter, NistP256>
 {
     /// Compute a fixed-sized P-256 ECDSA signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: CurveDigest<NistP256>) -> Result<FixedSignature<NistP256>, Error> {
-        let sig: Asn1Signature<_> = self.sign(digest)?;
-        Ok(FixedSignature::from(&sig))
+        Ok(FixedSignature::from(&self.sign_nistp256_asn1(digest)?))
+    }
+}
+
+#[cfg(feature = "usb")]
+impl Signer<CurveDigest<NistP256>, FixedSignature<NistP256>>
+    for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
+{
+    /// Compute a fixed-sized P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    fn sign(&self, digest: CurveDigest<NistP256>) -> Result<FixedSignature<NistP256>, Error> {
+        Ok(FixedSignature::from(&self.sign_nistp256_asn1(digest)?))
     }
 }
 
 #[cfg(feature = "secp256k1")]
-impl Signer<CurveDigest<Secp256k1>, Asn1Signature<Secp256k1>>
-    for EcdsaSigner<Secp256k1, yubihsm::HttpConnector>
+impl<A> Signer<CurveDigest<Secp256k1>, Asn1Signature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
+where
+    A: yubihsm::Adapter,
 {
     /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<Asn1Signature<Secp256k1>, Error> {
         let asn1_sig = self
             .sign_secp256k1(digest)?
             .serialize_der(&SECP256K1_ENGINE);
+
         Ok(Asn1Signature::from_bytes(&asn1_sig).unwrap())
     }
 }
 
 #[cfg(feature = "secp256k1")]
-impl Signer<CurveDigest<Secp256k1>, FixedSignature<Secp256k1>>
-    for EcdsaSigner<Secp256k1, yubihsm::HttpConnector>
+impl<A> Signer<CurveDigest<Secp256k1>, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
+where
+    A: yubihsm::Adapter,
 {
     /// Compute a fixed-size secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<FixedSignature<Secp256k1>, Error> {
@@ -163,9 +176,31 @@ impl Signer<CurveDigest<Secp256k1>, FixedSignature<Secp256k1>>
     }
 }
 
+impl<A> EcdsaSigner<A, NistP256>
+where
+    A: yubihsm::Adapter,
+{
+    /// Compute an ASN.1 DER signature over P-256
+    fn sign_nistp256_asn1(
+        &self,
+        digest: CurveDigest<NistP256>,
+    ) -> Result<Asn1Signature<NistP256>, Error> {
+        let mut session = self.session.lock().unwrap();
+
+        let signature =
+            yubihsm::sign_ecdsa_raw_digest(&mut session, self.signing_key_id, digest.as_ref())
+                .map_err(|e| err!(ProviderError, "{}", e))?;
+
+        Asn1Signature::from_bytes(signature)
+    }
+}
+
 #[cfg(feature = "secp256k1")]
-impl EcdsaSigner<Secp256k1, yubihsm::HttpConnector> {
-    /// Sign either an ASN.1 DER or fixed-sized signature using libsecp256k1
+impl<A> EcdsaSigner<A, Secp256k1>
+where
+    A: yubihsm::Adapter,
+{
+    /// Compute either an ASN.1 DER or fixed-sized signature using libsecp256k1
     fn sign_secp256k1(
         &self,
         digest: CurveDigest<Secp256k1>,
@@ -193,7 +228,7 @@ impl EcdsaSigner<Secp256k1, yubihsm::HttpConnector> {
 }
 
 #[cfg(feature = "mockhsm")]
-impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for EcdsaSigner<NistP256, MockConnector> {
+impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for EcdsaSigner<MockAdapter, NistP256> {
     /// Compute an ASN.1 DER-encoded signature of the given message
     fn sign_sha256(&self, msg: &'a [u8]) -> Result<Asn1Signature<NistP256>, Error> {
         let mut session = self.session.lock().unwrap();
@@ -218,8 +253,10 @@ mod tests {
     use std::marker::PhantomData;
     use std::sync::{Arc, Mutex};
     use yubihsm;
-    #[cfg(not(feature = "mockhsm"))]
-    use yubihsm::HttpConnector;
+    #[cfg(not(any(feature = "usb", feature = "mockhsm")))]
+    use yubihsm::HttpAdapter;
+    #[cfg(all(feature = "usb", not(feature = "mockhsm")))]
+    use yubihsm::UsbAdapter;
 
     use super::*;
     #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
@@ -230,9 +267,6 @@ mod tests {
         ecdsa::Asn1Signature,
         PublicKeyed, Sha256Verifier,
     };
-
-    /// Default authentication key identifier
-    const DEFAULT_AUTH_KEY_ID: KeyId = 1;
 
     /// Domain IDs for test key
     const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
@@ -249,32 +283,23 @@ mod tests {
         b"The Elliptic Curve Digital Signature Algorithm (ECDSA) is a variant of the \
           Digital Signature Algorithm (DSA) which uses elliptic curve cryptography.";
 
-    #[cfg(not(feature = "mockhsm"))]
-    type ConnectorType = HttpConnector;
+    #[cfg(not(any(feature = "usb", feature = "mockhsm")))]
+    type AdapterType = HttpAdapter;
+
+    #[cfg(all(feature = "usb", not(feature = "mockhsm")))]
+    type AdapterType = UsbAdapter;
 
     #[cfg(feature = "mockhsm")]
-    type ConnectorType = MockConnector;
+    type AdapterType = MockAdapter;
 
     /// Create the signer for this test
-    fn create_signer<Curve>(key_id: KeyId) -> EcdsaSigner<Curve, ConnectorType>
+    fn create_signer<C>(key_id: KeyId) -> EcdsaSigner<AdapterType, C>
     where
-        Curve: WeierstrassCurve,
+        C: WeierstrassCurve,
     {
-        #[cfg(not(feature = "mockhsm"))]
         let session = Arc::new(Mutex::new(
-            yubihsm::Session::create(
-                Default::default(),
-                DEFAULT_AUTH_KEY_ID,
-                yubihsm::AuthKey::default(),
-                true,
-            ).unwrap_or_else(|err| panic!("error creating session: {}", err)),
-        ));
-
-        #[cfg(feature = "mockhsm")]
-        let session = Arc::new(Mutex::new(
-            yubihsm::mockhsm::MockHSM::new()
-                .create_session(DEFAULT_AUTH_KEY_ID, yubihsm::AuthKey::default())
-                .unwrap_or_else(|err| panic!("error creating session: {:?}", err)),
+            yubihsm::Session::<AdapterType>::create(Default::default(), Default::default(), true)
+                .unwrap_or_else(|err| panic!("error creating session: {}", err)),
         ));
 
         let signer = EcdsaSigner {
@@ -288,9 +313,9 @@ mod tests {
     }
 
     /// Create the key on the YubiHSM to use for this test
-    fn create_yubihsm_key<Curve>(signer: &EcdsaSigner<Curve, ConnectorType>, key_id: KeyId)
+    fn create_yubihsm_key<C>(signer: &EcdsaSigner<AdapterType, C>, key_id: KeyId)
     where
-        Curve: WeierstrassCurve,
+        C: WeierstrassCurve,
     {
         let mut s = signer.session.lock().unwrap();
 
@@ -305,7 +330,7 @@ mod tests {
             TEST_SIGNING_KEY_LABEL.into(),
             TEST_SIGNING_KEY_DOMAINS,
             TEST_SIGNING_KEY_CAPABILITIES,
-            EcdsaSigner::<Curve>::asymmetric_algorithm().unwrap(),
+            EcdsaSigner::<AdapterType, C>::asymmetric_algorithm().unwrap(),
         ).unwrap();
     }
 

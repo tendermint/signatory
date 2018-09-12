@@ -6,8 +6,8 @@ use ring::{
     self,
     rand::SystemRandom,
     signature::{
-        ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED,
-        ECDSA_P256_SHA256_FIXED_SIGNING, KeyPair, SigningAlgorithm,
+        KeyPair, SigningAlgorithm, ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING,
+        ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING,
     },
 };
 use signatory::{
@@ -230,8 +230,7 @@ mod tests {
                     .verify_sha256(
                         vector.msg,
                         &FixedSignature::from_bytes(&vector.sig).unwrap()
-                    )
-                    .is_ok()
+                    ).is_ok()
             );
         }
     }

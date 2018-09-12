@@ -17,9 +17,9 @@ pub struct Ed25519Signer(Ed25519KeyPair);
 impl FromSeed for Ed25519Signer {
     /// Create a new Ed25519Signer from an unexpanded seed value
     fn from_seed<S: Into<Seed>>(seed: S) -> Self {
-        let keypair = Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(
-            &seed.into().0[..],
-        )).unwrap();
+        let keypair =
+            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(&seed.into().0[..]))
+                .unwrap();
 
         Ed25519Signer(keypair)
     }

@@ -1,3 +1,5 @@
+#![allow(unused_macros)]
+
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! err {
     ($variant:ident, $msg:expr) => {
