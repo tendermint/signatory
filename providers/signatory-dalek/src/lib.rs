@@ -64,9 +64,9 @@ where
         // TODO: context support
         let context: Option<&'static [u8]> = None;
 
-        let signature = Ed25519Signature::from_bytes(
-            &self.0.sign_prehashed(digest, context).to_bytes()[..],
-        ).unwrap();
+        let signature =
+            Ed25519Signature::from_bytes(&self.0.sign_prehashed(digest, context).to_bytes()[..])
+                .unwrap();
 
         Ok(signature)
     }
