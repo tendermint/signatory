@@ -5,7 +5,7 @@ use ring::signature::Ed25519KeyPair;
 use untrusted;
 
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed},
+    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     encoding::FromPkcs8,
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Signature, Signer, Verifier,
@@ -35,9 +35,9 @@ impl FromPkcs8 for Ed25519Signer {
     }
 }
 
-impl PublicKeyed<PublicKey> for Ed25519Signer {
-    fn public_key(&self) -> Result<PublicKey, Error> {
-        Ok(PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
+impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
+    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
+        Ok(Ed25519PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
     }
 }
 
@@ -49,10 +49,10 @@ impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
 
 /// Ed25519 verifier for *ring*
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Ed25519Verifier(PublicKey);
+pub struct Ed25519Verifier(Ed25519PublicKey);
 
-impl<'a> From<&'a PublicKey> for Ed25519Verifier {
-    fn from(public_key: &'a PublicKey) -> Self {
+impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a Ed25519PublicKey) -> Self {
         Ed25519Verifier(*public_key)
     }
 }

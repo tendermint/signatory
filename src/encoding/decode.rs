@@ -31,7 +31,7 @@ pub trait Decode: Sized {
     /// Read a file at the given path, decoding the data it contains using
     /// the provided `Encoding`, returning the decoded value or a `Error`.
     #[cfg(feature = "std")]
-    fn decode_file<P: AsRef<Path>>(self, path: P, encoding: Encoding) -> Result<Self, Error> {
+    fn decode_file<P: AsRef<Path>>(path: P, encoding: Encoding) -> Result<Self, Error> {
         Self::decode_reader(&mut File::open(path.as_ref())?, encoding)
     }
 }

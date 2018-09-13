@@ -4,7 +4,7 @@
 //! call the appropriate signer methods to obtain signers.
 
 use signatory::{
-    ed25519::{Ed25519Signature, PublicKey},
+    ed25519::{Ed25519PublicKey, Ed25519Signature},
     error::{Error, ErrorKind},
     PublicKeyed, Signature, Signer,
 };
@@ -43,11 +43,11 @@ where
     }
 }
 
-impl<A> PublicKeyed<PublicKey> for Ed25519Signer<A>
+impl<A> PublicKeyed<Ed25519PublicKey> for Ed25519Signer<A>
 where
     A: yubihsm::Adapter,
 {
-    fn public_key(&self) -> Result<PublicKey, Error> {
+    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
         let mut session = self.session.lock().unwrap();
 
         let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
@@ -57,7 +57,7 @@ where
             return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(PublicKey::from_bytes(pubkey.as_ref()).unwrap())
+        Ok(Ed25519PublicKey::from_bytes(pubkey.as_ref()).unwrap())
     }
 }
 

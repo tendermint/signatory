@@ -11,7 +11,7 @@ use signatory::curve::Secp256k1;
 use signatory::Sha256Signer;
 use signatory::{
     curve::{CurveDigest, NistP256, WeierstrassCurve, WeierstrassCurveKind},
-    ecdsa::{Asn1Signature, FixedSignature, PublicKey},
+    ecdsa::{Asn1Signature, EcdsaPublicKey, FixedSignature},
     error::Error,
     generic_array::GenericArray,
     PublicKeyed, Signature, Signer,
@@ -77,13 +77,13 @@ where
     }
 }
 
-impl<A, C> PublicKeyed<PublicKey<C>> for EcdsaSigner<A, C>
+impl<A, C> PublicKeyed<EcdsaPublicKey<C>> for EcdsaSigner<A, C>
 where
     A: yubihsm::Adapter,
     C: WeierstrassCurve,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<PublicKey<C>, Error> {
+    fn public_key(&self) -> Result<EcdsaPublicKey<C>, Error> {
         let mut session = self.session.lock().unwrap();
 
         let pubkey = yubihsm::get_pubkey(&mut session, self.signing_key_id)
@@ -98,9 +98,9 @@ where
             );
         }
 
-        Ok(PublicKey::from_untagged_point(GenericArray::from_slice(
-            pubkey.as_ref(),
-        )))
+        Ok(EcdsaPublicKey::from_untagged_point(
+            GenericArray::from_slice(pubkey.as_ref()),
+        ))
     }
 }
 

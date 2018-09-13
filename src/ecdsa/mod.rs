@@ -4,5 +4,5 @@
 mod public_key;
 mod signature;
 
-pub use self::public_key::PublicKey;
+pub use self::public_key::EcdsaPublicKey;
 pub use self::signature::{asn1::Asn1Signature, fixed::FixedSignature, EcdsaSignature};

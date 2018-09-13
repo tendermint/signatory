@@ -10,7 +10,7 @@ extern crate signatory_sodiumoxide;
 
 use criterion::Criterion;
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, TEST_VECTORS},
+    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, TEST_VECTORS},
     test_vector::TestVector,
     Signature, Verifier,
 };
@@ -29,7 +29,7 @@ fn sign_ed25519(c: &mut Criterion) {
 
 fn verify_ed25519(c: &mut Criterion) {
     let signature = Ed25519Signature::from_bytes(TEST_VECTOR.sig).unwrap();
-    let verifier = Ed25519Verifier::from(&PublicKey::from_bytes(TEST_VECTOR.pk).unwrap());
+    let verifier = Ed25519Verifier::from(&Ed25519PublicKey::from_bytes(TEST_VECTOR.pk).unwrap());
 
     c.bench_function("sodiumoxide: Ed25519 verifier", move |b| {
         b.iter(|| verifier.verify(TEST_VECTOR.msg, &signature).unwrap())

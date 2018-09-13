@@ -21,7 +21,7 @@ use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
 use signatory::{
-    ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed},
+    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
     DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
@@ -43,9 +43,9 @@ impl FromSeed for Ed25519Signer {
     }
 }
 
-impl PublicKeyed<PublicKey> for Ed25519Signer {
-    fn public_key(&self) -> Result<PublicKey, Error> {
-        Ok(PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
+impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
+    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
+        Ok(Ed25519PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
     }
 }
 
@@ -76,8 +76,8 @@ where
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Ed25519Verifier(ed25519_dalek::PublicKey);
 
-impl<'a> From<&'a PublicKey> for Ed25519Verifier {
-    fn from(public_key: &'a PublicKey) -> Self {
+impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a Ed25519PublicKey) -> Self {
         Ed25519Verifier(ed25519_dalek::PublicKey::from_bytes(public_key.as_ref()).unwrap())
     }
 }
