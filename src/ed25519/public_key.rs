@@ -9,20 +9,20 @@ use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
+use public_key::PublicKey;
 use util::fmt_colon_delimited_hex;
-use PublicKey as PublicKeyTrait;
 
 /// Size of an Ed25519 public key in bytes (256-bits)
 pub const PUBLIC_KEY_SIZE: usize = 32;
 
 /// Ed25519 public keys
 #[derive(Copy, Clone, Eq, PartialEq, Hash)]
-pub struct PublicKey(pub [u8; PUBLIC_KEY_SIZE]);
+pub struct Ed25519PublicKey(pub [u8; PUBLIC_KEY_SIZE]);
 
-impl PublicKey {
+impl Ed25519PublicKey {
     /// Create an Ed25519 public key from a 32-byte array
     pub fn new(bytes: [u8; PUBLIC_KEY_SIZE]) -> Self {
-        PublicKey(bytes)
+        Ed25519PublicKey(bytes)
     }
 
     /// Create an Ed25519 public key from its serialized (compressed Edwards-y) form
@@ -40,7 +40,7 @@ impl PublicKey {
 
         let mut public_key = [0u8; PUBLIC_KEY_SIZE];
         public_key.copy_from_slice(bytes.as_ref());
-        Ok(PublicKey(public_key))
+        Ok(Ed25519PublicKey(public_key))
     }
 
     /// Obtain public key as a byte array reference
@@ -56,14 +56,14 @@ impl PublicKey {
     }
 }
 
-impl AsRef<[u8]> for PublicKey {
+impl AsRef<[u8]> for Ed25519PublicKey {
     #[inline]
     fn as_ref(&self) -> &[u8] {
         self.0.as_ref()
     }
 }
 
-impl Debug for PublicKey {
+impl Debug for Ed25519PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ed25519::PublicKey(")?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
@@ -72,7 +72,7 @@ impl Debug for PublicKey {
 }
 
 #[cfg(feature = "encoding")]
-impl Decode for PublicKey {
+impl Decode for Ed25519PublicKey {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
     fn decode(encoded_key: &[u8], encoding: Encoding) -> Result<Self, Error> {
         let mut decoded_key = [0u8; PUBLIC_KEY_SIZE];
@@ -91,11 +91,11 @@ impl Decode for PublicKey {
 }
 
 #[cfg(all(feature = "encoding", feature = "alloc"))]
-impl Encode for PublicKey {
+impl Encode for Ed25519PublicKey {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
     fn encode(&self, encoding: Encoding) -> Vec<u8> {
         encoding.encode_vec(self.as_bytes())
     }
 }
 
-impl PublicKeyTrait for PublicKey {}
+impl PublicKey for Ed25519PublicKey {}

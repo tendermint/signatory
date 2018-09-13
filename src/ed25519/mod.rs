@@ -16,7 +16,7 @@ mod test_vectors;
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::{
-    public_key::{PublicKey, PUBLIC_KEY_SIZE},
+    public_key::{Ed25519PublicKey, PUBLIC_KEY_SIZE},
     seed::{FromSeed, Seed, SEED_SIZE},
     signature::{Ed25519Signature, SIGNATURE_SIZE},
 };

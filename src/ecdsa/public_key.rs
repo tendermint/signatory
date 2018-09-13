@@ -13,12 +13,12 @@ use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
+use public_key::PublicKey;
 use util::fmt_colon_delimited_hex;
-use PublicKey as PublicKeyTrait;
 
 /// ECDSA public keys
 #[derive(Clone, Eq, PartialEq)]
-pub enum PublicKey<C: WeierstrassCurve> {
+pub enum EcdsaPublicKey<C: WeierstrassCurve> {
     /// Compressed Weierstrass elliptic curve point
     Compressed(CompressedCurvePoint<C>),
 
@@ -26,7 +26,7 @@ pub enum PublicKey<C: WeierstrassCurve> {
     Uncompressed(UncompressedCurvePoint<C>),
 }
 
-impl<C> PublicKey<C>
+impl<C> EcdsaPublicKey<C>
 where
     C: WeierstrassCurve,
 {
@@ -44,11 +44,11 @@ where
         if length == C::CompressedPointSize::to_usize() {
             let array = GenericArray::clone_from_slice(slice);
             let point = CompressedCurvePoint::new(array)?;
-            Ok(PublicKey::Compressed(point))
+            Ok(EcdsaPublicKey::Compressed(point))
         } else if length == C::UncompressedPointSize::to_usize() {
             let array = GenericArray::clone_from_slice(slice);
             let point = UncompressedCurvePoint::new(array)?;
-            Ok(PublicKey::Uncompressed(point))
+            Ok(EcdsaPublicKey::Uncompressed(point))
         } else {
             fail!(
                 KeyInvalid,
@@ -70,7 +70,7 @@ where
         B: Into<GenericArray<u8, C::CompressedPointSize>>,
     {
         let point = CompressedCurvePoint::new(into_bytes)?;
-        Ok(PublicKey::Compressed(point))
+        Ok(EcdsaPublicKey::Compressed(point))
     }
 
     /// Create an ECDSA public key from a raw uncompressed point serialized
@@ -84,20 +84,20 @@ where
         tagged_bytes.as_mut_slice()[0] = 0x04;
         tagged_bytes.as_mut_slice()[1..].copy_from_slice(bytes.as_ref());
 
-        PublicKey::Uncompressed(UncompressedCurvePoint::new(tagged_bytes).unwrap())
+        EcdsaPublicKey::Uncompressed(UncompressedCurvePoint::new(tagged_bytes).unwrap())
     }
 
     /// Obtain public key as a byte array reference
     #[inline]
     pub fn as_bytes(&self) -> &[u8] {
         match self {
-            PublicKey::Compressed(ref point) => point.as_bytes(),
-            PublicKey::Uncompressed(ref point) => point.as_bytes(),
+            EcdsaPublicKey::Compressed(ref point) => point.as_bytes(),
+            EcdsaPublicKey::Uncompressed(ref point) => point.as_bytes(),
         }
     }
 }
 
-impl<C> AsRef<[u8]> for PublicKey<C>
+impl<C> AsRef<[u8]> for EcdsaPublicKey<C>
 where
     C: WeierstrassCurve,
 {
@@ -107,7 +107,7 @@ where
     }
 }
 
-impl<C> Debug for PublicKey<C>
+impl<C> Debug for EcdsaPublicKey<C>
 where
     C: WeierstrassCurve,
 {
@@ -119,7 +119,7 @@ where
 }
 
 #[cfg(feature = "encoding")]
-impl<C> Decode for PublicKey<C>
+impl<C> Decode for EcdsaPublicKey<C>
 where
     C: WeierstrassCurve,
 {
@@ -139,7 +139,7 @@ where
 }
 
 #[cfg(all(feature = "encoding", feature = "alloc"))]
-impl<C> Encode for PublicKey<C>
+impl<C> Encode for EcdsaPublicKey<C>
 where
     C: WeierstrassCurve,
 {
@@ -155,4 +155,4 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> PublicKeyTrait for PublicKey<C> {}
+impl<C: WeierstrassCurve> PublicKey for EcdsaPublicKey<C> {}

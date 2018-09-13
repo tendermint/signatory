@@ -12,7 +12,7 @@ use ring::{
 };
 use signatory::{
     curve::{nistp256::NistP256, WeierstrassCurve},
-    ecdsa::{Asn1Signature, EcdsaSignature, FixedSignature, PublicKey},
+    ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
     encoding::FromPkcs8,
     error::Error,
     generic_array::{typenum::Unsigned, GenericArray},
@@ -39,12 +39,12 @@ impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
     }
 }
 
-impl<S> PublicKeyed<PublicKey<NistP256>> for P256Signer<S>
+impl<S> PublicKeyed<EcdsaPublicKey<NistP256>> for P256Signer<S>
 where
     S: EcdsaSignature + Send + Sync,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<PublicKey<NistP256>, Error> {
+    fn public_key(&self) -> Result<EcdsaPublicKey<NistP256>, Error> {
         Ok(self.0.public_key.clone())
     }
 }
@@ -63,10 +63,10 @@ impl<'a> Sha256Signer<'a, FixedSignature<NistP256>> for P256Signer<FixedSignatur
 
 /// NIST P-256 ECDSA verifier
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct P256Verifier(PublicKey<NistP256>);
+pub struct P256Verifier(EcdsaPublicKey<NistP256>);
 
-impl<'a> From<&'a PublicKey<NistP256>> for P256Verifier {
-    fn from(public_key: &'a PublicKey<NistP256>) -> Self {
+impl<'a> From<&'a EcdsaPublicKey<NistP256>> for P256Verifier {
+    fn from(public_key: &'a EcdsaPublicKey<NistP256>) -> Self {
         P256Verifier(public_key.clone())
     }
 }
@@ -109,7 +109,7 @@ struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
     /// Public key for this keypair
     // *ring* does not presently keep a copy of this.
     // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
-    public_key: PublicKey<C>,
+    public_key: EcdsaPublicKey<C>,
 
     /// Cryptographically secure random number generator
     csrng: SystemRandom,
@@ -134,8 +134,9 @@ where
             .checked_sub(<NistP256 as WeierstrassCurve>::UntaggedPointSize::to_usize())
             .unwrap();
 
-        let public_key =
-            PublicKey::from_untagged_point(&GenericArray::from_slice(&pkcs8_bytes[pk_bytes_pos..]));
+        let public_key = EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(
+            &pkcs8_bytes[pk_bytes_pos..],
+        ));
 
         let csrng = SystemRandom::new();
 

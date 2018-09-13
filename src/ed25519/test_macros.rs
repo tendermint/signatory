@@ -4,7 +4,9 @@
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
         use $crate::{
-            ed25519::{Ed25519Signature, FromSeed, PublicKey, Seed, SIGNATURE_SIZE, TEST_VECTORS},
+            ed25519::{
+                Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, SIGNATURE_SIZE, TEST_VECTORS,
+            },
             error::ErrorKind,
             Signature, Signer, Verifier,
         };
@@ -21,7 +23,7 @@ macro_rules! ed25519_tests {
         #[test]
         fn verify_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
-                let pk = PublicKey::from_bytes(vector.pk).unwrap();
+                let pk = Ed25519PublicKey::from_bytes(vector.pk).unwrap();
                 let verifier = $verifier::from(&pk);
                 let sig = Ed25519Signature::from_bytes(vector.sig).unwrap();
                 assert!(
@@ -34,7 +36,7 @@ macro_rules! ed25519_tests {
         #[test]
         fn rejects_tweaked_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
-                let pk = PublicKey::from_bytes(vector.pk).unwrap();
+                let pk = Ed25519PublicKey::from_bytes(vector.pk).unwrap();
                 let verifier = $verifier::from(&pk);
 
                 let mut tweaked_sig = [0u8; SIGNATURE_SIZE];

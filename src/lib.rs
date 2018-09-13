@@ -84,6 +84,10 @@ mod verifier;
 
 #[cfg(all(feature = "digest", feature = "generic-array"))]
 pub use digest::DigestOutput;
+#[cfg(feature = "ecdsa")]
+pub use ecdsa::{EcdsaPublicKey, EcdsaSignature};
+#[cfg(feature = "ed25519")]
+pub use ed25519::{Ed25519PublicKey, Ed25519Signature};
 pub use error::{Error, ErrorKind};
 pub use public_key::{public_key, PublicKey, PublicKeyed};
 pub use signature::Signature;
