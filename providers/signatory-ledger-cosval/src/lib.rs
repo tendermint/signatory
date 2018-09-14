@@ -17,7 +17,7 @@ use std::sync::Arc;
 
 use signatory::{
     ed25519::Ed25519Signature,
-    ed25519::PublicKey,
+    ed25519::Ed25519PublicKey,
     error::{Error, ErrorKind},
     PublicKeyed,
     Signer,
@@ -46,13 +46,13 @@ impl Ed25519CosmosAppSigner {
     }
 }
 
-impl PublicKeyed<PublicKey> for Ed25519CosmosAppSigner {
+impl PublicKeyed<Ed25519PublicKey> for Ed25519CosmosAppSigner {
     /// Returns the public key that corresponds cosmos validator app connected to this signer
-    fn public_key(&self) -> Result<PublicKey, Error> {
+    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
         let app = self.app.lock().unwrap();
 
         match app.public_key() {
-            Ok(pk) => Ok(PublicKey(pk)),
+            Ok(pk) => Ok(Ed25519PublicKey(pk)),
             Err(err) => Err(
                 Error::new(ErrorKind::ProviderError, Some(&err.to_string()))
             )
