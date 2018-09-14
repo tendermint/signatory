@@ -102,6 +102,14 @@ jobs:
           cargo build --package=signatory-yubihsm
           cd providers/signatory-yubihsm && cargo test --features=secp256k1,mockhsm
     - run:
+        name: signatory-ledger-cosval crate
+        command: |
+          rustc --version
+          cargo --version
+          cargo build --package=signatory-ledger-cosval
+          # Temporarily Disabling testing until a mockhsm is available
+          # cd providers/signatory-ledger-cosval && cargo test
+    - run:
         name: audit
         command: |
           cargo audit --version
