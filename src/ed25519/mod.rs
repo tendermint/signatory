@@ -7,7 +7,7 @@
 //!
 //! # Example (with ed25519-dalek)
 //!
-//! ```
+//! ```nobuild
 //! extern crate signatory;
 //! extern crate signatory_dalek; // or another Ed25519 provider
 //!

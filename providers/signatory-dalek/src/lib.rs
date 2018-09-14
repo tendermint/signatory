@@ -7,7 +7,7 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-dalek/0.8.0"
+    html_root_url = "https://docs.rs/signatory-dalek/0.9.0-alpha1"
 )]
 
 extern crate digest;
