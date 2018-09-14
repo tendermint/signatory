@@ -5,10 +5,11 @@ macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
         use $crate::{
             ed25519::{
-                Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, SIGNATURE_SIZE, TEST_VECTORS,
+                self, Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, SIGNATURE_SIZE,
+                TEST_VECTORS,
             },
             error::ErrorKind,
-            Signature, Signer, Verifier,
+            Signature,
         };
 
         #[test]
@@ -16,7 +17,10 @@ macro_rules! ed25519_tests {
             for vector in TEST_VECTORS {
                 let seed = Seed::from_bytes(vector.sk).unwrap();
                 let signer = $signer::from_seed(seed);
-                assert_eq!(signer.sign(vector.msg).unwrap().as_ref(), vector.sig);
+                assert_eq!(
+                    ed25519::sign(&signer, vector.msg).unwrap().as_ref(),
+                    vector.sig
+                );
             }
         }
 
@@ -27,7 +31,7 @@ macro_rules! ed25519_tests {
                 let verifier = $verifier::from(&pk);
                 let sig = Ed25519Signature::from_bytes(vector.sig).unwrap();
                 assert!(
-                    verifier.verify(vector.msg, &sig).is_ok(),
+                    ed25519::verify(&verifier, vector.msg, &sig).is_ok(),
                     "expected signature to verify"
                 );
             }
@@ -43,7 +47,8 @@ macro_rules! ed25519_tests {
                 tweaked_sig.copy_from_slice(vector.sig);
                 tweaked_sig[0] ^= 0x42;
 
-                let result = verifier.verify(
+                let result = ed25519::verify(
+                    &verifier,
                     vector.msg,
                     &Ed25519Signature::from_bytes(&tweaked_sig[..]).unwrap(),
                 );

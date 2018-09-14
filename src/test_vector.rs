@@ -1,5 +1,6 @@
 //! Test vector structure for signatures
 
+#[allow(unused_imports)]
 use prelude::*;
 
 /// Signature test vector

@@ -49,14 +49,14 @@ where
     }
 }
 
-impl<'a> Sha256Signer<'a, Asn1Signature<NistP256>> for P256Signer<Asn1Signature<NistP256>> {
-    fn sign_sha256(&self, msg: &'a [u8]) -> Result<Asn1Signature<NistP256>, Error> {
+impl Sha256Signer<Asn1Signature<NistP256>> for P256Signer<Asn1Signature<NistP256>> {
+    fn sign_sha256(&self, msg: &[u8]) -> Result<Asn1Signature<NistP256>, Error> {
         Asn1Signature::from_bytes(self.0.sign(msg)?)
     }
 }
 
-impl<'a> Sha256Signer<'a, FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP256>> {
-    fn sign_sha256(&self, msg: &'a [u8]) -> Result<FixedSignature<NistP256>, Error> {
+impl Sha256Signer<FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP256>> {
+    fn sign_sha256(&self, msg: &[u8]) -> Result<FixedSignature<NistP256>, Error> {
         FixedSignature::from_bytes(self.0.sign(msg)?)
     }
 }
@@ -71,12 +71,8 @@ impl<'a> From<&'a EcdsaPublicKey<NistP256>> for P256Verifier {
     }
 }
 
-impl<'a> Sha256Verifier<'a, Asn1Signature<NistP256>> for P256Verifier {
-    fn verify_sha256(
-        &self,
-        msg: &'a [u8],
-        signature: &Asn1Signature<NistP256>,
-    ) -> Result<(), Error> {
+impl Sha256Verifier<Asn1Signature<NistP256>> for P256Verifier {
+    fn verify_sha256(&self, msg: &[u8], signature: &Asn1Signature<NistP256>) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_ASN1,
             untrusted::Input::from(self.0.as_ref()),
@@ -86,12 +82,8 @@ impl<'a> Sha256Verifier<'a, Asn1Signature<NistP256>> for P256Verifier {
     }
 }
 
-impl<'a> Sha256Verifier<'a, FixedSignature<NistP256>> for P256Verifier {
-    fn verify_sha256(
-        &self,
-        msg: &'a [u8],
-        signature: &FixedSignature<NistP256>,
-    ) -> Result<(), Error> {
+impl Sha256Verifier<FixedSignature<NistP256>> for P256Verifier {
+    fn verify_sha256(&self, msg: &[u8], signature: &FixedSignature<NistP256>) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_FIXED,
             untrusted::Input::from(self.0.as_ref()),

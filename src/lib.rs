@@ -52,6 +52,8 @@ extern crate std;
 
 #[cfg(any(feature = "encoding", feature = "ed25519"))]
 extern crate clear_on_drop;
+#[cfg(feature = "digest")]
+pub extern crate digest;
 #[cfg(feature = "generic-array")]
 pub extern crate generic_array;
 #[cfg(feature = "rand")]
@@ -64,8 +66,6 @@ pub mod error;
 
 #[cfg(feature = "ecdsa")]
 pub mod curve;
-#[cfg(feature = "digest")]
-pub mod digest;
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
@@ -82,12 +82,14 @@ pub mod test_vector;
 mod util;
 mod verifier;
 
-#[cfg(all(feature = "digest", feature = "generic-array"))]
-pub use digest::DigestOutput;
+#[cfg(feature = "digest")]
+pub use digest::Digest;
 #[cfg(feature = "ecdsa")]
 pub use ecdsa::{EcdsaPublicKey, EcdsaSignature};
 #[cfg(feature = "ed25519")]
-pub use ed25519::{Ed25519PublicKey, Ed25519Signature};
+pub use ed25519::{
+    Ed25519PublicKey, Ed25519Signature, FromSeed as FromEd25519Seed, Seed as Ed25519Seed,
+};
 pub use error::{Error, ErrorKind};
 pub use public_key::{public_key, PublicKey, PublicKeyed};
 pub use signature::Signature;
@@ -106,24 +108,20 @@ pub use verifier::{
     sha2::{verify_sha256, verify_sha384, verify_sha512},
 };
 
-/// Sign the given byte slice with the given signer (alias for `sign_bytes`)
+/// Sign the given message slice with the given signer (alias for `sign_bytes`)
 #[inline]
-pub fn sign<'a, S>(signer: &ByteSigner<'a, S>, msg: &'a [u8]) -> Result<S, Error>
+pub fn sign<S>(signer: &ByteSigner<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {
-    signer.sign(msg)
+    sign_bytes(signer, msg)
 }
 
-/// Verify the given byte slice with the given signer (alias for `verify_bytes`)
+/// Verify the given message slice with the given verifier (alias for `verify_bytes`)
 #[inline]
-pub fn verify<'a, S>(
-    verifier: &ByteVerifier<'a, S>,
-    msg: &'a [u8],
-    signature: &S,
-) -> Result<(), Error>
+pub fn verify<S>(verifier: &ByteVerifier<S>, msg: &[u8], sig: &S) -> Result<(), Error>
 where
     S: Signature,
 {
-    verifier.verify(msg, signature)
+    verify_bytes(verifier, msg, sig)
 }
