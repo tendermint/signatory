@@ -2,8 +2,6 @@
 
 use core::{fmt::Debug, hash::Hash, str::FromStr};
 use generic_array::ArrayLength;
-#[cfg(feature = "digest")]
-use generic_array::GenericArray;
 
 pub mod nistp256;
 pub mod point;
@@ -107,7 +105,3 @@ impl WeierstrassCurveKind {
         }
     }
 }
-
-/// Digest input type for a particular Weierstrass curve
-#[cfg(feature = "digest")]
-pub type CurveDigest<C> = GenericArray<u8, <C as WeierstrassCurve>::ScalarSize>;

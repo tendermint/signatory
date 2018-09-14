@@ -18,8 +18,9 @@ use secp256k1::{key::SecretKey, Message};
 
 use signatory::{
     curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey},
-    generic_array::{typenum::U32, GenericArray},
-    Error, PublicKeyed, Signature, Signer, Verifier,
+    digest::Digest,
+    generic_array::typenum::U32,
+    DigestSigner, DigestVerifier, Error, PublicKeyed, Signature, Signer, Verifier,
 };
 
 lazy_static! {
@@ -66,22 +67,43 @@ impl PublicKeyed<PublicKey> for EcdsaSigner {
     }
 }
 
-impl Signer<GenericArray<u8, U32>, Asn1Signature> for EcdsaSigner {
+impl<D> Signer<D, Asn1Signature> for EcdsaSigner
+where
+    D: Digest<OutputSize = U32> + Default,
+{
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
-    fn sign(&self, msg: GenericArray<u8, U32>) -> Result<Asn1Signature, Error> {
-        let m = Message::from_slice(msg.as_slice()).unwrap();
+    fn sign(&self, digest: D) -> Result<Asn1Signature, Error> {
+        let m = Message::from_slice(digest.result().as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(Asn1Signature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap())
     }
 }
 
-impl Signer<GenericArray<u8, U32>, FixedSignature> for EcdsaSigner {
+// TODO: generic implementation of this for all EcdsaSignatures?
+impl<D> DigestSigner<D, Asn1Signature> for EcdsaSigner
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
+}
+
+impl<D> Signer<D, FixedSignature> for EcdsaSigner
+where
+    D: Digest<OutputSize = U32> + Default,
+{
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
-    fn sign(&self, msg: GenericArray<u8, U32>) -> Result<FixedSignature, Error> {
-        let m = Message::from_slice(msg.as_slice()).unwrap();
+    fn sign(&self, digest: D) -> Result<FixedSignature, Error> {
+        let m = Message::from_slice(digest.result().as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
     }
+}
+
+impl<D> DigestSigner<D, FixedSignature> for EcdsaSigner
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
 }
 
 /// ECDSA verifier provider for the secp256k1 crate
@@ -97,26 +119,52 @@ impl<'a> From<&'a PublicKey> for EcdsaVerifier {
     }
 }
 
-impl Verifier<GenericArray<u8, U32>, Asn1Signature> for EcdsaVerifier {
-    fn verify(&self, msg: GenericArray<u8, U32>, signature: &Asn1Signature) -> Result<(), Error> {
+impl<D> Verifier<D, Asn1Signature> for EcdsaVerifier
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    fn verify(&self, digest: D, signature: &Asn1Signature) -> Result<(), Error> {
         let sig = secp256k1::Signature::from_der(&SECP256K1_ENGINE, signature.as_slice())
             .map_err(|e| err!(SignatureInvalid, e))?;
 
         SECP256K1_ENGINE
-            .verify(&Message::from_slice(&msg).unwrap(), &sig, &self.0)
-            .map_err(|e| err!(SignatureInvalid, e))
+            .verify(
+                &Message::from_slice(digest.result().as_slice()).unwrap(),
+                &sig,
+                &self.0,
+            ).map_err(|e| err!(SignatureInvalid, e))
     }
 }
 
-impl Verifier<GenericArray<u8, U32>, FixedSignature> for EcdsaVerifier {
-    fn verify(&self, msg: GenericArray<u8, U32>, signature: &FixedSignature) -> Result<(), Error> {
+impl<D> DigestVerifier<D, Asn1Signature> for EcdsaVerifier
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
+}
+
+impl<D> Verifier<D, FixedSignature> for EcdsaVerifier
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    fn verify(&self, digest: D, signature: &FixedSignature) -> Result<(), Error> {
         let sig =
             secp256k1::Signature::from_compact(&SECP256K1_ENGINE, signature.as_slice()).unwrap();
 
         SECP256K1_ENGINE
-            .verify(&Message::from_slice(&msg).unwrap(), &sig, &self.0)
-            .map_err(|e| err!(SignatureInvalid, e))
+            .verify(
+                &Message::from_slice(digest.result().as_slice()).unwrap(),
+                &sig,
+                &self.0,
+            ).map_err(|e| err!(SignatureInvalid, e))
     }
+}
+
+impl<D> DigestVerifier<D, FixedSignature> for EcdsaVerifier
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
 }
 
 // TODO: test against actual test vectors, rather than just checking if signatures roundtrip
