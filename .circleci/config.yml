@@ -100,7 +100,7 @@ jobs:
           rustc --version
           cargo --version
           cargo build --package=signatory-yubihsm
-          cd providers/signatory-yubihsm && cargo test --features=mockhsm
+          cd providers/signatory-yubihsm && cargo test --features=secp256k1,mockhsm
     - run:
         name: audit
         command: |
