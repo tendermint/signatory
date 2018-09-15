@@ -14,7 +14,7 @@ use signatory::{
     ecdsa::{Asn1Signature, EcdsaPublicKey, FixedSignature},
     error::Error,
     generic_array::{typenum::U32, GenericArray},
-    Digest, DigestSigner, PublicKeyed, Signature, Signer,
+    Digest, PublicKeyed, Signature, Signer,
 };
 use std::{
     marker::PhantomData,
@@ -115,15 +115,6 @@ where
     }
 }
 
-// TODO: generic implementation of this for all EcdsaSignatures?
-#[cfg(feature = "http")]
-impl<D> DigestSigner<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::HttpAdapter, NistP256>
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
-}
-
 #[cfg(feature = "usb")]
 impl<D> Signer<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
 where
@@ -133,14 +124,6 @@ where
     fn sign(&self, digest: D) -> Result<Asn1Signature<NistP256>, Error> {
         self.sign_nistp256_asn1(digest)
     }
-}
-
-#[cfg(feature = "usb")]
-impl<D> DigestSigner<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
 }
 
 #[cfg(feature = "http")]
@@ -154,14 +137,6 @@ where
     }
 }
 
-#[cfg(feature = "http")]
-impl<D> DigestSigner<D, FixedSignature<NistP256>> for EcdsaSigner<yubihsm::HttpAdapter, NistP256>
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
-}
-
 #[cfg(feature = "usb")]
 impl<D> Signer<D, FixedSignature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
 where
@@ -171,14 +146,6 @@ where
     fn sign(&self, digest: D) -> Result<FixedSignature<NistP256>, Error> {
         Ok(FixedSignature::from(&self.sign_nistp256_asn1(digest)?))
     }
-}
-
-#[cfg(feature = "usb")]
-impl<D> DigestSigner<D, FixedSignature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
 }
 
 #[cfg(feature = "secp256k1")]
@@ -198,15 +165,6 @@ where
 }
 
 #[cfg(feature = "secp256k1")]
-impl<A, D> DigestSigner<D, Asn1Signature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
-where
-    A: yubihsm::Adapter,
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
-}
-
-#[cfg(feature = "secp256k1")]
 impl<A, D> Signer<D, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
 where
     A: yubihsm::Adapter,
@@ -222,15 +180,6 @@ where
 
         Ok(FixedSignature::from(fixed_sig))
     }
-}
-
-#[cfg(feature = "secp256k1")]
-impl<A, D> DigestSigner<D, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
-where
-    A: yubihsm::Adapter,
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
 }
 
 impl<A> EcdsaSigner<A, NistP256>

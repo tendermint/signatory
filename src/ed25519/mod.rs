@@ -28,6 +28,8 @@
 //! assert!(ed25519::verify(&verifier, msg.as_bytes(), &sig).is_ok());
 //! ```
 
+#[cfg(feature = "digest")]
+mod digest;
 mod public_key;
 mod seed;
 mod signature;

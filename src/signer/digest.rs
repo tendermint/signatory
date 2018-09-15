@@ -1,7 +1,6 @@
 //! Prehash (a.k.a. "IUF") signing support using the `Digest` trait
 
-use digest::Digest;
-use generic_array::ArrayLength;
+use digest::{generic_array::ArrayLength, Digest};
 
 use error::Error;
 use {Signature, Signer};

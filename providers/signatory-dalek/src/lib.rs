@@ -24,7 +24,7 @@ use signatory::{
     ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
-    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
+    PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -83,13 +83,6 @@ where
     }
 }
 
-impl<D> DigestSigner<D, Ed25519Signature> for Ed25519PhSigner
-where
-    D: Digest<OutputSize = U64> + Default,
-{
-    type DigestSize = U64;
-}
-
 /// Ed25519 verifier provider for ed25519-dalek
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Ed25519Verifier(ed25519_dalek::PublicKey);
@@ -132,13 +125,6 @@ where
             .verify_prehashed(digest, context, &dalek_sig)
             .map_err(|_| ErrorKind::SignatureInvalid.into())
     }
-}
-
-impl<D> DigestVerifier<D, Ed25519Signature> for Ed25519PhVerifier
-where
-    D: Digest<OutputSize = U64> + Default,
-{
-    type DigestSize = U64;
 }
 
 /// Convert a Signatory seed into a Dalek keypair
