@@ -1,14 +1,14 @@
 //! Unified signing API for all Signatory providers
 
 pub(crate) mod bytes;
-#[cfg(all(feature = "digest", feature = "generic-array"))]
+#[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
 
 use error::Error;
 use Signature;
 
-#[cfg(all(feature = "digest", feature = "generic-array"))]
+#[cfg(feature = "digest")]
 pub use self::digest::DigestSigner;
 pub use self::{bytes::ByteSigner, sha2::Sha256Signer};
 

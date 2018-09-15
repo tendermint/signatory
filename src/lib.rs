@@ -93,14 +93,14 @@ pub use ed25519::{
 pub use error::{Error, ErrorKind};
 pub use public_key::{public_key, PublicKey, PublicKeyed};
 pub use signature::Signature;
-#[cfg(all(feature = "digest", feature = "generic-array"))]
+#[cfg(feature = "digest")]
 pub use signer::digest::sign_digest;
 pub use signer::*;
 pub use signer::{
     bytes::sign_bytes,
     sha2::{sign_sha256, sign_sha384, sign_sha512},
 };
-#[cfg(all(feature = "digest", feature = "generic-array"))]
+#[cfg(feature = "digest")]
 pub use verifier::digest::verify_digest;
 pub use verifier::*;
 pub use verifier::{

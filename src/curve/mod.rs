@@ -1,4 +1,4 @@
-//! Elliptic Curves (presently Weierstrass form only)
+//! Elliptic Curves: Weierstrass form - for use with ECDSA.
 
 use core::{fmt::Debug, hash::Hash, str::FromStr};
 use generic_array::ArrayLength;

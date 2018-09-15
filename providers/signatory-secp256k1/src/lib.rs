@@ -20,7 +20,7 @@ use signatory::{
     curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey},
     digest::Digest,
     generic_array::typenum::U32,
-    DigestSigner, DigestVerifier, Error, PublicKeyed, Signature, Signer, Verifier,
+    Error, PublicKeyed, Signature, Signer, Verifier,
 };
 
 lazy_static! {
@@ -79,14 +79,6 @@ where
     }
 }
 
-// TODO: generic implementation of this for all EcdsaSignatures?
-impl<D> DigestSigner<D, Asn1Signature> for EcdsaSigner
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
-}
-
 impl<D> Signer<D, FixedSignature> for EcdsaSigner
 where
     D: Digest<OutputSize = U32> + Default,
@@ -97,13 +89,6 @@ where
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
     }
-}
-
-impl<D> DigestSigner<D, FixedSignature> for EcdsaSigner
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
 }
 
 /// ECDSA verifier provider for the secp256k1 crate
@@ -136,13 +121,6 @@ where
     }
 }
 
-impl<D> DigestVerifier<D, Asn1Signature> for EcdsaVerifier
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
-}
-
 impl<D> Verifier<D, FixedSignature> for EcdsaVerifier
 where
     D: Digest<OutputSize = U32> + Default,
@@ -158,13 +136,6 @@ where
                 &self.0,
             ).map_err(|e| err!(SignatureInvalid, e))
     }
-}
-
-impl<D> DigestVerifier<D, FixedSignature> for EcdsaVerifier
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    type DigestSize = U32;
 }
 
 // TODO: test against actual test vectors, rather than just checking if signatures roundtrip
