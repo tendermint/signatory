@@ -4,6 +4,7 @@ use core::{fmt::Debug, hash::Hash, str::FromStr};
 use generic_array::ArrayLength;
 
 pub mod nistp256;
+pub mod nistp384;
 pub mod point;
 pub mod secp256k1;
 
@@ -51,21 +52,20 @@ pub trait WeierstrassCurve:
 /// Types of Weierstrass curves known to this library
 #[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum WeierstrassCurveKind {
-    /// Placeholder type for unknown elliptic curves. This can be used for
-    /// unsupported curve types and also to prevent exhaustiveness checking
-    /// so new curve types can be added to this enum without breaking existing
-    /// providers (i.e. when matching on this enum, providers should include
-    /// an `other` or `_` option to handle unsupported curve types.
-    Unknown,
-
     /// The NIST P-256 (a.k.a. prime256v1, secp256r1) elliptic curve defined in
-    /// FIPS 186-4: Digital Signature Standard (DSS)
+    /// FIPS 186-4: Digital Signature Standard (DSS).
     ///
     /// <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf>
     NistP256,
 
+    /// The NIST P-384 (a.k.a. secp384r1) elliptic curve defined in
+    /// FIPS 186-4: Digital Signature Standard (DSS).
+    ///
+    /// <https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf>
+    NistP384,
+
     /// The secp256k1 elliptic curve as defined by Certicom's SECG in
-    /// SEC 2: Recommended Elliptic Curve Domain Parameters:
+    /// SEC 2: Recommended Elliptic Curve Domain Parameters.
     ///
     /// <http://www.secg.org/sec2-v2.pdf>
     Secp256k1,
@@ -78,6 +78,7 @@ impl FromStr for WeierstrassCurveKind {
         #[allow(unused_variables)] // for no_std
         match s {
             "nistp256" => Ok(WeierstrassCurveKind::NistP256),
+            "nistp384" => Ok(WeierstrassCurveKind::NistP384),
             "secp256k1" => Ok(WeierstrassCurveKind::Secp256k1),
             other => fail!(ParseError, "invalid elliptic curve type: {}", other),
         }
@@ -86,11 +87,11 @@ impl FromStr for WeierstrassCurveKind {
 
 impl WeierstrassCurveKind {
     /// Get the string identifier for this elliptic curve. This name matches
-    /// the Signatory module name for this curve (or `"unknown"`).
+    /// the Signatory module name for this curve.
     pub fn to_str(self) -> &'static str {
         match self {
-            WeierstrassCurveKind::Unknown => "unknown",
             WeierstrassCurveKind::NistP256 => "nistp256",
+            WeierstrassCurveKind::NistP384 => "nistp384",
             WeierstrassCurveKind::Secp256k1 => "secp256k1",
         }
     }
@@ -100,8 +101,8 @@ impl WeierstrassCurveKind {
     pub fn to_secg_name(self) -> Option<&'static str> {
         match self {
             WeierstrassCurveKind::NistP256 => Some("secp256r1"),
+            WeierstrassCurveKind::NistP384 => Some("secp384r1"),
             WeierstrassCurveKind::Secp256k1 => Some("secp256k1"),
-            _ => None,
         }
     }
 }
