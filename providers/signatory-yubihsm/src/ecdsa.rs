@@ -185,9 +185,10 @@ where
 impl<A, D> Signer<D, Asn1Signature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
 where
     A: yubihsm::Adapter,
+    D: Digest<OutputSize = U32> + Default,
 {
     /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
-    fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<Asn1Signature<Secp256k1>, Error> {
+    fn sign(&self, digest: D) -> Result<Asn1Signature<Secp256k1>, Error> {
         let asn1_sig = self
             .sign_secp256k1(digest)?
             .serialize_der(&SECP256K1_ENGINE);
@@ -197,12 +198,22 @@ where
 }
 
 #[cfg(feature = "secp256k1")]
-impl<A> Signer<CurveDigest<Secp256k1>, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
+impl<A, D> DigestSigner<D, Asn1Signature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
 where
     A: yubihsm::Adapter,
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
+}
+
+#[cfg(feature = "secp256k1")]
+impl<A, D> Signer<D, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
+where
+    A: yubihsm::Adapter,
+    D: Digest<OutputSize = U32> + Default,
 {
     /// Compute a fixed-size secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
-    fn sign(&self, digest: CurveDigest<Secp256k1>) -> Result<FixedSignature<Secp256k1>, Error> {
+    fn sign(&self, digest: D) -> Result<FixedSignature<Secp256k1>, Error> {
         let fixed_sig = GenericArray::clone_from_slice(
             &self
                 .sign_secp256k1(digest)?
@@ -211,6 +222,15 @@ where
 
         Ok(FixedSignature::from(fixed_sig))
     }
+}
+
+#[cfg(feature = "secp256k1")]
+impl<A, D> DigestSigner<D, FixedSignature<Secp256k1>> for EcdsaSigner<A, Secp256k1>
+where
+    A: yubihsm::Adapter,
+    D: Digest<OutputSize = U32> + Default,
+{
+    type DigestSize = U32;
 }
 
 impl<A> EcdsaSigner<A, NistP256>
@@ -240,7 +260,7 @@ where
     A: yubihsm::Adapter,
 {
     /// Compute either an ASN.1 DER or fixed-sized signature using libsecp256k1
-    fn sign_secp256k1(&self, digest: D) -> Result<secp256k1::Signature, Error>
+    fn sign_secp256k1<D>(&self, digest: D) -> Result<secp256k1::Signature, Error>
     where
         D: Digest<OutputSize = U32> + Default,
     {
