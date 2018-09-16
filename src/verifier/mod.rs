@@ -11,8 +11,8 @@ use error::Error;
 use Signature;
 
 #[cfg(feature = "digest")]
-pub use self::digest::DigestVerifier;
-pub use self::{bytes::ByteVerifier, sha2::Sha256Verifier};
+pub use self::digest::*;
+pub use self::{bytes::*, sha2::*};
 
 /// Common trait for all signature verification providers
 pub trait Verifier<I, S: Signature>: Debug + Send + Sync {

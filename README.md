@@ -44,11 +44,11 @@ own respective crates:
 
 ### ECDSA providers
 
-| Provider Crate        | Backend Crate  | Type | P-256 | secp256k1 |
-|-----------------------|----------------|------|-------|-----------|
-| [signatory-ring]      | [ring]         | Soft | ✅    | ⛔        |
-| [signatory-secp256k1] | [secp256k1-rs] | Soft | ⛔    | ✅        |
-| [signatory-yubihsm]   | [yubihsm-rs]   | Hard | ✅    | ✅        |
+| Provider Crate        | Backend Crate  | Type | P-256 | P-384 | secp256k1 |
+|-----------------------|----------------|------|-------|-------|-----------|
+| [signatory-ring]      | [ring]         | Soft | ✅    | ✅    | ⛔        |
+| [signatory-secp256k1] | [secp256k1-rs] | Soft | ⛔    | ⛔    | ✅        |
+| [signatory-yubihsm]   | [yubihsm-rs]   | Hard | ✅    | ⛔    | ✅        |
 
 ### Ed25519 providers
 

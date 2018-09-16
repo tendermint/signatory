@@ -9,8 +9,8 @@ use error::Error;
 use Signature;
 
 #[cfg(feature = "digest")]
-pub use self::digest::DigestSigner;
-pub use self::{bytes::ByteSigner, sha2::Sha256Signer};
+pub use self::digest::*;
+pub use self::{bytes::*, sha2::*};
 
 /// Common trait for all signature providers
 pub trait Signer<I, S: Signature>: Send + Sync {
