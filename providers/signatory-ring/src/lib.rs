@@ -18,9 +18,6 @@ extern crate untrusted;
 #[macro_use]
 extern crate std;
 
-#[macro_use]
-mod error;
-
 /// ECDSA signing and verification support
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;

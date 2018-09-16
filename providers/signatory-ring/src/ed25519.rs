@@ -7,7 +7,7 @@ use untrusted;
 use signatory::{
     ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     encoding::FromPkcs8,
-    error::{Error, ErrorKind::SignatureInvalid},
+    error::{Error, ErrorKind},
     PublicKeyed, Signature, Signer, Verifier,
 };
 
@@ -29,7 +29,7 @@ impl FromPkcs8 for Ed25519Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
         let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(pkcs8_bytes))
-            .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 private key"))?;
+            .map_err(|_| Error::from(ErrorKind::KeyInvalid))?;
 
         Ok(Ed25519Signer(keypair))
     }
@@ -64,7 +64,7 @@ impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
             untrusted::Input::from(self.0.as_bytes()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_bytes()),
-        ).map_err(|_| SignatureInvalid.into())
+        ).map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }
 

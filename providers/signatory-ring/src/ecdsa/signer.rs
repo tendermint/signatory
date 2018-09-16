@@ -6,13 +6,23 @@ use ring::{
     rand::SystemRandom,
     signature::{KeyPair, SigningAlgorithm},
 };
-use signatory::{ecdsa::EcdsaSignature, error::Error};
+use signatory::{
+    curve::WeierstrassCurve,
+    ecdsa::{EcdsaPublicKey, EcdsaSignature},
+    error::{Error, ErrorKind},
+    generic_array::{typenum::Unsigned, GenericArray},
+};
 use untrusted;
 
 /// Generic ECDSA signer which is wrapped with curve and signature-specific types
-pub(super) struct EcdsaSigner<S: EcdsaSignature> {
+pub(super) struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
     /// *ring* ECDSA keypair
     keypair: KeyPair,
+
+    /// ECDSA public key for this signer
+    // *ring* does not presently keep a copy of this.
+    // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
+    public_key: EcdsaPublicKey<C>,
 
     /// Cryptographically secure random number generator
     csrng: SystemRandom,
@@ -21,31 +31,50 @@ pub(super) struct EcdsaSigner<S: EcdsaSignature> {
     signature: PhantomData<S>,
 }
 
-impl<S> EcdsaSigner<S>
+impl<C, S> EcdsaSigner<C, S>
 where
+    C: WeierstrassCurve,
     S: EcdsaSignature,
 {
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    /// Create an ECDSA signer and public key from a PKCS#8
     pub(super) fn from_pkcs8(
         alg: &'static SigningAlgorithm,
         pkcs8_bytes: &[u8],
     ) -> Result<Self, Error> {
         let keypair =
             ring::signature::key_pair_from_pkcs8(alg, untrusted::Input::from(pkcs8_bytes))
-                .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 key"))?;
+                .map_err(|_| Error::from(ErrorKind::KeyInvalid))?;
+
+        // TODO: less hokey way of parsing the public key/point from the PKCS#8 file?
+        let pubkey_bytes_pos = pkcs8_bytes
+            .len()
+            .checked_sub(<C as WeierstrassCurve>::UntaggedPointSize::to_usize())
+            .unwrap();
+
+        let public_key = EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(
+            &pkcs8_bytes[pubkey_bytes_pos..],
+        ));
 
         let csrng = SystemRandom::new();
 
         Ok(Self {
             keypair,
+            public_key,
             csrng,
             signature: PhantomData,
         })
     }
 
-    /// Sign a message, returning a *ring* `Signature` type
-    pub(super) fn sign(&self, msg: &[u8]) -> Result<ring::signature::Signature, Error> {
-        ring::signature::sign(&self.keypair, &self.csrng, untrusted::Input::from(msg))
-            .map_err(|_| err!(ProviderError, "signing failure"))
+    /// ECDSA public key for this signer
+    pub(super) fn public_key(&self) -> EcdsaPublicKey<C> {
+        self.public_key.clone()
+    }
+
+    /// Sign a message, returning the signature
+    pub(super) fn sign(&self, msg: &[u8]) -> Result<S, Error> {
+        let sig = ring::signature::sign(&self.keypair, &self.csrng, untrusted::Input::from(msg))
+            .map_err(|_| Error::from(ErrorKind::ProviderError))?;
+
+        S::from_bytes(sig)
     }
 }

@@ -8,43 +8,36 @@ use ring::{
     },
 };
 use signatory::{
-    curve::{nistp384::NistP384, WeierstrassCurve},
+    curve::nistp384::NistP384,
     ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
     encoding::FromPkcs8,
-    error::Error,
-    generic_array::{typenum::Unsigned, GenericArray},
-    PublicKeyed, Sha384Signer, Sha384Verifier, Signature,
+    error::{Error, ErrorKind::SignatureInvalid},
+    PublicKeyed, Sha384Signer, Sha384Verifier,
 };
 use untrusted;
 
 use super::signer::EcdsaSigner;
 
 /// NIST P-384 ECDSA signer
-pub struct P384Signer<S: EcdsaSignature> {
-    /// P-384 signer
-    signer: EcdsaSigner<S>,
-
-    /// Public key for this signer
-    // *ring* does not presently keep a copy of this.
-    // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
-    public_key: EcdsaPublicKey<NistP384>,
-}
+pub struct P384Signer<S: EcdsaSignature>(EcdsaSigner<NistP384, S>);
 
 impl FromPkcs8 for P384Signer<Asn1Signature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        let signer = EcdsaSigner::from_pkcs8(&ECDSA_P384_SHA384_ASN1_SIGNING, pkcs8_bytes)?;
-        let public_key = p384_pkcs8_pubkey(pkcs8_bytes);
-        Ok(P384Signer { signer, public_key })
+        Ok(P384Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P384_SHA384_ASN1_SIGNING,
+            pkcs8_bytes,
+        )?))
     }
 }
 
 impl FromPkcs8 for P384Signer<FixedSignature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        let signer = EcdsaSigner::from_pkcs8(&ECDSA_P384_SHA384_FIXED_SIGNING, pkcs8_bytes)?;
-        let public_key = p384_pkcs8_pubkey(pkcs8_bytes);
-        Ok(P384Signer { signer, public_key })
+        Ok(P384Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P384_SHA384_FIXED_SIGNING,
+            pkcs8_bytes,
+        )?))
     }
 }
 
@@ -54,19 +47,19 @@ where
 {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<EcdsaPublicKey<NistP384>, Error> {
-        Ok(self.public_key.clone())
+        Ok(self.0.public_key())
     }
 }
 
 impl Sha384Signer<Asn1Signature<NistP384>> for P384Signer<Asn1Signature<NistP384>> {
     fn sign_sha384(&self, msg: &[u8]) -> Result<Asn1Signature<NistP384>, Error> {
-        Asn1Signature::from_bytes(self.signer.sign(msg)?)
+        self.0.sign(msg)
     }
 }
 
 impl Sha384Signer<FixedSignature<NistP384>> for P384Signer<FixedSignature<NistP384>> {
     fn sign_sha384(&self, msg: &[u8]) -> Result<FixedSignature<NistP384>, Error> {
-        FixedSignature::from_bytes(self.signer.sign(msg)?)
+        self.0.sign(msg)
     }
 }
 
@@ -87,7 +80,7 @@ impl Sha384Verifier<Asn1Signature<NistP384>> for P384Verifier {
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| err!(SignatureInvalid, "invalid signature"))
+        ).map_err(|_| SignatureInvalid.into())
     }
 }
 
@@ -98,19 +91,8 @@ impl Sha384Verifier<FixedSignature<NistP384>> for P384Verifier {
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| err!(SignatureInvalid, "invalid signature"))
+        ).map_err(|_| SignatureInvalid.into())
     }
-}
-
-/// Get the public key for a P-384 keypair from a PKCS#8 document
-fn p384_pkcs8_pubkey(pkcs8_bytes: &[u8]) -> EcdsaPublicKey<NistP384> {
-    // TODO: less hokey way of parsing the public key/point from the PKCS#8 file?
-    let pk_bytes_pos = pkcs8_bytes
-        .len()
-        .checked_sub(<NistP384 as WeierstrassCurve>::UntaggedPointSize::to_usize())
-        .unwrap();
-
-    EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(&pkcs8_bytes[pk_bytes_pos..]))
 }
 
 #[cfg(test)]
