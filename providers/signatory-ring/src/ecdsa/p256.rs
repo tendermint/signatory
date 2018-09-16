@@ -1,13 +1,10 @@
-//! ECDSA provider for the *ring* crate (supporting NIST P-256)
-
-use core::marker::PhantomData;
+//! ECDSA P-256 provider for the *ring* crate
 
 use ring::{
     self,
-    rand::SystemRandom,
     signature::{
-        KeyPair, SigningAlgorithm, ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING,
-        ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING,
+        ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED,
+        ECDSA_P256_SHA256_FIXED_SIGNING,
     },
 };
 use signatory::{
@@ -20,14 +17,25 @@ use signatory::{
 };
 use untrusted;
 
+use super::signer::EcdsaSigner;
+
 /// NIST P-256 ECDSA signer
-pub struct P256Signer<S: EcdsaSignature>(EcdsaSigner<NistP256, S>);
+pub struct P256Signer<S: EcdsaSignature> {
+    /// P-256 signer
+    signer: EcdsaSigner<S>,
+
+    /// Public key for this signer
+    // *ring* does not presently keep a copy of this.
+    // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
+    public_key: EcdsaPublicKey<NistP256>,
+}
 
 impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
         let signer = EcdsaSigner::from_pkcs8(&ECDSA_P256_SHA256_ASN1_SIGNING, pkcs8_bytes)?;
-        Ok(P256Signer(signer))
+        let public_key = p256_pkcs8_pubkey(pkcs8_bytes);
+        Ok(P256Signer { signer, public_key })
     }
 }
 
@@ -35,7 +43,8 @@ impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
         let signer = EcdsaSigner::from_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8_bytes)?;
-        Ok(P256Signer(signer))
+        let public_key = p256_pkcs8_pubkey(pkcs8_bytes);
+        Ok(P256Signer { signer, public_key })
     }
 }
 
@@ -45,19 +54,19 @@ where
 {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<EcdsaPublicKey<NistP256>, Error> {
-        Ok(self.0.public_key.clone())
+        Ok(self.public_key.clone())
     }
 }
 
 impl Sha256Signer<Asn1Signature<NistP256>> for P256Signer<Asn1Signature<NistP256>> {
     fn sign_sha256(&self, msg: &[u8]) -> Result<Asn1Signature<NistP256>, Error> {
-        Asn1Signature::from_bytes(self.0.sign(msg)?)
+        Asn1Signature::from_bytes(self.signer.sign(msg)?)
     }
 }
 
 impl Sha256Signer<FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP256>> {
     fn sign_sha256(&self, msg: &[u8]) -> Result<FixedSignature<NistP256>, Error> {
-        FixedSignature::from_bytes(self.0.sign(msg)?)
+        FixedSignature::from_bytes(self.signer.sign(msg)?)
     }
 }
 
@@ -93,64 +102,15 @@ impl Sha256Verifier<FixedSignature<NistP256>> for P256Verifier {
     }
 }
 
-/// Generic ECDSA signer which is wrapped with curve and signature-specific types
-struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
-    /// *ring* ECDSA keypair
-    keypair: KeyPair,
+/// Get the public key for a P-256 keypair from a PKCS#8 document
+fn p256_pkcs8_pubkey(pkcs8_bytes: &[u8]) -> EcdsaPublicKey<NistP256> {
+    // TODO: less hokey way of parsing the public key/point from the PKCS#8 file?
+    let pk_bytes_pos = pkcs8_bytes
+        .len()
+        .checked_sub(<NistP256 as WeierstrassCurve>::UntaggedPointSize::to_usize())
+        .unwrap();
 
-    /// Public key for this keypair
-    // *ring* does not presently keep a copy of this.
-    // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
-    public_key: EcdsaPublicKey<C>,
-
-    /// Cryptographically secure random number generator
-    csrng: SystemRandom,
-
-    /// Signature type produced by this signer
-    signature: PhantomData<S>,
-}
-
-impl<S> EcdsaSigner<NistP256, S>
-where
-    S: EcdsaSignature,
-{
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(alg: &'static SigningAlgorithm, pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        let keypair =
-            ring::signature::key_pair_from_pkcs8(alg, untrusted::Input::from(pkcs8_bytes))
-                .map_err(|_| err!(KeyInvalid, "invalid PKCS#8 key"))?;
-
-        // TODO: less hokey way of parsing the public key/point from the PKCS#8 file?
-        let pk_bytes_pos = pkcs8_bytes
-            .len()
-            .checked_sub(<NistP256 as WeierstrassCurve>::UntaggedPointSize::to_usize())
-            .unwrap();
-
-        let public_key = EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(
-            &pkcs8_bytes[pk_bytes_pos..],
-        ));
-
-        let csrng = SystemRandom::new();
-
-        Ok(Self {
-            keypair,
-            public_key,
-            csrng,
-            signature: PhantomData,
-        })
-    }
-}
-
-impl<C, S> EcdsaSigner<C, S>
-where
-    C: WeierstrassCurve,
-    S: EcdsaSignature,
-{
-    /// Sign a message, returning a *ring* `Signature` type
-    fn sign(&self, msg: &[u8]) -> Result<ring::signature::Signature, Error> {
-        ring::signature::sign(&self.keypair, &self.csrng, untrusted::Input::from(msg))
-            .map_err(|_| err!(ProviderError, "signing failure"))
-    }
+    EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(&pkcs8_bytes[pk_bytes_pos..]))
 }
 
 #[cfg(test)]
