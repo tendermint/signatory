@@ -97,31 +97,13 @@ pub use signature::Signature;
 pub use signer::digest::sign_digest;
 pub use signer::*;
 pub use signer::{
-    bytes::sign_bytes,
     sha2::{sign_sha256, sign_sha384, sign_sha512},
+    sign,
 };
 #[cfg(feature = "digest")]
 pub use verifier::digest::verify_digest;
 pub use verifier::*;
 pub use verifier::{
-    bytes::verify_bytes,
     sha2::{verify_sha256, verify_sha384, verify_sha512},
+    verify,
 };
-
-/// Sign the given message slice with the given signer (alias for `sign_bytes`)
-#[inline]
-pub fn sign<S>(signer: &ByteSigner<S>, msg: &[u8]) -> Result<S, Error>
-where
-    S: Signature,
-{
-    sign_bytes(signer, msg)
-}
-
-/// Verify the given message slice with the given verifier (alias for `verify_bytes`)
-#[inline]
-pub fn verify<S>(verifier: &ByteVerifier<S>, msg: &[u8], sig: &S) -> Result<(), Error>
-where
-    S: Signature,
-{
-    verify_bytes(verifier, msg, sig)
-}

@@ -1,8 +1,6 @@
 #[cfg(all(feature = "digest", feature = "sha2"))]
 use digest::Input;
 #[cfg(all(feature = "digest", feature = "sha2"))]
-use generic_array::typenum::{U32, U48, U64};
-#[cfg(all(feature = "digest", feature = "sha2"))]
 use sha2::{Sha256, Sha384, Sha512};
 
 #[cfg(all(feature = "digest", feature = "sha2"))]
@@ -24,7 +22,7 @@ where
 impl<S, T> Sha256Verifier<S> for T
 where
     S: Signature,
-    T: DigestVerifier<Sha256, S, DigestSize = U32>,
+    T: DigestVerifier<Sha256, S>,
 {
     fn verify_sha256(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
         let mut sha256 = Sha256::default();
@@ -46,7 +44,7 @@ where
 impl<S, T> Sha384Verifier<S> for T
 where
     S: Signature,
-    T: DigestVerifier<Sha384, S, DigestSize = U48>,
+    T: DigestVerifier<Sha384, S>,
 {
     fn verify_sha384(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
         let mut sha384 = Sha384::default();
@@ -68,7 +66,7 @@ where
 impl<S, T> Sha512Verifier<S> for T
 where
     S: Signature,
-    T: DigestVerifier<Sha512, S, DigestSize = U64>,
+    T: DigestVerifier<Sha512, S>,
 {
     fn verify_sha512(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
         let mut sha512 = Sha512::default();

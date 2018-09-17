@@ -24,7 +24,7 @@ use signatory::{
     ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
-    PublicKeyed, Signature, Signer, Verifier,
+    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -43,8 +43,8 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
     }
 }
 
-impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
+impl Signer<Ed25519Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
         let signature = self.0.sign::<Sha512>(msg).to_bytes();
         Ok(Ed25519Signature::from_bytes(&signature[..]).unwrap())
     }
@@ -67,7 +67,7 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519PhSigner {
 }
 
 // TODO: test vectors!
-impl<D> Signer<D, Ed25519Signature> for Ed25519PhSigner
+impl<D> DigestSigner<D, Ed25519Signature> for Ed25519PhSigner
 where
     D: Digest<OutputSize = U64> + Default,
 {
@@ -93,8 +93,8 @@ impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
     }
 }
 
-impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
-    fn verify(&self, msg: &'a [u8], sig: &Ed25519Signature) -> Result<(), Error> {
+impl Verifier<Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &[u8], sig: &Ed25519Signature) -> Result<(), Error> {
         let dalek_sig = ed25519_dalek::Signature::from_bytes(sig.as_ref()).unwrap();
         self.0
             .verify::<Sha512>(msg, &dalek_sig)
@@ -113,7 +113,7 @@ impl<'a> From<&'a Ed25519PublicKey> for Ed25519PhVerifier {
 }
 
 // TODO: test vectors!
-impl<D> Verifier<D, Ed25519Signature> for Ed25519PhVerifier
+impl<D> DigestVerifier<D, Ed25519Signature> for Ed25519PhVerifier
 where
     D: Digest<OutputSize = U64> + Default,
 {

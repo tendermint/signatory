@@ -41,8 +41,8 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
     }
 }
 
-impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
+impl Signer<Ed25519Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
         Ok(Ed25519Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
     }
 }
@@ -57,8 +57,8 @@ impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
     }
 }
 
-impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
-    fn verify(&self, msg: &'a [u8], signature: &Ed25519Signature) -> Result<(), Error> {
+impl Verifier<Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ring::signature::ED25519,
             untrusted::Input::from(self.0.as_bytes()),

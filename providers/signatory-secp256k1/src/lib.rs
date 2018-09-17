@@ -20,7 +20,7 @@ use signatory::{
     curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey},
     digest::Digest,
     generic_array::typenum::U32,
-    Error, PublicKeyed, Signature, Signer, Verifier,
+    DigestSigner, DigestVerifier, Error, PublicKeyed, Signature,
 };
 
 lazy_static! {
@@ -67,7 +67,7 @@ impl PublicKeyed<PublicKey> for EcdsaSigner {
     }
 }
 
-impl<D> Signer<D, Asn1Signature> for EcdsaSigner
+impl<D> DigestSigner<D, Asn1Signature> for EcdsaSigner
 where
     D: Digest<OutputSize = U32> + Default,
 {
@@ -79,7 +79,7 @@ where
     }
 }
 
-impl<D> Signer<D, FixedSignature> for EcdsaSigner
+impl<D> DigestSigner<D, FixedSignature> for EcdsaSigner
 where
     D: Digest<OutputSize = U32> + Default,
 {
@@ -104,7 +104,7 @@ impl<'a> From<&'a PublicKey> for EcdsaVerifier {
     }
 }
 
-impl<D> Verifier<D, Asn1Signature> for EcdsaVerifier
+impl<D> DigestVerifier<D, Asn1Signature> for EcdsaVerifier
 where
     D: Digest<OutputSize = U32> + Default,
 {
@@ -121,7 +121,7 @@ where
     }
 }
 
-impl<D> Verifier<D, FixedSignature> for EcdsaVerifier
+impl<D> DigestVerifier<D, FixedSignature> for EcdsaVerifier
 where
     D: Digest<OutputSize = U32> + Default,
 {
