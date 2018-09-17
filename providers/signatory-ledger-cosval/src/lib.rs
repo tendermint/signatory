@@ -60,9 +60,9 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519CosmosAppSigner {
     }
 }
 
-impl Signer<Vec<u8>, Ed25519Signature> for Ed25519CosmosAppSigner {
+impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519CosmosAppSigner {
     /// c: Compute a compact, fixed-sized signature of the given amino/json vote
-    fn sign(&self, msg: Vec<u8>) -> Result<Ed25519Signature, Error> {
+    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
         let app = self.app.lock().unwrap();
 
         match app.sign(&msg) {
@@ -94,6 +94,6 @@ mod tests {
 
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
         let some_message1 = b"{\"height\":1,\"other\":\"Some dummy data\",\"round\":0}";
-        let _sig = signer.sign(some_message1.to_vec() ).unwrap();
+        let _sig = signer.sign(some_message1 ).unwrap();
     }
 }
