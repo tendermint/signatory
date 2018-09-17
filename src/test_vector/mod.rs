@@ -1,5 +1,6 @@
 //! Test vector structure for signatures
 
+#[cfg(feature = "alloc")]
 mod pkcs8;
 
 /// Signature test vector
