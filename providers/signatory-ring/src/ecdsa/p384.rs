@@ -19,25 +19,19 @@ use untrusted;
 use super::signer::EcdsaSigner;
 
 /// NIST P-384 ECDSA signer
-pub struct P384Signer<S: EcdsaSignature>(EcdsaSigner<NistP384, S>);
+pub type P384Signer<S> = EcdsaSigner<NistP384, S>;
 
 impl FromPkcs8 for P384Signer<Asn1Signature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P384Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P384_SHA384_ASN1_SIGNING,
-            pkcs8_bytes,
-        )?))
+        Self::new(&ECDSA_P384_SHA384_ASN1_SIGNING, pkcs8_bytes)
     }
 }
 
 impl FromPkcs8 for P384Signer<FixedSignature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P384Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P384_SHA384_FIXED_SIGNING,
-            pkcs8_bytes,
-        )?))
+        Self::new(&ECDSA_P384_SHA384_FIXED_SIGNING, pkcs8_bytes)
     }
 }
 
@@ -47,19 +41,19 @@ where
 {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<EcdsaPublicKey<NistP384>, Error> {
-        Ok(self.0.public_key())
+        Ok(self.public_key.clone())
     }
 }
 
 impl Sha384Signer<Asn1Signature<NistP384>> for P384Signer<Asn1Signature<NistP384>> {
     fn sign_sha384(&self, msg: &[u8]) -> Result<Asn1Signature<NistP384>, Error> {
-        self.0.sign(msg)
+        self.sign(msg)
     }
 }
 
 impl Sha384Signer<FixedSignature<NistP384>> for P384Signer<FixedSignature<NistP384>> {
     fn sign_sha384(&self, msg: &[u8]) -> Result<FixedSignature<NistP384>, Error> {
-        self.0.sign(msg)
+        self.sign(msg)
     }
 }
 

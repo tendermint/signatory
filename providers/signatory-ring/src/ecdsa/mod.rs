@@ -4,5 +4,4 @@ mod p256;
 mod p384;
 mod signer;
 
-pub use self::p256::{P256Signer, P256Verifier};
-pub use self::p384::{P384Signer, P384Verifier};
+pub use self::{p256::*, p384::*, signer::*};
