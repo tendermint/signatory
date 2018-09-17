@@ -46,8 +46,8 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
     }
 }
 
-impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
+impl Signer<Ed25519Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
         let signature = sodiumoxide_ed25519::sign_detached(msg, &self.secret_key);
         Ok(Ed25519Signature::from_bytes(&signature.0[..]).unwrap())
     }
@@ -63,8 +63,8 @@ impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
     }
 }
 
-impl<'a> Verifier<&'a [u8], Ed25519Signature> for Ed25519Verifier {
-    fn verify(&self, msg: &'a [u8], signature: &Ed25519Signature) -> Result<(), Error> {
+impl Verifier<Ed25519Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
         let sig = sodiumoxide_ed25519::Signature::from_slice(signature.as_ref()).unwrap();
         if sodiumoxide_ed25519::verify_detached(&sig, msg, &self.0) {
             Ok(())

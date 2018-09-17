@@ -1,27 +1,25 @@
 //! Prehash (a.k.a. "IUF") signing support using the `Digest` trait
 
-use digest::{generic_array::ArrayLength, Digest};
+use digest::Digest;
 
 use error::Error;
-use {Signature, Signer};
+use Signature;
 
-/// Marker trait for `Signer` types which take a prehashed `Digest` as input.
+/// Trait for signers which take a prehashed `Digest` as input.
 /// The `digest` cargo feature must be enabled for this to be available.
-pub trait DigestSigner<D, S>: Signer<D, S>
+pub trait DigestSigner<D, S>: Send + Sync
 where
-    D: Digest<OutputSize = Self::DigestSize>,
+    D: Digest,
     S: Signature,
 {
-    /// Size of the digest output this verifier supports
-    type DigestSize: ArrayLength<u8>;
+    /// Sign the output of the given digest with signer's private key,
+    /// returning a signature.
+    fn sign(&self, digest: D) -> Result<S, Error>;
 }
 
 /// Sign the given prehashed `Digest` with the given signer.
 /// This can be used to avoid importing the `DigestSigner` and `Signature` traits
-pub fn sign_digest<D, S>(
-    signer: &DigestSigner<D, S, DigestSize = D::OutputSize>,
-    digest: D,
-) -> Result<S, Error>
+pub fn sign_digest<D, S>(signer: &DigestSigner<D, S>, digest: D) -> Result<S, Error>
 where
     D: Digest,
     S: Signature,

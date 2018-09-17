@@ -16,7 +16,7 @@ use util::fmt_colon_delimited_hex;
 pub const PUBLIC_KEY_SIZE: usize = 32;
 
 /// Ed25519 public keys
-#[derive(Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Ed25519PublicKey(pub [u8; PUBLIC_KEY_SIZE]);
 
 impl Ed25519PublicKey {

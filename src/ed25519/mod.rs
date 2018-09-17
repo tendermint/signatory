@@ -28,8 +28,6 @@
 //! assert!(ed25519::verify(&verifier, msg.as_bytes(), &sig).is_ok());
 //! ```
 
-#[cfg(feature = "digest")]
-mod digest;
 mod public_key;
 mod seed;
 mod signature;
@@ -50,8 +48,8 @@ pub use self::{
 };
 use error::Error;
 use public_key::PublicKeyed;
-use signer::ByteSigner;
-use verifier::ByteVerifier;
+use signer::Signer;
+use verifier::Verifier;
 
 /// Get the public key for the given public keyed object (i.e. a `Signer`)
 pub fn public_key(keyed: &PublicKeyed<Ed25519PublicKey>) -> Result<Ed25519PublicKey, Error> {
@@ -60,16 +58,16 @@ pub fn public_key(keyed: &PublicKeyed<Ed25519PublicKey>) -> Result<Ed25519Public
 
 /// Sign the given message slice with the given Ed25519 signer
 #[inline]
-pub fn sign(signer: &ByteSigner<Ed25519Signature>, msg: &[u8]) -> Result<Ed25519Signature, Error> {
-    super::sign_bytes(signer, msg)
+pub fn sign(signer: &Signer<Ed25519Signature>, msg: &[u8]) -> Result<Ed25519Signature, Error> {
+    super::sign(signer, msg)
 }
 
 /// Verify the given message slice with the given Ed25519 verifier
 #[inline]
 pub fn verify(
-    verifier: &ByteVerifier<Ed25519Signature>,
+    verifier: &Verifier<Ed25519Signature>,
     msg: &[u8],
     sig: &Ed25519Signature,
 ) -> Result<(), Error> {
-    super::verify_bytes(verifier, msg, sig)
+    super::verify(verifier, msg, sig)
 }

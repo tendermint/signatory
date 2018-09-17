@@ -1,6 +1,5 @@
-//! Unified signing API for all Signatory providers
+//! Signing API for Signatory providers
 
-pub(crate) mod bytes;
 #[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
@@ -10,15 +9,21 @@ use Signature;
 
 #[cfg(feature = "digest")]
 pub use self::digest::*;
-pub use self::{bytes::*, sha2::*};
+pub use self::sha2::*;
 
-/// Common trait for all signature providers
-pub trait Signer<I, S: Signature>: Send + Sync {
-    /// Sign the given input (i.e. message or digest) with this signer's
-    /// private key, returning a signature.
-    ///
-    /// This trait should be implemented for the input type which is closest
-    /// to the provider's own API, i.e. if the provider's signing API is
-    /// designed to sign message digests, this should accept digests as input.
-    fn sign(&self, input: I) -> Result<S, Error>;
+/// Trait for all signers which accept a message (byte slice) and produce a
+/// signature of that message using this signer's private key.
+pub trait Signer<S: Signature>: Send + Sync {
+    /// Sign the given byte slice with this signer's private key, returning a
+    /// signature.
+    fn sign(&self, msg: &[u8]) -> Result<S, Error>;
+}
+
+/// Sign the given message slice with the given signer (alias for `sign_bytes`)
+#[inline]
+pub fn sign<S>(signer: &Signer<S>, msg: &[u8]) -> Result<S, Error>
+where
+    S: Signature,
+{
+    signer.sign(msg)
 }

@@ -61,7 +61,7 @@ where
     }
 }
 
-impl<'a, A> Signer<&'a [u8], Ed25519Signature> for Ed25519Signer<A>
+impl<A> Signer<Ed25519Signature> for Ed25519Signer<A>
 where
     A: yubihsm::Adapter,
 {

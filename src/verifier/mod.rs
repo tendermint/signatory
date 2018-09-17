@@ -1,8 +1,5 @@
-//! Unified verifier API for all Signatory providers
+//! Verifier API for Signatory providers
 
-use core::fmt::Debug;
-
-pub(crate) mod bytes;
 #[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
@@ -12,14 +9,20 @@ use Signature;
 
 #[cfg(feature = "digest")]
 pub use self::digest::*;
-pub use self::{bytes::*, sha2::*};
+pub use self::sha2::*;
 
-/// Common trait for all signature verification providers
-pub trait Verifier<I, S: Signature>: Debug + Send + Sync {
-    /// Verify the signature against the given input (message or digest)
+/// Trait for all verifiers which accept a message (byte slice) and signature
+pub trait Verifier<S: Signature>: Send + Sync {
+    /// Verify the signature against the given message byte slice
     /// using the public key this verifier was instantiated with.
-    ///
-    /// This trait should be implemented for the input type which is closest
-    /// to the provider's own API.
-    fn verify(&self, input: I, signature: &S) -> Result<(), Error>;
+    fn verify(&self, msg: &[u8], signature: &S) -> Result<(), Error>;
+}
+
+/// Verify the given message slice with the given verifier (alias for `verify_bytes`)
+#[inline]
+pub fn verify<S>(verifier: &Verifier<S>, msg: &[u8], sig: &S) -> Result<(), Error>
+where
+    S: Signature,
+{
+    verifier.verify(msg, sig)
 }
