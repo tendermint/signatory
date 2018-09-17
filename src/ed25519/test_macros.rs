@@ -4,19 +4,16 @@
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
         use $crate::{
-            ed25519::{
-                self, Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, SIGNATURE_SIZE,
-                TEST_VECTORS,
-            },
+            ed25519::{self, SIGNATURE_SIZE, TEST_VECTORS},
             error::ErrorKind,
-            Signature,
+            Ed25519PublicKey, Ed25519Seed, Ed25519Signature, Signature,
         };
 
         #[test]
         fn sign_rfc8032_test_vectors() {
             for vector in TEST_VECTORS {
-                let seed = Seed::from_bytes(vector.sk).unwrap();
-                let signer = $signer::from_seed(seed);
+                let seed = Ed25519Seed::from_bytes(vector.sk).unwrap();
+                let signer = $signer::from(&seed);
                 assert_eq!(
                     ed25519::sign(&signer, vector.msg).unwrap().as_ref(),
                     vector.sig

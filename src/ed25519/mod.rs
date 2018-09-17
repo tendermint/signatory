@@ -43,7 +43,7 @@ mod test_vectors;
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::{
     public_key::{Ed25519PublicKey, PUBLIC_KEY_SIZE},
-    seed::{FromSeed, Seed, SEED_SIZE},
+    seed::{Seed, SEED_SIZE},
     signature::{Ed25519Signature, SIGNATURE_SIZE},
 };
 use error::Error;

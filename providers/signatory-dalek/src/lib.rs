@@ -21,18 +21,18 @@ use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
 use signatory::{
-    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
-    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
+    DigestSigner, DigestVerifier, Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed,
+    Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);
 
-impl FromSeed for Ed25519Signer {
+impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
     /// Create a new DalekSigner from an unexpanded seed value
-    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+    fn from(seed: &'a Ed25519Seed) -> Self {
         Ed25519Signer(keypair_from_seed(seed))
     }
 }
@@ -53,9 +53,9 @@ impl Signer<Ed25519Signature> for Ed25519Signer {
 /// Ed25519ph (i.e. pre-hashed) signature provider for ed25519-dalek
 pub struct Ed25519PhSigner(Keypair);
 
-impl FromSeed for Ed25519PhSigner {
+impl<'a> From<&'a Ed25519Seed> for Ed25519PhSigner {
     /// Create a new DalekSigner from an unexpanded seed value
-    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+    fn from(seed: &'a Ed25519Seed) -> Self {
         Ed25519PhSigner(keypair_from_seed(seed))
     }
 }
@@ -66,7 +66,7 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519PhSigner {
     }
 }
 
-// TODO: test vectors!
+// TODO: tests!
 impl<D> DigestSigner<D, Ed25519Signature> for Ed25519PhSigner
 where
     D: Digest<OutputSize = U64> + Default,
@@ -112,7 +112,7 @@ impl<'a> From<&'a Ed25519PublicKey> for Ed25519PhVerifier {
     }
 }
 
-// TODO: test vectors!
+// TODO: tests!
 impl<D> DigestVerifier<D, Ed25519Signature> for Ed25519PhVerifier
 where
     D: Digest<OutputSize = U64> + Default,
@@ -128,8 +128,8 @@ where
 }
 
 /// Convert a Signatory seed into a Dalek keypair
-fn keypair_from_seed<S: Into<Seed>>(seed: S) -> Keypair {
-    let secret = SecretKey::from_bytes(&seed.into().as_secret_slice()).unwrap();
+fn keypair_from_seed(seed: &Ed25519Seed) -> Keypair {
+    let secret = SecretKey::from_bytes(seed.as_secret_slice()).unwrap();
     let public = ed25519_dalek::PublicKey::from_secret::<Sha512>(&secret);
     Keypair { secret, public }
 }
