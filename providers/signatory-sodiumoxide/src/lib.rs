@@ -15,9 +15,8 @@ extern crate signatory;
 extern crate sodiumoxide;
 
 use signatory::{
-    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     error::{Error, ErrorKind},
-    PublicKeyed, Signature, Signer, Verifier,
+    Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed, Signature, Signer, Verifier,
 };
 use sodiumoxide::crypto::sign::ed25519::{self as sodiumoxide_ed25519, SecretKey};
 
@@ -27,10 +26,11 @@ pub struct Ed25519Signer {
     public_key: Ed25519PublicKey,
 }
 
-impl FromSeed for Ed25519Signer {
+impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
     /// Create a new SodiumOxideSigner from an unexpanded seed value
-    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
-        let sodiumoxide_seed = sodiumoxide_ed25519::Seed::from_slice(&seed.into().0[..]).unwrap();
+    fn from(seed: &'a Ed25519Seed) -> Self {
+        let sodiumoxide_seed =
+            sodiumoxide_ed25519::Seed::from_slice(seed.as_secret_slice()).unwrap();
         let (public_key, secret_key) = sodiumoxide_ed25519::keypair_from_seed(&sodiumoxide_seed);
 
         Self {

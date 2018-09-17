@@ -5,20 +5,19 @@ use ring::signature::Ed25519KeyPair;
 use untrusted;
 
 use signatory::{
-    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed},
     encoding::FromPkcs8,
     error::{Error, ErrorKind},
-    PublicKeyed, Signature, Signer, Verifier,
+    Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for *ring*
 pub struct Ed25519Signer(Ed25519KeyPair);
 
-impl FromSeed for Ed25519Signer {
+impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
     /// Create a new Ed25519Signer from an unexpanded seed value
-    fn from_seed<S: Into<Seed>>(seed: S) -> Self {
+    fn from(seed: &'a Ed25519Seed) -> Self {
         let keypair =
-            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(&seed.into().0[..]))
+            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed.as_secret_slice()))
                 .unwrap();
 
         Ed25519Signer(keypair)

@@ -10,7 +10,7 @@ extern crate signatory_dalek;
 
 use criterion::Criterion;
 use signatory::{
-    ed25519::{Ed25519PublicKey, Ed25519Signature, FromSeed, Seed, TEST_VECTORS},
+    ed25519::{Ed25519PublicKey, Ed25519Signature, Seed, TEST_VECTORS},
     test_vector::TestVector,
     Signature, Verifier,
 };
@@ -20,7 +20,7 @@ use signatory_dalek::{Ed25519Signer, Ed25519Verifier};
 const TEST_VECTOR: &TestVector = &TEST_VECTORS[4];
 
 fn sign_ed25519(c: &mut Criterion) {
-    let signer = Ed25519Signer::from_seed(Seed::from_bytes(TEST_VECTOR.sk).unwrap());
+    let signer = Ed25519Signer::from(&Seed::from_bytes(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("dalek: Ed25519 signer", move |b| {
         b.iter(|| signatory::sign(&signer, TEST_VECTOR.msg).unwrap())
