@@ -60,9 +60,9 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519CosmosAppSigner {
     }
 }
 
-impl<'a> Signer<&'a [u8], Ed25519Signature> for Ed25519CosmosAppSigner {
+impl Signer<Ed25519Signature> for Ed25519CosmosAppSigner {
     /// c: Compute a compact, fixed-sized signature of the given amino/json vote
-    fn sign(&self, msg: &'a [u8]) -> Result<Ed25519Signature, Error> {
+    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
         let app = self.app.lock().unwrap();
 
         match app.sign(&msg) {
