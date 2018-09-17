@@ -48,7 +48,7 @@ own respective crates:
 |-----------------------|----------------|------|-------|-------|-----------|
 | [signatory-ring]      | [ring]         | Soft | ✅    | ✅    | ⛔        |
 | [signatory-secp256k1] | [secp256k1-rs] | Soft | ⛔    | ⛔    | ✅        |
-| [signatory-yubihsm]   | [yubihsm-rs]   | Hard | ✅    | ⛔    | ✅        |
+| [signatory-yubihsm]   | [yubihsm-rs]   | Hard | ✅    | ✅    | ✅        |
 
 ### Ed25519 providers
 
@@ -69,7 +69,7 @@ Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.3
 
 ## License
 
-Signatory is distributed under the terms of both the MIT license and the
-Apache License (Version 2.0).
+**Signatory** is distributed under the terms of either the MIT license or the
+Apache License (Version 2.0), at your option.
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.

@@ -10,10 +10,13 @@ use signatory::curve::Secp256k1;
 #[cfg(feature = "mockhsm")]
 use signatory::Sha256Signer;
 use signatory::{
-    curve::{NistP256, WeierstrassCurve, WeierstrassCurveKind},
+    curve::{NistP256, NistP384, WeierstrassCurve, WeierstrassCurveKind},
     ecdsa::{Asn1Signature, EcdsaPublicKey, FixedSignature},
     error::Error,
-    generic_array::{typenum::U32, GenericArray},
+    generic_array::{
+        typenum::{U32, U48},
+        GenericArray,
+    },
     Digest, PublicKeyed, Signature, Signer,
 };
 use std::{
@@ -69,8 +72,10 @@ where
 
     /// Get the expected `yubihsm::AsymmetricAlg` for this `Curve`
     fn asymmetric_algorithm() -> Option<yubihsm::AsymmetricAlg> {
+        #[allow(unreachable_patterns)]
         match C::CURVE_KIND {
             WeierstrassCurveKind::NistP256 => Some(yubihsm::AsymmetricAlg::EC_P256),
+            WeierstrassCurveKind::NistP384 => Some(yubihsm::AsymmetricAlg::EC_P384),
             WeierstrassCurveKind::Secp256k1 => Some(yubihsm::AsymmetricAlg::EC_K256),
             _ => None,
         }
@@ -109,18 +114,7 @@ impl<D> Signer<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::HttpAdapter,
 where
     D: Digest<OutputSize = U32> + Default,
 {
-    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given 32-byte SHA-256 digest
-    fn sign(&self, digest: D) -> Result<Asn1Signature<NistP256>, Error> {
-        self.sign_nistp256_asn1(digest)
-    }
-}
-
-#[cfg(feature = "usb")]
-impl<D> Signer<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
-where
-    D: Digest<OutputSize = U32> + Default,
-{
-    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<Asn1Signature<NistP256>, Error> {
         self.sign_nistp256_asn1(digest)
     }
@@ -131,7 +125,7 @@ impl<D> Signer<D, FixedSignature<NistP256>> for EcdsaSigner<yubihsm::HttpAdapter
 where
     D: Digest<OutputSize = U32> + Default,
 {
-    /// Compute a fixed-sized P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    /// Compute a fixed-sized P-256 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<FixedSignature<NistP256>, Error> {
         Ok(FixedSignature::from(&self.sign_nistp256_asn1(digest)?))
     }
@@ -142,9 +136,64 @@ impl<D> Signer<D, FixedSignature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter,
 where
     D: Digest<OutputSize = U32> + Default,
 {
-    /// Compute a fixed-sized P-256 ECDSA signature of the given 32-byte SHA-256 digest
+    /// Compute a fixed-sized P-256 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<FixedSignature<NistP256>, Error> {
         Ok(FixedSignature::from(&self.sign_nistp256_asn1(digest)?))
+    }
+}
+
+#[cfg(feature = "usb")]
+impl<D> Signer<D, Asn1Signature<NistP256>> for EcdsaSigner<yubihsm::UsbAdapter, NistP256>
+where
+    D: Digest<OutputSize = U32> + Default,
+{
+    /// Compute an ASN.1 DER-encoded P-256 ECDSA signature of the given digest
+    fn sign(&self, digest: D) -> Result<Asn1Signature<NistP256>, Error> {
+        self.sign_nistp256_asn1(digest)
+    }
+}
+
+#[cfg(feature = "http")]
+impl<D> Signer<D, Asn1Signature<NistP384>> for EcdsaSigner<yubihsm::HttpAdapter, NistP384>
+where
+    D: Digest<OutputSize = U48> + Default,
+{
+    /// Compute an ASN.1 DER-encoded P-384 ECDSA signature of the given digest
+    fn sign(&self, digest: D) -> Result<Asn1Signature<NistP384>, Error> {
+        self.sign_nistp384_asn1(digest)
+    }
+}
+
+#[cfg(feature = "http")]
+impl<D> Signer<D, FixedSignature<NistP384>> for EcdsaSigner<yubihsm::HttpAdapter, NistP384>
+where
+    D: Digest<OutputSize = U48> + Default,
+{
+    /// Compute a fixed-sized P-384 ECDSA signature of the given digest
+    fn sign(&self, digest: D) -> Result<FixedSignature<NistP384>, Error> {
+        Ok(FixedSignature::from(&self.sign_nistp384_asn1(digest)?))
+    }
+}
+
+#[cfg(feature = "usb")]
+impl<D> Signer<D, FixedSignature<NistP384>> for EcdsaSigner<yubihsm::UsbAdapter, NistP384>
+where
+    D: Digest<OutputSize = U48> + Default,
+{
+    /// Compute a fixed-sized P-384 ECDSA signature of the given digest
+    fn sign(&self, digest: D) -> Result<FixedSignature<NistP384>, Error> {
+        Ok(FixedSignature::from(&self.sign_nistp384_asn1(digest)?))
+    }
+}
+
+#[cfg(feature = "usb")]
+impl<D> Signer<D, Asn1Signature<NistP384>> for EcdsaSigner<yubihsm::UsbAdapter, NistP384>
+where
+    D: Digest<OutputSize = U48> + Default,
+{
+    /// Compute an ASN.1 DER-encoded P-384 ECDSA signature of the given digest
+    fn sign(&self, digest: D) -> Result<Asn1Signature<NistP384>, Error> {
+        self.sign_nistp384_asn1(digest)
     }
 }
 
@@ -154,7 +203,7 @@ where
     A: yubihsm::Adapter,
     D: Digest<OutputSize = U32> + Default,
 {
-    /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
+    /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<Asn1Signature<Secp256k1>, Error> {
         let asn1_sig = self
             .sign_secp256k1(digest)?
@@ -170,7 +219,7 @@ where
     A: yubihsm::Adapter,
     D: Digest<OutputSize = U32> + Default,
 {
-    /// Compute a fixed-size secp256k1 ECDSA signature of the given 32-byte SHA-256 digest
+    /// Compute a fixed-size secp256k1 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<FixedSignature<Secp256k1>, Error> {
         let fixed_sig = GenericArray::clone_from_slice(
             &self
@@ -190,6 +239,27 @@ where
     fn sign_nistp256_asn1<D>(&self, digest: D) -> Result<Asn1Signature<NistP256>, Error>
     where
         D: Digest<OutputSize = U32> + Default,
+    {
+        let mut session = self.session.lock().unwrap();
+
+        let signature = yubihsm::sign_ecdsa_raw_digest(
+            &mut session,
+            self.signing_key_id,
+            digest.result().as_slice(),
+        ).map_err(|e| err!(ProviderError, "{}", e))?;
+
+        Asn1Signature::from_bytes(signature)
+    }
+}
+
+impl<A> EcdsaSigner<A, NistP384>
+where
+    A: yubihsm::Adapter,
+{
+    /// Compute an ASN.1 DER signature over P-384
+    fn sign_nistp384_asn1<D>(&self, digest: D) -> Result<Asn1Signature<NistP384>, Error>
+    where
+        D: Digest<OutputSize = U48> + Default,
     {
         let mut session = self.session.lock().unwrap();
 
@@ -252,14 +322,6 @@ impl Sha256Signer<Asn1Signature<NistP256>> for EcdsaSigner<MockAdapter, NistP256
 
 #[cfg(test)]
 mod tests {
-    extern crate signatory_ring;
-    use self::signatory_ring::ecdsa::P256Verifier;
-
-    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
-    extern crate signatory_secp256k1;
-    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
-    use self::signatory_secp256k1::EcdsaVerifier as Secp256k1Verifier;
-
     use std::marker::PhantomData;
     use std::sync::{Arc, Mutex};
     use yubihsm;
@@ -275,8 +337,16 @@ mod tests {
         self,
         curve::{NistP256, WeierstrassCurve},
         ecdsa::Asn1Signature,
-        PublicKeyed, Sha256Verifier,
+        PublicKeyed,
     };
+
+    extern crate signatory_ring;
+    use self::signatory_ring::ecdsa;
+
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
+    extern crate signatory_secp256k1;
+    #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
+    use self::signatory_secp256k1::EcdsaVerifier as Secp256k1Verifier;
 
     /// Domain IDs for test key
     const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
@@ -350,8 +420,19 @@ mod tests {
         let signer = create_signer::<NistP256>(100);
         let signature: Asn1Signature<_> = signatory::sign_sha256(&signer, TEST_MESSAGE).unwrap();
 
-        let verifier = P256Verifier::from(&signer.public_key().unwrap());
-        assert!(verifier.verify_sha256(TEST_MESSAGE, &signature).is_ok());
+        let verifier = ecdsa::P256Verifier::from(&signer.public_key().unwrap());
+        assert!(signatory::verify_sha256(&verifier, TEST_MESSAGE, &signature).is_ok());
+    }
+
+    // Use *ring* to verify NIST P-384 ECDSA signatures
+    #[cfg(not(feature = "mockhsm"))]
+    #[test]
+    fn ecdsa_nistp384_sign_test() {
+        let signer = create_signer::<NistP384>(101);
+        let signature: Asn1Signature<_> = signatory::sign_sha384(&signer, TEST_MESSAGE).unwrap();
+
+        let verifier = ecdsa::P384Verifier::from(&signer.public_key().unwrap());
+        assert!(signatory::verify_sha384(&verifier, TEST_MESSAGE, &signature).is_ok());
     }
 
     // Use `secp256k1` crate to verify secp256k1 ECDSA signatures.
