@@ -1,4 +1,4 @@
-//! Generic wrapper for *ring*'s ECDSA signing functionality
+//! Generic *ring* ECDSA signer
 
 use core::marker::PhantomData;
 use ring::{
@@ -15,14 +15,14 @@ use signatory::{
 use untrusted;
 
 /// Generic ECDSA signer which is wrapped with curve and signature-specific types
-pub(super) struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
+pub struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
     /// *ring* ECDSA keypair
     keypair: KeyPair,
 
     /// ECDSA public key for this signer
     // *ring* does not presently keep a copy of this.
     // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
-    public_key: EcdsaPublicKey<C>,
+    pub(super) public_key: EcdsaPublicKey<C>,
 
     /// Cryptographically secure random number generator
     csrng: SystemRandom,
@@ -37,10 +37,7 @@ where
     S: EcdsaSignature,
 {
     /// Create an ECDSA signer and public key from a PKCS#8
-    pub(super) fn from_pkcs8(
-        alg: &'static SigningAlgorithm,
-        pkcs8_bytes: &[u8],
-    ) -> Result<Self, Error> {
+    pub(super) fn new(alg: &'static SigningAlgorithm, pkcs8_bytes: &[u8]) -> Result<Self, Error> {
         let keypair =
             ring::signature::key_pair_from_pkcs8(alg, untrusted::Input::from(pkcs8_bytes))
                 .map_err(|_| Error::from(ErrorKind::KeyInvalid))?;
@@ -63,11 +60,6 @@ where
             csrng,
             signature: PhantomData,
         })
-    }
-
-    /// ECDSA public key for this signer
-    pub(super) fn public_key(&self) -> EcdsaPublicKey<C> {
-        self.public_key.clone()
     }
 
     /// Sign a message, returning the signature

@@ -19,25 +19,19 @@ use untrusted;
 use super::signer::EcdsaSigner;
 
 /// NIST P-256 ECDSA signer
-pub struct P256Signer<S: EcdsaSignature>(EcdsaSigner<NistP256, S>);
+pub type P256Signer<S> = EcdsaSigner<NistP256, S>;
 
 impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P256Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P256_SHA256_ASN1_SIGNING,
-            pkcs8_bytes,
-        )?))
+        Self::new(&ECDSA_P256_SHA256_ASN1_SIGNING, pkcs8_bytes)
     }
 }
 
 impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Ok(P256Signer(EcdsaSigner::from_pkcs8(
-            &ECDSA_P256_SHA256_FIXED_SIGNING,
-            pkcs8_bytes,
-        )?))
+        Self::new(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8_bytes)
     }
 }
 
@@ -45,21 +39,20 @@ impl<S> PublicKeyed<EcdsaPublicKey<NistP256>> for P256Signer<S>
 where
     S: EcdsaSignature + Send + Sync,
 {
-    /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<EcdsaPublicKey<NistP256>, Error> {
-        Ok(self.0.public_key())
+        Ok(self.public_key.clone())
     }
 }
 
 impl Sha256Signer<Asn1Signature<NistP256>> for P256Signer<Asn1Signature<NistP256>> {
     fn sign_sha256(&self, msg: &[u8]) -> Result<Asn1Signature<NistP256>, Error> {
-        self.0.sign(msg)
+        self.sign(msg)
     }
 }
 
 impl Sha256Signer<FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP256>> {
     fn sign_sha256(&self, msg: &[u8]) -> Result<FixedSignature<NistP256>, Error> {
-        self.0.sign(msg)
+        self.sign(msg)
     }
 }
 
