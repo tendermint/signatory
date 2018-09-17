@@ -22,7 +22,6 @@ const P384_PKCS8_PUBKEY_PREFIX: &[u8] = b"\xa1\x64\x03\x62\x00\x04";
 
 impl TestVector {
     /// Serialize this test vector as a PKCS#8 document
-    #[cfg(all(feature = "alloc", feature = "test-vectors"))]
     pub fn to_pkcs8(&self) -> Vec<u8> {
         // TODO: better serializer than giant hardcoded bytestring literals, like a PKCS#8 library,
         // or at least a less bogus internal PKCS#8 implementation
