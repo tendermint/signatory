@@ -88,6 +88,8 @@ pub use digest::Digest;
 pub use ecdsa::{EcdsaPublicKey, EcdsaSignature};
 #[cfg(feature = "ed25519")]
 pub use ed25519::{Ed25519PublicKey, Ed25519Signature, Seed as Ed25519Seed};
+#[cfg(feature = "encoding")]
+pub use encoding::*;
 pub use error::{Error, ErrorKind};
 pub use public_key::{public_key, PublicKey, PublicKeyed};
 pub use signature::Signature;
