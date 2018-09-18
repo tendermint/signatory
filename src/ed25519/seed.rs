@@ -19,6 +19,7 @@ pub const SEED_SIZE: usize = 32;
 pub const KEYPAIR_SIZE: usize = 64;
 
 /// Ed25519 seeds: derivation secrets for Ed25519 private scalars/nonce prefixes
+#[derive(Clone)]
 pub struct Seed(pub [u8; SEED_SIZE]);
 
 impl Seed {
