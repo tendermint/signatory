@@ -58,7 +58,11 @@ impl fmt::Display for Error {
 #[cfg(feature = "std")]
 impl StdError for Error {
     fn description(&self) -> &str {
-        self.kind.as_str()
+        if let Some(ref desc) = self.description {
+            desc
+        } else {
+            self.kind.as_str()
+        }
     }
 }
 
