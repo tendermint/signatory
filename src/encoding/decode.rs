@@ -6,8 +6,8 @@ use std::{fs::File, io::Read, path::Path};
 use super::Encoding;
 use error::Error;
 
-/// Decode objects from encoded data (e.g. hex, Base64). Uses constant time
-/// encoder/decoder implementations designed to avoid leaking private keys.
+/// Decode keys/signatures from encoded data (e.g. hex, Base64).
+/// Uses constant time encoder/decoder implementations.
 pub trait Decode: Sized {
     /// Decode the given byte slice using the provided `Encoding`, returning
     /// the decoded value or a `Error`.
