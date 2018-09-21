@@ -19,7 +19,7 @@ extern crate lazy_static;
 #[cfg(feature = "secp256k1")]
 extern crate secp256k1;
 extern crate signatory;
-extern crate yubihsm;
+pub extern crate yubihsm;
 
 use std::sync::{Arc, Mutex};
 
