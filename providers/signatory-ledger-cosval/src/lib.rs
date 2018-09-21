@@ -5,28 +5,27 @@
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
-html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
-html_root_url = "https://docs.rs/signatory-ledger-cosval/0.0.1"
+    html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
+    html_root_url = "https://docs.rs/signatory-ledger-cosval/0.0.1"
 )]
 
-extern crate signatory;
 extern crate ledger_cosmos;
+extern crate signatory;
 
-use std::sync::Mutex;
 use std::sync::Arc;
+use std::sync::Mutex;
 
 use signatory::{
-    ed25519::Ed25519Signature,
     ed25519::Ed25519PublicKey,
+    ed25519::Ed25519Signature,
     error::{Error, ErrorKind},
-    PublicKeyed,
-    Signer,
+    PublicKeyed, Signer,
 };
 
 /// ed25519 signature provider for the ledger cosmos validator app
 #[allow(dead_code)]
 pub struct Ed25519CosmosAppSigner {
-    app: Arc<Mutex<ledger_cosmos::CosmosValidatorApp>>
+    app: Arc<Mutex<ledger_cosmos::CosmosValidatorApp>>,
 }
 
 impl Ed25519CosmosAppSigner {
@@ -38,10 +37,8 @@ impl Ed25519CosmosAppSigner {
             Ok(validator_app) => {
                 let app = Arc::new(Mutex::new(validator_app));
                 Ok(Ed25519CosmosAppSigner { app })
-            },
-            Err(err) => Err(
-                Error::new(ErrorKind::ProviderError, Some(&err.to_string()))
-            )
+            }
+            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
         }
     }
 }
@@ -53,9 +50,7 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519CosmosAppSigner {
 
         match app.public_key() {
             Ok(pk) => Ok(Ed25519PublicKey(pk)),
-            Err(err) => Err(
-                Error::new(ErrorKind::ProviderError, Some(&err.to_string()))
-            )
+            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
         }
     }
 }
@@ -67,9 +62,7 @@ impl Signer<Ed25519Signature> for Ed25519CosmosAppSigner {
 
         match app.sign(&msg) {
             Ok(sig) => Ok(Ed25519Signature(sig)),
-            Err(err) => Err(
-                Error::new(ErrorKind::ProviderError, Some(&err.to_string()))
-            )
+            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
         }
     }
 }
@@ -80,8 +73,8 @@ mod tests {
 
     #[test]
     fn public_key() {
-        use Ed25519CosmosAppSigner;
         use signatory::PublicKeyed;
+        use Ed25519CosmosAppSigner;
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
 
         let _pk = signer.public_key().unwrap();
@@ -89,11 +82,11 @@ mod tests {
 
     #[test]
     fn sign() {
-        use Ed25519CosmosAppSigner;
         use signatory::Signer;
+        use Ed25519CosmosAppSigner;
 
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
         let some_message1 = b"{\"height\":1,\"other\":\"Some dummy data\",\"round\":0}";
-        let _sig = signer.sign(some_message1 ).unwrap();
+        let _sig = signer.sign(some_message1).unwrap();
     }
 }
