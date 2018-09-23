@@ -6,8 +6,8 @@ pub(crate) mod asn1;
 /// Fixed sized signatures
 pub(crate) mod fixed;
 
-/// `IntPair`: `r` and `s` integer pair of which ECDSA signatures are comprised
-pub(crate) mod pair;
+/// Signature `r` and `s` values parsed as `ScalarPair`
+pub(crate) mod scalars;
 
 use Signature;
 

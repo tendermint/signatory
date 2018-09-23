@@ -193,9 +193,6 @@ mod tests {
             let fixed_signature: FixedSignature =
                 signatory::sign_sha384(&signer, vector.msg).unwrap();
 
-            // Print this out in case it crashes
-            println!("fixed signature: {:?}", fixed_signature);
-
             let asn1_signature = Asn1Signature::from(&fixed_signature);
             let verifier = P384Verifier::from(&signer.public_key().unwrap());
             assert!(verifier.verify_sha384(vector.msg, &asn1_signature).is_ok());

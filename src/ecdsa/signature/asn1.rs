@@ -5,7 +5,7 @@ use core::marker::PhantomData;
 use generic_array::typenum::Unsigned;
 use generic_array::GenericArray;
 
-use super::{fixed::FixedSignature, pair::IntPair, EcdsaSignature};
+use super::{fixed::FixedSignature, scalars::ScalarPair, EcdsaSignature};
 use curve::WeierstrassCurve;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
@@ -34,7 +34,7 @@ impl<C> Signature for Asn1Signature<C>
 where
     C: WeierstrassCurve,
 {
-    /// Create an ASN.1 DER-encoded ECDSA signature from its serialized byte representation
+    /// Decode an ASN.1 DER-serialized ECDSA signature
     fn from_bytes<B>(bytes: B) -> Result<Self, Error>
     where
         B: AsRef<[u8]>,
@@ -60,7 +60,7 @@ where
         };
 
         // Ensure result is well-formed ASN.1 DER
-        IntPair::from_asn1_signature(&result)?;
+        ScalarPair::from_asn1_signature(&result)?;
 
         Ok(result)
     }
@@ -106,7 +106,7 @@ where
         };
 
         // Ensure result is well-formed ASN.1 DER
-        IntPair::from_asn1_signature(&result)?;
+        ScalarPair::from_asn1_signature(&result)?;
 
         Ok(result)
     }
@@ -131,7 +131,7 @@ where
     /// Parse `r` and `s` values from a fixed-width signature and reserialize
     /// them as ASN.1 DER.
     fn from(fixed_signature: &FixedSignature<C>) -> Self {
-        IntPair::from_fixed_signature(fixed_signature).to_asn1_signature()
+        ScalarPair::from_fixed_signature(fixed_signature).to_asn1_signature()
     }
 }
 
@@ -141,7 +141,7 @@ where
 {
     fn from(asn1_signature: &Asn1Signature<C>) -> FixedSignature<C> {
         // We always ensure `Asn1Signature`s parse successfully, so this should always work
-        IntPair::from_asn1_signature(asn1_signature)
+        ScalarPair::from_asn1_signature(asn1_signature)
             .unwrap()
             .to_fixed_signature()
     }
