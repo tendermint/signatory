@@ -27,7 +27,7 @@ impl WeierstrassCurve for Secp256k1 {
     type ScalarSize = U32;
 
     /// Size of a compressed elliptic curve point serialized using
-    /// `Octet-String-to-Elliptic-Curve-Point` encoding
+    /// `Elliptic-Curve-Point-to-Octet-String` encoding
     type CompressedPointSize = U33;
 
     /// Size of a raw uncompressed elliptic curve point sans the `0x04`
@@ -35,7 +35,7 @@ impl WeierstrassCurve for Secp256k1 {
     type UntaggedPointSize = U64;
 
     /// Size of a raw uncompressed elliptic curve point (i.e sans the `0x04`
-    /// tag added by `Octet-String-to-Elliptic-Curve-Point` encoding)
+    /// tag added by `Elliptic-Curve-Point-to-Octet-String` encoding)
     type UncompressedPointSize = U65;
 
     /// Maximum size of an ASN.1 DER encoded signature

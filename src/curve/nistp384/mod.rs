@@ -35,15 +35,16 @@ impl WeierstrassCurve for NistP384 {
     type ScalarSize = U48;
 
     /// Size of a compressed elliptic curve point serialized using
-    /// `Octet-String-to-Elliptic-Curve-Point` encoding
+    /// `Elliptic-Curve-Point-to-Octet-String` encoding
     type CompressedPointSize = U49;
 
     /// Size of a raw uncompressed elliptic curve point sans the `0x04`
     /// tag byte added in the `UncompressedPointSize` value.
     type UntaggedPointSize = U96;
 
-    /// Size of a raw uncompressed elliptic curve point (i.e sans the `0x04`
-    /// tag added by `Octet-String-to-Elliptic-Curve-Point` encoding)
+    /// Size of an uncompressed elliptic curve point serialized using
+    /// the `Elliptic-Curve-Point-to-Octet-String` encoding (including the
+    /// `0x04` tag)
     type UncompressedPointSize = U97;
 
     /// Maximum size of an ASN.1 DER encoded signature
