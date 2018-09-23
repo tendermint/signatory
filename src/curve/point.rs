@@ -1,6 +1,6 @@
 //! Compressed and uncompressed Weierstrass elliptic curve points serialized
-//! according to the `Octet-String-to-Elliptic-Curve-Point` algorithm described
-//! in SEC 1: Elliptic Curve Cryptography (Version 2.0) section 2.3.4 (page 11)
+//! according to the `Elliptic-Curve-Point-to-Octet-String` algorithm described
+//! in SEC 1: Elliptic Curve Cryptography (Version 2.0) section 2.3.3 (page 10)
 //!
 //! <http://www.secg.org/sec1-v2.pdf>
 
@@ -11,7 +11,7 @@ use super::WeierstrassCurve;
 use error::Error;
 
 /// Compressed elliptic curve points serialized according to the
-/// `Octet-String-to-Elliptic-Curve-Point` algorithm
+/// `Elliptic-Curve-Point-to-Octet-String` algorithm
 pub struct CompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the compressed point
     bytes: GenericArray<u8, C::CompressedPointSize>,
@@ -80,7 +80,7 @@ impl<C: WeierstrassCurve> PartialEq for CompressedCurvePoint<C> {
 }
 
 /// Uncompressed elliptic curve points serialized according to the
-/// `Octet-String-to-Elliptic-Curve-Point` algorithm, including the `0x04`
+/// `Elliptic-Curve-Point-to-Octet-String` algorithm, including the `0x04`
 /// tag identifying the bytestring as a curve point.
 pub struct UncompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the uncompressed point
