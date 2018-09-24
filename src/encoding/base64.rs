@@ -183,7 +183,6 @@ fn decode_6bits(src: u8) -> isize {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use prelude::*;
 
     /// Base64 test vectors
     struct Base64Vector {
@@ -236,10 +235,6 @@ mod tests {
         for vector in BASE64_TEST_VECTORS {
             // 5 is the size of the largest decoded test vector
             let mut out = [0u8; 5];
-            println!(
-                "decoding: {:?}",
-                String::from_utf8(vector.base64.to_vec()).unwrap()
-            );
             let out_len = decode(vector.base64, &mut out).unwrap();
             assert_eq!(vector.raw, &out[..out_len]);
         }

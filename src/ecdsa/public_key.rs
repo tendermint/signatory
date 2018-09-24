@@ -32,9 +32,9 @@ where
 {
     /// Create an ECDSA public key from an elliptic curve point
     /// (compressed or uncompressed) encoded using the
-    /// `Octet-String-to-Elliptic-Curve-Point` algorithm described in
+    /// `Elliptic-Curve-Point-to-Octet-String` algorithm described in
     /// SEC 1: Elliptic Curve Cryptography (Version 2.0) section
-    /// 2.3.4 (page 11).
+    /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
     pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
@@ -60,9 +60,9 @@ where
     }
 
     /// Create an ECDSA public key from an compressed elliptic curve point
-    /// encoded using the `Octet-String-to-Elliptic-Curve-Point` algorithm
+    /// encoded using the `Elliptic-Curve-Point-to-Octet-String` algorithm
     /// described in SEC 1: Elliptic Curve Cryptography (Version 2.0) section
-    /// 2.3.4 (page 11).
+    /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
     pub fn from_compressed_point<B>(into_bytes: B) -> Result<Self, Error>
@@ -77,7 +77,7 @@ where
     /// as a bytestring, without a `0x04`-byte tag.
     ///
     /// This will be twice the modulus size, or 1-byte smaller than the
-    /// `Octet-String-to-Elliptic-Curve-Point` encoding i.e
+    /// `Elliptic-Curve-Point-to-Octet-String` encoding i.e
     /// with the leading `0x04` byte in that encoding removed.
     pub fn from_untagged_point(bytes: &GenericArray<u8, C::UntaggedPointSize>) -> Self {
         let mut tagged_bytes = GenericArray::default();
@@ -126,9 +126,9 @@ where
     /// Decode an ECDSA public key from an elliptic curve point
     /// (compressed or uncompressed) encoded using given `Encoding`
     /// with the underlying bytes serialized using the
-    /// `Octet-String-to-Elliptic-Curve-Point` algorithm described in
+    /// `Elliptic-Curve-Point-to-Octet-String` algorithm described in
     /// SEC 1: Elliptic Curve Cryptography (Version 2.0) section
-    /// 2.3.4 (page 11).
+    /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
     fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
@@ -145,9 +145,9 @@ where
 {
     /// Encode this ECDSA public key (compressed or uncompressed) encoded
     /// using given `Encoding` with the underlying bytes serialized using the
-    /// `Octet-String-to-Elliptic-Curve-Point` algorithm described in
+    /// `Elliptic-Curve-Point-to-Octet-String` algorithm described in
     /// SEC 1: Elliptic Curve Cryptography (Version 2.0) section
-    /// 2.3.4 (page 11).
+    /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
     fn encode(&self, encoding: Encoding) -> Vec<u8> {

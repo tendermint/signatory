@@ -27,9 +27,10 @@ pub trait WeierstrassCurve:
     type ScalarSize: ArrayLength<u8>;
 
     /// Size of a compressed point for this curve in bytes when serialized
-    /// using `Octet-String-to-Elliptic-Curve-Point` encoding defined in
-    /// section 2.3.4 of SEC 1: Elliptic Curve Cryptography (Version 2.0).
-    /// <http://www.secg.org/sec2-v2.pdf>
+    /// using `Elliptic-Curve-Point-to-Octet-String` encoding defined in
+    /// section 2.3.3 of SEC 1: Elliptic Curve Cryptography (Version 2.0):
+    ///
+    /// <http://www.secg.org/sec1-v2.pdf>
     type CompressedPointSize: ArrayLength<u8>;
 
     /// Size of a raw uncompressed elliptic curve point sans the `0x04`
@@ -37,7 +38,7 @@ pub trait WeierstrassCurve:
     type UntaggedPointSize: ArrayLength<u8>;
 
     /// Size of an uncompressed elliptic curve point serialized using
-    /// the `Octet-String-to-Elliptic-Curve-Point` encoding (including the
+    /// the `Elliptic-Curve-Point-to-Octet-String` encoding (including the
     /// `0x04` tag)
     type UncompressedPointSize: ArrayLength<u8>;
 
