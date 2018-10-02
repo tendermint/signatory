@@ -2,6 +2,7 @@
 //! and nonce prefixes
 
 use clear_on_drop::clear::Clear;
+#[cfg(feature = "rand")]
 use rand::{CryptoRng, OsRng, RngCore};
 
 #[cfg(all(feature = "alloc", feature = "encoding"))]
@@ -30,12 +31,14 @@ impl Seed {
 
     /// Generate a new Ed25519 seed using the operating system's
     /// cryptographically secure random number generator
+    #[cfg(feature = "rand")]
     pub fn generate() -> Self {
         let mut csprng = OsRng::new().expect("RNG initialization failure!");
         Self::generate_from_rng::<OsRng>(&mut csprng)
     }
 
     /// Generate a new Ed25519 seed using the provided random number generator
+    #[cfg(feature = "rand")]
     pub fn generate_from_rng<R: CryptoRng + RngCore>(csprng: &mut R) -> Self {
         let mut bytes = [0u8; SEED_SIZE];
         csprng.fill_bytes(&mut bytes[..]);

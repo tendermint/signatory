@@ -7,10 +7,14 @@ use ring::{
         ECDSA_P256_SHA256_FIXED_SIGNING,
     },
 };
+#[cfg(feature = "std")]
+use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
+#[cfg(feature = "std")]
+use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
     curve::nistp256::NistP256,
     ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
-    encoding::FromPkcs8,
+    encoding::pkcs8::FromPkcs8,
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha256Signer, Sha256Verifier,
 };
@@ -23,15 +27,37 @@ pub type P256Signer<S> = EcdsaSigner<NistP256, S>;
 
 impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Self::new(&ECDSA_P256_SHA256_ASN1_SIGNING, pkcs8_bytes)
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Self::new(&ECDSA_P256_SHA256_ASN1_SIGNING, secret_key.as_ref())
     }
 }
 
 impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Self::new(&ECDSA_P256_SHA256_FIXED_SIGNING, pkcs8_bytes)
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Self::new(&ECDSA_P256_SHA256_FIXED_SIGNING, secret_key.as_ref())
+    }
+}
+
+#[cfg(feature = "std")]
+impl GeneratePkcs8 for P256Signer<Asn1Signature<NistP256>> {
+    /// Randomly generate a P-256 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            ECDSAKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_ASN1_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::SecretKey::new(keypair.as_ref())
+    }
+}
+
+#[cfg(feature = "std")]
+impl GeneratePkcs8 for P256Signer<FixedSignature<NistP256>> {
+    /// Randomly generate a P-256 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            ECDSAKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::SecretKey::new(keypair.as_ref())
     }
 }
 

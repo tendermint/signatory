@@ -10,7 +10,7 @@ extern crate signatory_secp256k1;
 
 use criterion::Criterion;
 use signatory::{
-    curve::secp256k1::{FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
+    curve::secp256k1::{FixedSignature, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS},
     ecdsa::EcdsaPublicKey,
     generic_array::GenericArray,
     test_vector::TestVector,
@@ -22,7 +22,7 @@ use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier};
 const TEST_VECTOR: &TestVector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
 fn sign_ecdsa(c: &mut Criterion) {
-    let signer = EcdsaSigner::from_bytes(TEST_VECTOR.sk).unwrap();
+    let signer = EcdsaSigner::from(&SecretKey::from_bytes(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("secp256k1: ECDSA signer", move |b| {
         b.iter(|| signatory::sign_sha256::<FixedSignature>(&signer, TEST_VECTOR.msg).unwrap())

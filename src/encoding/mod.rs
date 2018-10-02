@@ -13,7 +13,7 @@ mod decode;
 mod encode;
 mod hex;
 #[cfg(feature = "pkcs8")]
-mod pkcs8;
+pub mod pkcs8;
 
 pub use self::decode::Decode;
 #[cfg(feature = "alloc")]
@@ -24,6 +24,11 @@ pub use self::pkcs8::FromPkcs8;
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
+
+/// Mode to use for newly created files
+// TODO: make this configurable?
+#[cfg(unix)]
+pub const FILE_MODE: u32 = 0o600;
 
 /// Types of encodings natively supported by Signatory
 #[derive(Copy, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]

@@ -14,10 +14,8 @@ extern crate lazy_static;
 extern crate secp256k1;
 extern crate signatory;
 
-use secp256k1::{key::SecretKey, Message};
-
 use signatory::{
-    curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey},
+    curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
     digest::Digest,
     generic_array::typenum::U32,
     DigestSigner, DigestVerifier, Error, PublicKeyed, Signature,
@@ -47,15 +45,16 @@ macro_rules! fail {
 }
 
 /// ECDSA signature provider for the secp256k1 crate
-pub struct EcdsaSigner(SecretKey);
+pub struct EcdsaSigner(secp256k1::key::SecretKey);
 
-impl EcdsaSigner {
-    /// Create a new secp256k1 signer from the given private key
-    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
-        match SecretKey::from_slice(&SECP256K1_ENGINE, bytes) {
-            Ok(sk) => Ok(EcdsaSigner(sk)),
-            Err(e) => fail!(KeyInvalid, e),
-        }
+impl<'a> From<&'a SecretKey> for EcdsaSigner {
+    /// Create a new secp256k1 signer from the given `SecretKey`
+    fn from(secret_key: &'a SecretKey) -> EcdsaSigner {
+        let sk =
+            secp256k1::key::SecretKey::from_slice(&SECP256K1_ENGINE, secret_key.as_secret_slice())
+                .unwrap();
+
+        EcdsaSigner(sk)
     }
 }
 
@@ -73,7 +72,7 @@ where
 {
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: D) -> Result<Asn1Signature, Error> {
-        let m = Message::from_slice(digest.result().as_slice()).unwrap();
+        let m = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(Asn1Signature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap())
     }
@@ -85,7 +84,7 @@ where
 {
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: D) -> Result<FixedSignature, Error> {
-        let m = Message::from_slice(digest.result().as_slice()).unwrap();
+        let m = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
         let sig = SECP256K1_ENGINE.sign(&m, &self.0);
         Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
     }
@@ -114,7 +113,7 @@ where
 
         SECP256K1_ENGINE
             .verify(
-                &Message::from_slice(digest.result().as_slice()).unwrap(),
+                &secp256k1::Message::from_slice(digest.result().as_slice()).unwrap(),
                 &sig,
                 &self.0,
             ).map_err(|e| err!(SignatureInvalid, e))
@@ -131,7 +130,7 @@ where
 
         SECP256K1_ENGINE
             .verify(
-                &Message::from_slice(digest.result().as_slice()).unwrap(),
+                &secp256k1::Message::from_slice(digest.result().as_slice()).unwrap(),
                 &sig,
                 &self.0,
             ).map_err(|e| err!(SignatureInvalid, e))
@@ -145,7 +144,7 @@ mod tests {
     use signatory::{
         self,
         curve::secp256k1::{
-            Asn1Signature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
+            Asn1Signature, FixedSignature, PublicKey, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         PublicKeyed, Sha256Verifier, Signature,
     };
@@ -154,7 +153,7 @@ mod tests {
     pub fn asn1_signature_roundtrip() {
         let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
-        let signer = EcdsaSigner::from_bytes(vector.sk).unwrap();
+        let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
         let signature: Asn1Signature = signatory::sign_sha256(&signer, vector.msg).unwrap();
 
         let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
@@ -165,7 +164,7 @@ mod tests {
     pub fn rejects_tweaked_asn1_signature() {
         let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
-        let signer = EcdsaSigner::from_bytes(vector.sk).unwrap();
+        let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
         let signature: Asn1Signature = signatory::sign_sha256(&signer, vector.msg).unwrap();
         let mut tweaked_signature = signature.into_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
@@ -185,7 +184,7 @@ mod tests {
     #[test]
     pub fn fixed_signature_vectors() {
         for vector in SHA256_FIXED_SIZE_TEST_VECTORS {
-            let signer = EcdsaSigner::from_bytes(vector.sk).unwrap();
+            let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
             let public_key = PublicKey::from_bytes(vector.pk).unwrap();
             assert_eq!(signer.public_key().unwrap(), public_key);
 
@@ -202,7 +201,7 @@ mod tests {
     pub fn rejects_tweaked_fixed_signature() {
         let vector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
-        let signer = EcdsaSigner::from_bytes(vector.sk).unwrap();
+        let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
         let signature: FixedSignature = signatory::sign_sha256(&signer, vector.msg).unwrap();
         let mut tweaked_signature = signature.into_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;

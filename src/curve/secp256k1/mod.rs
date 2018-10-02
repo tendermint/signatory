@@ -46,6 +46,9 @@ impl WeierstrassCurve for Secp256k1 {
     type FixedSignatureSize = U64;
 }
 
+/// secp256k1 secret key
+pub type SecretKey = ::ecdsa::EcdsaSecretKey<Secp256k1>;
+
 /// secp256k1 public key
 pub type PublicKey = ::ecdsa::EcdsaPublicKey<Secp256k1>;
 
