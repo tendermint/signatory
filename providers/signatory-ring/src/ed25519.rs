@@ -29,8 +29,8 @@ impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
 
 impl FromPkcs8 for Ed25519Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
-    fn from_pkcs8<K: AsRef<[u8]>>(private_key: K) -> Result<Self, Error> {
-        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(private_key.as_ref()))
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(secret_key.as_ref()))
             .map_err(|_| Error::from(ErrorKind::KeyInvalid))?;
 
         Ok(Ed25519Signer(keypair))
@@ -40,9 +40,9 @@ impl FromPkcs8 for Ed25519Signer {
 #[cfg(feature = "std")]
 impl GeneratePkcs8 for Ed25519Signer {
     /// Randomly generate an Ed25519 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::PrivateKey, Error> {
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
         let keypair = Ed25519KeyPair::generate_pkcs8(&SystemRandom::new()).unwrap();
-        pkcs8::PrivateKey::new(keypair.as_ref())
+        pkcs8::SecretKey::new(keypair.as_ref())
     }
 }
 

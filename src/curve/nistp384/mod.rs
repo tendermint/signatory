@@ -56,6 +56,9 @@ impl WeierstrassCurve for NistP384 {
     type FixedSignatureSize = U96;
 }
 
+/// NIST P-256 secret key
+pub type SecretKey = ::ecdsa::EcdsaSecretKey<NistP384>;
+
 /// NIST P-384 public key
 pub type PublicKey = ::ecdsa::EcdsaPublicKey<NistP384>;
 

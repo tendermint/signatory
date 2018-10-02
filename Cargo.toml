@@ -23,9 +23,9 @@ sha2 = { version = "0.7", optional = true }
 
 [features]
 alloc = []
-default = ["pkcs8", "std", "test-vectors"]
+default = ["pkcs8", "rand", "std", "test-vectors"]
 ecdsa = ["generic-array"]
-ed25519 = ["clear_on_drop", "rand"]
+ed25519 = ["clear_on_drop"]
 encoding = ["clear_on_drop"]
 nightly = ["alloc", "clear_on_drop/nightly"]
 pkcs8 = ["encoding"]

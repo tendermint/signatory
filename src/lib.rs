@@ -85,7 +85,7 @@ mod verifier;
 #[cfg(feature = "digest")]
 pub use digest::Digest;
 #[cfg(feature = "ecdsa")]
-pub use ecdsa::{EcdsaPublicKey, EcdsaSignature};
+pub use ecdsa::{EcdsaPublicKey, EcdsaSecretKey, EcdsaSignature};
 #[cfg(feature = "ed25519")]
 pub use ed25519::{Ed25519PublicKey, Ed25519Signature, Seed as Ed25519Seed};
 #[cfg(feature = "encoding")]
