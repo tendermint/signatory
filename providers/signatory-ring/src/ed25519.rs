@@ -1,14 +1,17 @@
 //! Ed25519 signer and verifier implementation for *ring*
 
 use ring;
+#[cfg(feature = "std")]
+use ring::rand::SystemRandom;
 use ring::signature::Ed25519KeyPair;
-use untrusted;
-
+#[cfg(feature = "std")]
+use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
     encoding::FromPkcs8,
     error::{Error, ErrorKind},
     Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed, Signature, Signer, Verifier,
 };
+use untrusted;
 
 /// Ed25519 signature provider for *ring*
 pub struct Ed25519Signer(Ed25519KeyPair);
@@ -26,11 +29,20 @@ impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
 
 impl FromPkcs8 for Ed25519Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(pkcs8_bytes))
+    fn from_pkcs8<K: AsRef<[u8]>>(private_key: K) -> Result<Self, Error> {
+        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(private_key.as_ref()))
             .map_err(|_| Error::from(ErrorKind::KeyInvalid))?;
 
         Ok(Ed25519Signer(keypair))
+    }
+}
+
+#[cfg(feature = "std")]
+impl GeneratePkcs8 for Ed25519Signer {
+    /// Randomly generate an Ed25519 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::PrivateKey, Error> {
+        let keypair = Ed25519KeyPair::generate_pkcs8(&SystemRandom::new()).unwrap();
+        pkcs8::PrivateKey::new(keypair.as_ref())
     }
 }
 

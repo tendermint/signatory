@@ -4,14 +4,9 @@ use std::{fs::File, io::Write, path::Path};
 #[cfg(unix)]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 
-use super::Encoding;
+use super::{Encoding, FILE_MODE};
 use error::Error;
 use prelude::*;
-
-/// Mode to use for newly created files when using this trait
-// TODO: make this configurable?
-#[cfg(unix)]
-pub const FILE_MODE: u32 = 0o600;
 
 /// Serialize keys/signatures with the given encoding (e.g. hex, Base64).
 /// Uses constant time encoder/decoder implementations.
@@ -38,7 +33,8 @@ pub trait Encode: Sized {
         encoding: Encoding,
     ) -> Result<usize, Error> {
         let bytes = ClearOnDrop::new(self.encode(encoding));
-        Ok(writer.write(bytes.as_ref())?)
+        writer.write_all(bytes.as_ref())?;
+        Ok(bytes.len())
     }
 
     /// Encode `self` and write it to a file at the given path, returning the

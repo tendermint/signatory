@@ -7,6 +7,10 @@ use ring::{
         ECDSA_P384_SHA384_FIXED_SIGNING,
     },
 };
+#[cfg(feature = "std")]
+use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
+#[cfg(feature = "std")]
+use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
     curve::nistp384::NistP384,
     ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
@@ -23,15 +27,37 @@ pub type P384Signer<S> = EcdsaSigner<NistP384, S>;
 
 impl FromPkcs8 for P384Signer<Asn1Signature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Self::new(&ECDSA_P384_SHA384_ASN1_SIGNING, pkcs8_bytes)
+    fn from_pkcs8<K: AsRef<[u8]>>(private_key: K) -> Result<Self, Error> {
+        Self::new(&ECDSA_P384_SHA384_ASN1_SIGNING, private_key.as_ref())
     }
 }
 
 impl FromPkcs8 for P384Signer<FixedSignature<NistP384>> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8(pkcs8_bytes: &[u8]) -> Result<Self, Error> {
-        Self::new(&ECDSA_P384_SHA384_FIXED_SIGNING, pkcs8_bytes)
+    fn from_pkcs8<K: AsRef<[u8]>>(private_key: K) -> Result<Self, Error> {
+        Self::new(&ECDSA_P384_SHA384_FIXED_SIGNING, private_key.as_ref())
+    }
+}
+
+#[cfg(feature = "std")]
+impl GeneratePkcs8 for P384Signer<Asn1Signature<NistP384>> {
+    /// Randomly generate a P-384 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::PrivateKey, Error> {
+        let keypair =
+            ECDSAKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_ASN1_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::PrivateKey::new(keypair.as_ref())
+    }
+}
+
+#[cfg(feature = "std")]
+impl GeneratePkcs8 for P384Signer<FixedSignature<NistP384>> {
+    /// Randomly generate a P-384 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::PrivateKey, Error> {
+        let keypair =
+            ECDSAKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_FIXED_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::PrivateKey::new(keypair.as_ref())
     }
 }
 
