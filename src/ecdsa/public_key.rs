@@ -3,13 +3,15 @@
 
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
 use curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
 use curve::WeierstrassCurve;
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
@@ -131,9 +133,9 @@ where
     /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
-    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut array: GenericArray<u8, C::UncompressedPointSize> = GenericArray::default();
-        let decoded_len = encoding.decode(encoded_signature, array.as_mut_slice())?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
         Self::from_bytes(&array.as_ref()[..decoded_len])
     }
 }
@@ -150,8 +152,8 @@ where
     /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_ref())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_ref())
     }
 }
 

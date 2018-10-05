@@ -1,16 +1,18 @@
 //! Raw ECDSA secret keys: `x` value for ECDSA.
 
-use clear_on_drop::clear::Clear;
 use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
-#[cfg(feature = "rand")]
+#[cfg(all(feature = "rand", feature = "std"))]
 use rand::{CryptoRng, OsRng, RngCore};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
+use zeroize::secure_zero_memory;
 
 use curve::WeierstrassCurve;
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use prelude::*;
@@ -59,7 +61,7 @@ where
 
     /// Generate a new ECDSA secret key using the operating system's
     /// cryptographically secure random number generator
-    #[cfg(feature = "rand")]
+    #[cfg(all(feature = "rand", feature = "std"))]
     pub fn generate() -> Self {
         let mut csprng = OsRng::new().expect("RNG initialization failure!");
         Self::generate_from_rng::<OsRng>(&mut csprng)
@@ -95,9 +97,9 @@ where
     C: WeierstrassCurve,
 {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode(encoded_key: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut bytes = GenericArray::default();
-        let decoded_len = encoding.decode(encoded_key, &mut bytes)?;
+        let decoded_len = encoding.decode_to_slice(encoded_key, &mut bytes)?;
 
         ensure!(
             decoded_len == C::ScalarSize::to_usize(),
@@ -120,8 +122,8 @@ where
     C: WeierstrassCurve,
 {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_secret_slice())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_secret_slice())
     }
 }
 
@@ -130,6 +132,6 @@ where
     C: WeierstrassCurve,
 {
     fn drop(&mut self) {
-        self.bytes.clear()
+        secure_zero_memory(&mut self.bytes);
     }
 }

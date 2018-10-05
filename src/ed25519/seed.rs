@@ -1,14 +1,16 @@
 //! Ed25519 seeds: 32-bit uniformly random secret value used to derive scalars
 //! and nonce prefixes
 
-use clear_on_drop::clear::Clear;
-#[cfg(feature = "rand")]
+#[cfg(all(feature = "rand", feature = "std"))]
 use rand::{CryptoRng, OsRng, RngCore};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
+use zeroize::secure_zero_memory;
 
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
@@ -31,7 +33,7 @@ impl Seed {
 
     /// Generate a new Ed25519 seed using the operating system's
     /// cryptographically secure random number generator
-    #[cfg(feature = "rand")]
+    #[cfg(all(feature = "rand", feature = "std"))]
     pub fn generate() -> Self {
         let mut csprng = OsRng::new().expect("RNG initialization failure!");
         Self::generate_from_rng::<OsRng>(&mut csprng)
@@ -82,9 +84,12 @@ impl Seed {
 
     /// Decode a `Seed` from an encoded (hex or Base64) Ed25519 keypair
     #[cfg(feature = "encoding")]
-    pub fn decode_keypair(encoded_keypair: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    pub fn decode_keypair<E: Encoding>(
+        encoded_keypair: &[u8],
+        encoding: &E,
+    ) -> Result<Self, Error> {
         let mut decoded_keypair = [0u8; SEED_SIZE * 2];
-        let decoded_len = encoding.decode(encoded_keypair, &mut decoded_keypair)?;
+        let decoded_len = encoding.decode_to_slice(encoded_keypair, &mut decoded_keypair)?;
 
         ensure!(
             decoded_len == SEED_SIZE * 2,
@@ -104,9 +109,9 @@ impl Seed {
 #[cfg(feature = "encoding")]
 impl Decode for Seed {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode(encoded_seed: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_seed: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut decoded_seed = [0u8; SEED_SIZE];
-        let decoded_len = encoding.decode(encoded_seed, &mut decoded_seed)?;
+        let decoded_len = encoding.decode_to_slice(encoded_seed, &mut decoded_seed)?;
 
         ensure!(
             decoded_len == SEED_SIZE,
@@ -123,14 +128,14 @@ impl Decode for Seed {
 #[cfg(all(feature = "encoding", feature = "alloc"))]
 impl Encode for Seed {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_secret_slice())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_secret_slice())
     }
 }
 
 impl Drop for Seed {
     fn drop(&mut self) {
-        self.0.clear()
+        secure_zero_memory(&mut self.0);
     }
 }
 

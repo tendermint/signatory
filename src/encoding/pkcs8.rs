@@ -4,10 +4,6 @@
 //! [RFC 5208]: https://tools.ietf.org/html/rfc5208
 //! [RFC 5915]: https://tools.ietf.org/html/rfc5915
 
-#[cfg(all(unix, feature = "std"))]
-use super::FILE_MODE;
-#[cfg(feature = "std")]
-use clear_on_drop::clear::Clear;
 use error::Error;
 #[cfg(feature = "std")]
 use prelude::*;
@@ -17,6 +13,11 @@ use std::io::Write;
 use std::{fs::File, io::Read, path::Path};
 #[cfg(all(unix, feature = "std"))]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
+#[cfg(feature = "std")]
+use zeroize::secure_zero_memory;
+
+#[cfg(feature = "std")]
+use super::FILE_MODE;
 
 /// Load this type from a **PKCS#8** private key
 pub trait FromPkcs8: Sized {
@@ -32,7 +33,7 @@ pub trait FromPkcs8: Sized {
             .read_to_end(&mut bytes)
             .map_err(|e| err!(KeyInvalid, "error reading key: {}", e))?;
         let result = Self::from_pkcs8(&bytes);
-        bytes.as_mut_slice().clear();
+        secure_zero_memory(&mut bytes);
         result
     }
 

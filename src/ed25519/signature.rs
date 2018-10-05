@@ -1,11 +1,13 @@
 //! Ed25519 signatures
 
 use core::fmt::{self, Debug};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
@@ -56,9 +58,9 @@ impl Debug for Ed25519Signature {
 impl Decode for Ed25519Signature {
     /// Decode an Ed25519 signature from a byte slice with the given encoding
     /// (e.g. hex, Base64)
-    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut decoded_signature = [0u8; SIGNATURE_SIZE];
-        let decoded_len = encoding.decode(encoded_signature, &mut decoded_signature)?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, &mut decoded_signature)?;
 
         ensure!(
             decoded_len == SIGNATURE_SIZE,
@@ -75,8 +77,8 @@ impl Decode for Ed25519Signature {
 #[cfg(all(feature = "encoding", feature = "alloc"))]
 impl Encode for Ed25519Signature {
     /// Encode an Ed25519 signature with the given encoding (e.g. hex, Base64)
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_ref())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_ref())
     }
 }
 
