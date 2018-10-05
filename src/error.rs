@@ -3,13 +3,14 @@
 #![allow(unused_macros)]
 
 use core::fmt;
-
 #[cfg(feature = "std")]
 use std::{
     error::Error as StdError,
     io,
-    string::{String, ToString},
+    string::{FromUtf8Error, String, ToString},
 };
+#[cfg(feature = "encoding")]
+use subtle_encoding;
 
 /// Error type
 #[derive(Debug)]
@@ -167,8 +168,27 @@ macro_rules! ensure {
 }
 
 #[cfg(feature = "std")]
+impl From<FromUtf8Error> for Error {
+    fn from(err: FromUtf8Error) -> Self {
+        err!(ParseError, &err.to_string())
+    }
+}
+
+#[cfg(feature = "std")]
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         err!(Io, &err.to_string())
+    }
+}
+
+#[cfg(feature = "encoding")]
+impl From<subtle_encoding::Error> for Error {
+    fn from(err: subtle_encoding::Error) -> Self {
+        match err {
+            subtle_encoding::Error::EncodingInvalid => err!(ParseError, "invalid encoding"),
+            subtle_encoding::Error::LengthInvalid => err!(ParseError, "invalid length"),
+            #[cfg(feature = "std")]
+            subtle_encoding::Error::IoError => err!(Io, &err.to_string()),
+        }
     }
 }

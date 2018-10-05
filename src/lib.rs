@@ -50,8 +50,6 @@
 #[macro_use]
 extern crate std;
 
-#[cfg(any(feature = "encoding", feature = "ed25519"))]
-extern crate clear_on_drop;
 #[cfg(feature = "digest")]
 pub extern crate digest;
 #[cfg(feature = "generic-array")]
@@ -60,6 +58,10 @@ pub extern crate generic_array;
 extern crate rand;
 #[cfg(feature = "sha2")]
 extern crate sha2;
+#[cfg(feature = "encoding")]
+extern crate subtle_encoding;
+#[cfg(any(feature = "encoding", feature = "ed25519"))]
+extern crate zeroize;
 
 #[macro_use]
 pub mod error;

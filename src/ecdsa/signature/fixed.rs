@@ -2,15 +2,16 @@
 
 use core::fmt::{self, Debug};
 use core::marker::PhantomData;
-use generic_array::typenum::Unsigned;
-use generic_array::GenericArray;
+use generic_array::{typenum::Unsigned, GenericArray};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
 use super::EcdsaSignature;
 use curve::WeierstrassCurve;
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
@@ -85,9 +86,9 @@ where
 {
     /// Decode an ASN.1 encoded ECDSA signature from a byte slice with the
     /// given encoding (e.g. hex, Base64)
-    fn decode(encoded_signature: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut array = GenericArray::default();
-        let decoded_len = encoding.decode(encoded_signature, array.as_mut_slice())?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
 
         ensure!(
             decoded_len == C::FixedSignatureSize::to_usize(),
@@ -108,8 +109,8 @@ where
 {
     /// Encode an ASN.1 encoded ECDSA signature with the given encoding
     /// (e.g. hex, Base64)
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_ref())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_ref())
     }
 }
 

@@ -1,11 +1,13 @@
 //! Ed25519 public keys
 
 use core::fmt::{self, Debug};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
+#[cfg(feature = "encoding")]
+use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use encoding::Encode;
-#[cfg(feature = "encoding")]
-use encoding::{Decode, Encoding};
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
@@ -74,9 +76,9 @@ impl Debug for Ed25519PublicKey {
 #[cfg(feature = "encoding")]
 impl Decode for Ed25519PublicKey {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode(encoded_key: &[u8], encoding: Encoding) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut decoded_key = [0u8; PUBLIC_KEY_SIZE];
-        let decoded_len = encoding.decode(encoded_key, &mut decoded_key)?;
+        let decoded_len = encoding.decode_to_slice(encoded_key, &mut decoded_key)?;
 
         ensure!(
             decoded_len == PUBLIC_KEY_SIZE,
@@ -93,8 +95,8 @@ impl Decode for Ed25519PublicKey {
 #[cfg(all(feature = "encoding", feature = "alloc"))]
 impl Encode for Ed25519PublicKey {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
-    fn encode(&self, encoding: Encoding) -> Vec<u8> {
-        encoding.encode_vec(self.as_bytes())
+    fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
+        encoding.encode(self.as_bytes())
     }
 }
 
