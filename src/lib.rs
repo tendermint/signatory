@@ -67,8 +67,6 @@ extern crate zeroize;
 pub mod error;
 
 #[cfg(feature = "ecdsa")]
-pub mod curve;
-#[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
 #[macro_use]
@@ -87,7 +85,7 @@ mod verifier;
 #[cfg(feature = "digest")]
 pub use digest::Digest;
 #[cfg(feature = "ecdsa")]
-pub use ecdsa::{EcdsaPublicKey, EcdsaSecretKey, EcdsaSignature};
+pub use ecdsa::{curve, EcdsaPublicKey, EcdsaSecretKey, EcdsaSignature};
 #[cfg(feature = "ed25519")]
 pub use ed25519::{Ed25519PublicKey, Ed25519Signature, Seed as Ed25519Seed};
 #[cfg(feature = "encoding")]
