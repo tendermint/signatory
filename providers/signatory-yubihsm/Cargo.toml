@@ -16,7 +16,7 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 lazy_static = "1"
 secp256k1 = { version = "0.11", optional = true }
-yubihsm = { version = "0.17", default-features = false, features = ["passwords"] }
+yubihsm = { version = "0.18", default-features = false, features = ["passwords"] }
 
 [dependencies.signatory]
 version = "0.9.0-alpha3"
@@ -26,6 +26,7 @@ path = "../.."
 [dev-dependencies]
 signatory-ring = { version = "0.9.0-alpha3", path = "../signatory-ring" }
 signatory-secp256k1 = { version = "0.9.0-alpha3", path = "../signatory-secp256k1" }
+lazy_static = "1"
 
 [features]
 default = ["http", "ecdsa", "ed25519"]
