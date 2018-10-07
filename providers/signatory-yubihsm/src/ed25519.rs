@@ -4,7 +4,7 @@
 //! call the appropriate signer methods to obtain signers.
 
 use signatory::{
-    ed25519::{Ed25519PublicKey, Ed25519Signature},
+    ed25519,
     error::{Error, ErrorKind},
     PublicKeyed, Signature, Signer,
 };
@@ -37,8 +37,8 @@ impl Ed25519Signer {
     }
 }
 
-impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
-    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
+impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
+    fn public_key(&self) -> Result<ed25519::PublicKey, Error> {
         let mut hsm = self.hsm.lock().unwrap();
 
         let pubkey = hsm
@@ -49,18 +49,18 @@ impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
             return Err(ErrorKind::KeyInvalid.into());
         }
 
-        Ok(Ed25519PublicKey::from_bytes(pubkey.as_ref()).unwrap())
+        Ok(ed25519::PublicKey::from_bytes(pubkey.as_ref()).unwrap())
     }
 }
 
-impl Signer<Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
+impl Signer<ed25519::Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
         let mut hsm = self.hsm.lock().unwrap();
 
         let signature = hsm
             .sign_ed25519(self.signing_key_id.0, msg)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
-        Ok(Ed25519Signature::from_bytes(signature.as_ref()).unwrap())
+        Ok(ed25519::Signature::from_bytes(signature.as_ref()).unwrap())
     }
 }

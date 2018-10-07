@@ -13,7 +13,7 @@ use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
 use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
     curve::nistp256::NistP256,
-    ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
+    ecdsa::{Asn1Signature, FixedSignature, PublicKey, Signature},
     encoding::pkcs8::FromPkcs8,
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha256Signer, Sha256Verifier,
@@ -61,11 +61,11 @@ impl GeneratePkcs8 for P256Signer<FixedSignature<NistP256>> {
     }
 }
 
-impl<S> PublicKeyed<EcdsaPublicKey<NistP256>> for P256Signer<S>
+impl<S> PublicKeyed<PublicKey<NistP256>> for P256Signer<S>
 where
-    S: EcdsaSignature + Send + Sync,
+    S: Signature + Send + Sync,
 {
-    fn public_key(&self) -> Result<EcdsaPublicKey<NistP256>, Error> {
+    fn public_key(&self) -> Result<PublicKey<NistP256>, Error> {
         Ok(self.public_key.clone())
     }
 }
@@ -84,10 +84,10 @@ impl Sha256Signer<FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP2
 
 /// NIST P-256 ECDSA verifier
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct P256Verifier(EcdsaPublicKey<NistP256>);
+pub struct P256Verifier(PublicKey<NistP256>);
 
-impl<'a> From<&'a EcdsaPublicKey<NistP256>> for P256Verifier {
-    fn from(public_key: &'a EcdsaPublicKey<NistP256>) -> Self {
+impl<'a> From<&'a PublicKey<NistP256>> for P256Verifier {
+    fn from(public_key: &'a PublicKey<NistP256>) -> Self {
         P256Verifier(public_key.clone())
     }
 }

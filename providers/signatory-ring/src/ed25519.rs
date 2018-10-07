@@ -7,18 +7,19 @@ use ring::signature::Ed25519KeyPair;
 #[cfg(feature = "std")]
 use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
+    ed25519,
     encoding::FromPkcs8,
     error::{Error, ErrorKind},
-    Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed, Signature, Signer, Verifier,
+    PublicKeyed, Signature, Signer, Verifier,
 };
 use untrusted;
 
 /// Ed25519 signature provider for *ring*
 pub struct Ed25519Signer(Ed25519KeyPair);
 
-impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
+impl<'a> From<&'a ed25519::Seed> for Ed25519Signer {
     /// Create a new Ed25519Signer from an unexpanded seed value
-    fn from(seed: &'a Ed25519Seed) -> Self {
+    fn from(seed: &'a ed25519::Seed) -> Self {
         let keypair =
             Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed.as_secret_slice()))
                 .unwrap();
@@ -46,30 +47,30 @@ impl GeneratePkcs8 for Ed25519Signer {
     }
 }
 
-impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
-    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
-        Ok(Ed25519PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
+impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
+    fn public_key(&self) -> Result<ed25519::PublicKey, Error> {
+        Ok(ed25519::PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
     }
 }
 
-impl Signer<Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
-        Ok(Ed25519Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
+impl Signer<ed25519::Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
+        Ok(ed25519::Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
     }
 }
 
 /// Ed25519 verifier for *ring*
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Ed25519Verifier(Ed25519PublicKey);
+pub struct Ed25519Verifier(ed25519::PublicKey);
 
-impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
-    fn from(public_key: &'a Ed25519PublicKey) -> Self {
+impl<'a> From<&'a ed25519::PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a ed25519::PublicKey) -> Self {
         Ed25519Verifier(*public_key)
     }
 }
 
-impl Verifier<Ed25519Signature> for Ed25519Verifier {
-    fn verify(&self, msg: &[u8], signature: &Ed25519Signature) -> Result<(), Error> {
+impl Verifier<ed25519::Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &[u8], signature: &ed25519::Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ring::signature::ED25519,
             untrusted::Input::from(self.0.as_bytes()),

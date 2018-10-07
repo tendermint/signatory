@@ -8,21 +8,21 @@ use ring::{
 };
 use signatory::{
     curve::WeierstrassCurve,
-    ecdsa::{EcdsaPublicKey, EcdsaSignature},
+    ecdsa::{PublicKey, Signature},
     error::{Error, ErrorKind},
     generic_array::{typenum::Unsigned, GenericArray},
 };
 use untrusted;
 
 /// Generic ECDSA signer which is wrapped with curve and signature-specific types
-pub struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
+pub struct EcdsaSigner<C: WeierstrassCurve, S: Signature> {
     /// *ring* ECDSA keypair
     keypair: KeyPair,
 
     /// ECDSA public key for this signer
     // *ring* does not presently keep a copy of this.
     // See https://github.com/briansmith/ring/issues/672#issuecomment-404669397
-    pub(super) public_key: EcdsaPublicKey<C>,
+    pub(super) public_key: PublicKey<C>,
 
     /// Cryptographically secure random number generator
     csrng: SystemRandom,
@@ -34,7 +34,7 @@ pub struct EcdsaSigner<C: WeierstrassCurve, S: EcdsaSignature> {
 impl<C, S> EcdsaSigner<C, S>
 where
     C: WeierstrassCurve,
-    S: EcdsaSignature,
+    S: Signature,
 {
     /// Create an ECDSA signer and public key from a PKCS#8
     pub(super) fn new(alg: &'static SigningAlgorithm, pkcs8_bytes: &[u8]) -> Result<Self, Error> {
@@ -48,7 +48,7 @@ where
             .checked_sub(<C as WeierstrassCurve>::UntaggedPointSize::to_usize())
             .unwrap();
 
-        let public_key = EcdsaPublicKey::from_untagged_point(&GenericArray::from_slice(
+        let public_key = PublicKey::from_untagged_point(&GenericArray::from_slice(
             &pkcs8_bytes[pubkey_bytes_pos..],
         ));
 

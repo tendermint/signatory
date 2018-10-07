@@ -21,63 +21,62 @@ use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
 
 use signatory::{
+    ed25519,
     error::{Error, ErrorKind},
     generic_array::typenum::U64,
-    DigestSigner, DigestVerifier, Ed25519PublicKey, Ed25519Seed, Ed25519Signature, PublicKeyed,
-    Signature, Signer, Verifier,
+    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
 };
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);
 
-impl<'a> From<&'a Ed25519Seed> for Ed25519Signer {
+impl<'a> From<&'a ed25519::Seed> for Ed25519Signer {
     /// Create a new DalekSigner from an unexpanded seed value
-    fn from(seed: &'a Ed25519Seed) -> Self {
+    fn from(seed: &'a ed25519::Seed) -> Self {
         Ed25519Signer(keypair_from_seed(seed))
     }
 }
 
-impl PublicKeyed<Ed25519PublicKey> for Ed25519Signer {
-    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
-        Ok(Ed25519PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
+impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
+    fn public_key(&self) -> Result<ed25519::PublicKey, Error> {
+        Ok(ed25519::PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
     }
 }
 
-impl Signer<Ed25519Signature> for Ed25519Signer {
-    fn sign(&self, msg: &[u8]) -> Result<Ed25519Signature, Error> {
+impl Signer<ed25519::Signature> for Ed25519Signer {
+    fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
         let signature = self.0.sign::<Sha512>(msg).to_bytes();
-        Ok(Ed25519Signature::from_bytes(&signature[..]).unwrap())
+        Ok(Signature::from_bytes(&signature[..]).unwrap())
     }
 }
 
 /// Ed25519ph (i.e. pre-hashed) signature provider for ed25519-dalek
 pub struct Ed25519PhSigner(Keypair);
 
-impl<'a> From<&'a Ed25519Seed> for Ed25519PhSigner {
+impl<'a> From<&'a ed25519::Seed> for Ed25519PhSigner {
     /// Create a new DalekSigner from an unexpanded seed value
-    fn from(seed: &'a Ed25519Seed) -> Self {
+    fn from(seed: &'a ed25519::Seed) -> Self {
         Ed25519PhSigner(keypair_from_seed(seed))
     }
 }
 
-impl PublicKeyed<Ed25519PublicKey> for Ed25519PhSigner {
-    fn public_key(&self) -> Result<Ed25519PublicKey, Error> {
-        Ok(Ed25519PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
+impl PublicKeyed<ed25519::PublicKey> for Ed25519PhSigner {
+    fn public_key(&self) -> Result<ed25519::PublicKey, Error> {
+        Ok(ed25519::PublicKey::from_bytes(self.0.public.as_bytes()).unwrap())
     }
 }
 
 // TODO: tests!
-impl<D> DigestSigner<D, Ed25519Signature> for Ed25519PhSigner
+impl<D> DigestSigner<D, ed25519::Signature> for Ed25519PhSigner
 where
     D: Digest<OutputSize = U64> + Default,
 {
-    fn sign(&self, digest: D) -> Result<Ed25519Signature, Error> {
+    fn sign(&self, digest: D) -> Result<ed25519::Signature, Error> {
         // TODO: context support
         let context: Option<&'static [u8]> = None;
 
         let signature =
-            Ed25519Signature::from_bytes(&self.0.sign_prehashed(digest, context).to_bytes()[..])
-                .unwrap();
+            Signature::from_bytes(&self.0.sign_prehashed(digest, context).to_bytes()[..]).unwrap();
 
         Ok(signature)
     }
@@ -87,14 +86,14 @@ where
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Ed25519Verifier(ed25519_dalek::PublicKey);
 
-impl<'a> From<&'a Ed25519PublicKey> for Ed25519Verifier {
-    fn from(public_key: &'a Ed25519PublicKey) -> Self {
+impl<'a> From<&'a ed25519::PublicKey> for Ed25519Verifier {
+    fn from(public_key: &'a ed25519::PublicKey) -> Self {
         Ed25519Verifier(ed25519_dalek::PublicKey::from_bytes(public_key.as_ref()).unwrap())
     }
 }
 
-impl Verifier<Ed25519Signature> for Ed25519Verifier {
-    fn verify(&self, msg: &[u8], sig: &Ed25519Signature) -> Result<(), Error> {
+impl Verifier<ed25519::Signature> for Ed25519Verifier {
+    fn verify(&self, msg: &[u8], sig: &ed25519::Signature) -> Result<(), Error> {
         let dalek_sig = ed25519_dalek::Signature::from_bytes(sig.as_ref()).unwrap();
         self.0
             .verify::<Sha512>(msg, &dalek_sig)
@@ -106,18 +105,18 @@ impl Verifier<Ed25519Signature> for Ed25519Verifier {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Ed25519PhVerifier(ed25519_dalek::PublicKey);
 
-impl<'a> From<&'a Ed25519PublicKey> for Ed25519PhVerifier {
-    fn from(public_key: &'a Ed25519PublicKey) -> Self {
+impl<'a> From<&'a ed25519::PublicKey> for Ed25519PhVerifier {
+    fn from(public_key: &'a ed25519::PublicKey) -> Self {
         Ed25519PhVerifier(ed25519_dalek::PublicKey::from_bytes(public_key.as_ref()).unwrap())
     }
 }
 
 // TODO: tests!
-impl<D> DigestVerifier<D, Ed25519Signature> for Ed25519PhVerifier
+impl<D> DigestVerifier<D, ed25519::Signature> for Ed25519PhVerifier
 where
     D: Digest<OutputSize = U64> + Default,
 {
-    fn verify(&self, digest: D, sig: &Ed25519Signature) -> Result<(), Error> {
+    fn verify(&self, digest: D, sig: &ed25519::Signature) -> Result<(), Error> {
         // TODO: context support
         let context: Option<&'static [u8]> = None;
         let dalek_sig = ed25519_dalek::Signature::from_bytes(sig.as_ref()).unwrap();
@@ -128,7 +127,7 @@ where
 }
 
 /// Convert a Signatory seed into a Dalek keypair
-fn keypair_from_seed(seed: &Ed25519Seed) -> Keypair {
+fn keypair_from_seed(seed: &ed25519::Seed) -> Keypair {
     let secret = SecretKey::from_bytes(seed.as_secret_slice()).unwrap();
     let public = ed25519_dalek::PublicKey::from_secret::<Sha512>(&secret);
     Keypair { secret, public }

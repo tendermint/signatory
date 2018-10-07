@@ -6,8 +6,8 @@ use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
-use super::EcdsaSignature;
 use curve::WeierstrassCurve;
+use ecdsa;
 #[cfg(feature = "encoding")]
 use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
@@ -16,7 +16,6 @@ use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
 use util::fmt_colon_delimited_hex;
-use Signature;
 
 /// ECDSA signatures serialized in a compact, fixed-sized form
 #[derive(Clone, PartialEq, Eq)]
@@ -28,7 +27,7 @@ pub struct FixedSignature<C: WeierstrassCurve> {
     curve: PhantomData<C>,
 }
 
-impl<C> Signature for FixedSignature<C>
+impl<C> ::Signature for FixedSignature<C>
 where
     C: WeierstrassCurve,
 {
@@ -46,7 +45,7 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> EcdsaSignature for FixedSignature<C> {}
+impl<C: WeierstrassCurve> ecdsa::Signature for FixedSignature<C> {}
 
 impl<C> FixedSignature<C>
 where

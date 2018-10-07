@@ -42,9 +42,9 @@ mod test_vectors;
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::TEST_VECTORS;
 pub use self::{
-    public_key::{Ed25519PublicKey, PUBLIC_KEY_SIZE},
+    public_key::{PublicKey, PUBLIC_KEY_SIZE},
     seed::{Seed, SEED_SIZE},
-    signature::{Ed25519Signature, SIGNATURE_SIZE},
+    signature::{Signature, SIGNATURE_SIZE},
 };
 use error::Error;
 use public_key::PublicKeyed;
@@ -52,22 +52,18 @@ use signer::Signer;
 use verifier::Verifier;
 
 /// Get the public key for the given public keyed object (i.e. a `Signer`)
-pub fn public_key(keyed: &PublicKeyed<Ed25519PublicKey>) -> Result<Ed25519PublicKey, Error> {
+pub fn public_key(keyed: &PublicKeyed<PublicKey>) -> Result<PublicKey, Error> {
     keyed.public_key()
 }
 
 /// Sign the given message slice with the given Ed25519 signer
 #[inline]
-pub fn sign(signer: &Signer<Ed25519Signature>, msg: &[u8]) -> Result<Ed25519Signature, Error> {
+pub fn sign(signer: &Signer<Signature>, msg: &[u8]) -> Result<Signature, Error> {
     super::sign(signer, msg)
 }
 
 /// Verify the given message slice with the given Ed25519 verifier
 #[inline]
-pub fn verify(
-    verifier: &Verifier<Ed25519Signature>,
-    msg: &[u8],
-    sig: &Ed25519Signature,
-) -> Result<(), Error> {
+pub fn verify(verifier: &Verifier<Signature>, msg: &[u8], sig: &Signature) -> Result<(), Error> {
     super::verify(verifier, msg, sig)
 }

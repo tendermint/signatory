@@ -9,7 +9,7 @@ use secp256k1;
 use signatory::curve::Secp256k1;
 use signatory::{
     curve::{NistP256, NistP384, WeierstrassCurve, WeierstrassCurveKind},
-    ecdsa::{Asn1Signature, EcdsaPublicKey, FixedSignature},
+    ecdsa::{Asn1Signature, FixedSignature, PublicKey},
     error::Error,
     generic_array::{
         typenum::{U32, U48},
@@ -74,12 +74,12 @@ where
     }
 }
 
-impl<C> PublicKeyed<EcdsaPublicKey<C>> for EcdsaSigner<C>
+impl<C> PublicKeyed<PublicKey<C>> for EcdsaSigner<C>
 where
     C: WeierstrassCurve,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<EcdsaPublicKey<C>, Error> {
+    fn public_key(&self) -> Result<PublicKey<C>, Error> {
         let mut hsm = self.hsm.lock().unwrap();
 
         let pubkey = hsm
@@ -95,9 +95,9 @@ where
             );
         }
 
-        Ok(EcdsaPublicKey::from_untagged_point(
-            GenericArray::from_slice(pubkey.as_ref()),
-        ))
+        Ok(PublicKey::from_untagged_point(GenericArray::from_slice(
+            pubkey.as_ref(),
+        )))
     }
 }
 
