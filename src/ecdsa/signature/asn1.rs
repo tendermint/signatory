@@ -7,8 +7,9 @@ use generic_array::GenericArray;
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
-use super::{fixed::FixedSignature, scalars::ScalarPair, EcdsaSignature};
+use super::{fixed::FixedSignature, scalars::ScalarPair};
 use curve::WeierstrassCurve;
+use ecdsa;
 #[cfg(feature = "encoding")]
 use encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
@@ -17,7 +18,6 @@ use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
 use util::fmt_colon_delimited_hex;
-use Signature;
 
 /// ECDSA signatures encoded as ASN.1 DER
 #[derive(Clone, PartialEq, Eq)]
@@ -32,7 +32,7 @@ pub struct Asn1Signature<C: WeierstrassCurve> {
     pub(super) curve: PhantomData<C>,
 }
 
-impl<C> Signature for Asn1Signature<C>
+impl<C> ::Signature for Asn1Signature<C>
 where
     C: WeierstrassCurve,
 {
@@ -68,7 +68,7 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> EcdsaSignature for Asn1Signature<C> {}
+impl<C: WeierstrassCurve> ecdsa::Signature for Asn1Signature<C> {}
 
 impl<C> AsRef<[u8]> for Asn1Signature<C>
 where

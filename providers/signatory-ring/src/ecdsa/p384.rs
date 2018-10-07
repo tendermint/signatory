@@ -13,7 +13,7 @@ use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
 use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
     curve::nistp384::NistP384,
-    ecdsa::{Asn1Signature, EcdsaPublicKey, EcdsaSignature, FixedSignature},
+    ecdsa::{Asn1Signature, FixedSignature, PublicKey, Signature},
     encoding::FromPkcs8,
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha384Signer, Sha384Verifier,
@@ -61,12 +61,12 @@ impl GeneratePkcs8 for P384Signer<FixedSignature<NistP384>> {
     }
 }
 
-impl<S> PublicKeyed<EcdsaPublicKey<NistP384>> for P384Signer<S>
+impl<S> PublicKeyed<PublicKey<NistP384>> for P384Signer<S>
 where
-    S: EcdsaSignature + Send + Sync,
+    S: Signature + Send + Sync,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<EcdsaPublicKey<NistP384>, Error> {
+    fn public_key(&self) -> Result<PublicKey<NistP384>, Error> {
         Ok(self.public_key.clone())
     }
 }
@@ -85,10 +85,10 @@ impl Sha384Signer<FixedSignature<NistP384>> for P384Signer<FixedSignature<NistP3
 
 /// NIST P-384 ECDSA verifier
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct P384Verifier(EcdsaPublicKey<NistP384>);
+pub struct P384Verifier(PublicKey<NistP384>);
 
-impl<'a> From<&'a EcdsaPublicKey<NistP384>> for P384Verifier {
-    fn from(public_key: &'a EcdsaPublicKey<NistP384>) -> Self {
+impl<'a> From<&'a PublicKey<NistP384>> for P384Verifier {
+    fn from(public_key: &'a PublicKey<NistP384>) -> Self {
         P384Verifier(public_key.clone())
     }
 }

@@ -9,7 +9,5 @@ pub(crate) mod fixed;
 /// Signature `r` and `s` values parsed as `ScalarPair`
 pub(crate) mod scalars;
 
-use Signature;
-
 /// Marker trait for ECDSA signatures
-pub trait EcdsaSignature: Signature {}
+pub trait Signature: ::Signature {}

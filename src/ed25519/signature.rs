@@ -11,20 +11,20 @@ use encoding::Encode;
 use error::Error;
 #[allow(unused_imports)]
 use prelude::*;
+use signature::Signature as SignatureTrait;
 use util::fmt_colon_delimited_hex;
-use Signature;
 
 /// Size of an Ed25519 signature in bytes (512-bits)
 pub const SIGNATURE_SIZE: usize = 64;
 
 /// Ed25519 signatures
 #[derive(Clone)]
-pub struct Ed25519Signature(pub [u8; SIGNATURE_SIZE]);
+pub struct Signature(pub [u8; SIGNATURE_SIZE]);
 
-impl Ed25519Signature {
+impl Signature {
     /// Create an Ed25519 signature from a 32-byte array
     pub fn new(bytes: [u8; SIGNATURE_SIZE]) -> Self {
-        Ed25519Signature(bytes)
+        Signature(bytes)
     }
 
     /// Obtain signature as a byte array reference
@@ -40,13 +40,13 @@ impl Ed25519Signature {
     }
 }
 
-impl AsRef<[u8]> for Ed25519Signature {
+impl AsRef<[u8]> for Signature {
     fn as_ref(&self) -> &[u8] {
         self.0.as_ref()
     }
 }
 
-impl Debug for Ed25519Signature {
+impl Debug for Signature {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "signatory::ed25519::Signature(")?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
@@ -55,7 +55,7 @@ impl Debug for Ed25519Signature {
 }
 
 #[cfg(feature = "encoding")]
-impl Decode for Ed25519Signature {
+impl Decode for Signature {
     /// Decode an Ed25519 signature from a byte slice with the given encoding
     /// (e.g. hex, Base64)
     fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
@@ -75,22 +75,22 @@ impl Decode for Ed25519Signature {
 }
 
 #[cfg(all(feature = "encoding", feature = "alloc"))]
-impl Encode for Ed25519Signature {
+impl Encode for Signature {
     /// Encode an Ed25519 signature with the given encoding (e.g. hex, Base64)
     fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
         encoding.encode(self.as_ref())
     }
 }
 
-impl Eq for Ed25519Signature {}
+impl Eq for Signature {}
 
-impl PartialEq for Ed25519Signature {
+impl PartialEq for Signature {
     fn eq(&self, other: &Self) -> bool {
         self.0[..] == other.0[..]
     }
 }
 
-impl Signature for Ed25519Signature {
+impl SignatureTrait for Signature {
     /// Create an Ed25519 signature from its serialized byte representation
     fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
         ensure!(
@@ -103,6 +103,6 @@ impl Signature for Ed25519Signature {
 
         let mut signature = [0u8; SIGNATURE_SIZE];
         signature.copy_from_slice(bytes.as_ref());
-        Ok(Ed25519Signature(signature))
+        Ok(Signature(signature))
     }
 }

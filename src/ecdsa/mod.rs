@@ -6,6 +6,6 @@ mod public_key;
 mod secret_key;
 mod signature;
 
-pub use self::public_key::EcdsaPublicKey;
-pub use self::secret_key::SecretKey as EcdsaSecretKey;
-pub use self::signature::{asn1::Asn1Signature, fixed::FixedSignature, EcdsaSignature};
+pub use self::public_key::PublicKey;
+pub use self::secret_key::SecretKey;
+pub use self::signature::{asn1::Asn1Signature, fixed::FixedSignature, Signature};

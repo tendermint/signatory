@@ -57,10 +57,10 @@ impl WeierstrassCurve for NistP384 {
 }
 
 /// NIST P-256 secret key
-pub type SecretKey = ::ecdsa::EcdsaSecretKey<NistP384>;
+pub type SecretKey = ::ecdsa::SecretKey<NistP384>;
 
 /// NIST P-384 public key
-pub type PublicKey = ::ecdsa::EcdsaPublicKey<NistP384>;
+pub type PublicKey = ::ecdsa::PublicKey<NistP384>;
 
 /// ASN.1 DER encoded secp384k1 ECDSA signature
 pub type Asn1Signature = ::ecdsa::Asn1Signature<NistP384>;
