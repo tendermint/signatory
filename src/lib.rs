@@ -89,11 +89,11 @@
 //! [RFC 8032]: https://tools.ietf.org/html/rfc8032
 //! [ecdsa]: https://docs.rs/signatory/latest/signatory/ecdsa/index.html
 //! [ed25519]: https://docs.rs/signatory/latest/signatory/ed25519/index.html
-//! [signatory-dalek]: https://crates.io/crates/signatory-dalek
-//! [signatory-ring]: https://crates.io/crates/signatory-ring
-//! [signatory-secp256k1]: https://crates.io/crates/signatory-secp256k1
-//! [signatory-sodiumoxide]: https://crates.io/crates/signatory-sodiumoxide
-//! [signatory-yubihsm]: https://crates.io/crates/signatory-yubihsm
+//! [signatory-dalek]: https://docs.rs/crate/signatory-dalek/
+//! [signatory-ring]: https://docs.rs/crate/signatory-ring/
+//! [signatory-secp256k1]: https://docs.rs/crate/signatory-secp256k1/
+//! [signatory-sodiumoxide]: https://docs.rs/crate/signatory-sodiumoxide/
+//! [signatory-yubihsm]:  https://docs.rs/crate/signatory-yubihsm/
 //! [signatory::sign]: https://docs.rs/signatory/latest/signatory/fn.sign.html
 //! [signatory::sign_digest]: https://docs.rs/signatory/latest/signatory/fn.sign_digest.html
 //! [signatory::sign_sha256]: https://docs.rs/signatory/latest/signatory/fn.sign_sha256.html
