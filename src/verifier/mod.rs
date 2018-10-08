@@ -18,7 +18,7 @@ pub trait Verifier<S: Signature>: Send + Sync {
     fn verify(&self, msg: &[u8], signature: &S) -> Result<(), Error>;
 }
 
-/// Verify the given message slice with the given verifier (alias for `verify_bytes`)
+/// Verify the given message (byte slice) with the given `Verifier`.
 #[inline]
 pub fn verify<S>(verifier: &Verifier<S>, msg: &[u8], sig: &S) -> Result<(), Error>
 where

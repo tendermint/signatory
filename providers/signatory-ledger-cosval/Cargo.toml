@@ -2,7 +2,7 @@
 name        = "signatory-ledger-cosval"
 description = "Signatory provider for ledger cosmos validator app"
 version     = "0.0.1" # Also update html_root_url in lib.rs when bumping this
-license     = "MIT OR Apache-2.0"
+license     = "Apache-2.0 OR MIT"
 authors     = ["ZondaX GmbH <info@zondax.ch>"]
 homepage    = "https://github.com/tendermint/signatory"
 repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-ledger-cosval/"
