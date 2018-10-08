@@ -1,4 +1,6 @@
 //! Prehash (a.k.a. "IUF") signing support using the `Digest` trait
+//!
+//! Enable Signatory's `digest` cargo feature to enable this trait.
 
 use digest::Digest;
 

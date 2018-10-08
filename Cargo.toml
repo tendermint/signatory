@@ -61,4 +61,4 @@ debug-assertions = false
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["ecdsa", "ed25519", "pkcs8"]
+features = ["digest", "ecdsa", "ed25519", "pkcs8", "sha2"]

@@ -1,4 +1,9 @@
-//! Signatory Ed25519 provider for ed25519-dalek
+//! Signatory Ed25519 provider for the [ed25519-dalek] crate.
+//!
+//! For a usage example, see the toplevel Signatory docs:
+//! <https://docs.rs/signatory/latest/signatory/ed25519/index.html>
+//!
+//! [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 
 #![crate_name = "signatory_dalek"]
 #![crate_type = "lib"]
