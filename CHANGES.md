@@ -1,3 +1,64 @@
+## [0.9.0] (2018-10-08)
+
+[0.9.0]: https://github.com/tendermint/signatory/pull/114
+
+* [#112](https://github.com/tendermint/signatory/pull/112)
+  Remove redundant "namespacing" from type names.
+
+* [#111](https://github.com/tendermint/signatory/pull/111)
+  Move `curve` module (back) under `ecdsa`.
+
+* [#110](https://github.com/tendermint/signatory/pull/109)
+  signatory-yubihsm: Upgrade to yubihsm 0.18.
+
+* [#109](https://github.com/tendermint/signatory/pull/109)
+  Use `subtle-encoding` crate for constant-time encoding/decoding.
+
+* [#108](https://github.com/tendermint/signatory/pull/108)
+  ECDSA `SecretKey` type and related traits (e.g. `GeneratePkcs8`).
+
+* [#106](https://github.com/tendermint/signatory/pull/106)
+  Properly handle leading zeroes in ASN.1 serialization/parsing.
+
+* [#105](https://github.com/tendermint/signatory/pull/106)
+  signatory-yubihsm: Expose the yubihsm crate as a pub extern.
+
+* [#102](https://github.com/tendermint/signatory/pull/102)
+  encoding: Use 0o600 file mode on Unix.
+
+* [#97](https://github.com/tendermint/signatory/pull/97)
+  Eliminate `ed25519::FromSeed` trait.
+
+* [#94](https://github.com/tendermint/signatory/pull/94)
+  yubihsm: NIST P-384 support.
+
+* [#91](https://github.com/tendermint/signatory/pull/94)
+  ring: NIST P-384 support.
+
+* [#89](https://github.com/tendermint/signatory/pull/89)
+  Add NIST P-384 elliptic curve type (closes #73).
+
+* [#88](https://github.com/tendermint/signatory/pull/88)
+  signatory-yubihsm: Fix ECDSA over secp256k1 signing (closes #87).
+
+* [#80](https://github.com/tendermint/signatory/pull/80)
+  `signatory-ledger-cosval` provider.
+
+* [#79](https://github.com/tendermint/signatory/pull/79)
+  signatory-yubihsm: Normalize secp256k1 signatures to "low S" form.
+
+* [#78](https://github.com/tendermint/signatory/pull/78)
+  signatory-secp256k1: Bump secp256k1 crate dependency to 0.11
+
+* [#76](https://github.com/tendermint/signatory/pull/76)
+  Unify verification API under the `Verifier` trait.
+
+* [#74](https://github.com/tendermint/signatory/pull/74)
+  encoding: Add encoding module with hex and Base64 support.
+
+* [#70](https://github.com/tendermint/signatory/pull/70)
+  Unify signing API under the `Signer` trait.
+
 ## [0.8.0] (2018-08-19)
 
 [0.8.0]: https://github.com/tendermint/signatory/compare/v0.7.0...v0.8.0
