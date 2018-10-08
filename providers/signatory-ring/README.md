@@ -24,7 +24,7 @@
 
 ## License
 
-Signatory is distributed under the terms of both the MIT license and the
-Apache License (Version 2.0).
+**Signatory** is distributed under the terms of either the MIT license or the
+Apache License (Version 2.0), at your option.
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.

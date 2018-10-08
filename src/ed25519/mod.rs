@@ -7,16 +7,16 @@
 //!
 //! # Example (with ed25519-dalek)
 //!
-//! ```nobuild
+//! ```
 //! extern crate signatory;
 //! extern crate signatory_dalek; // or another Ed25519 provider
 //!
-//! use signatory::{ed25519, Ed25519Seed, FromEd25519Seed};
+//! use signatory::ed25519;
 //! use signatory_dalek::{Ed25519Signer, Ed25519Verifier};
 //!
 //! // Create a private key (a.k.a. a "seed") and use it to generate a signature
-//! let seed = Ed25519Seed::generate();
-//! let signer = Ed25519Signer::from_seed(seed);
+//! let seed = ed25519::Seed::generate();
+//! let signer = Ed25519Signer::from(&seed);
 //! let msg = "How are you? Fine, thank you.";
 //!
 //! // Sign a message

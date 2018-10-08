@@ -2,7 +2,7 @@
 name        = "signatory-yubihsm"
 description = "Signatory ECDSA (NIST P256 + secp256k1) and Ed25519 provider for yubihsm-rs"
 version     = "0.9.0-alpha3" # Also update html_root_url in lib.rs when bumping this
-license     = "MIT OR Apache-2.0"
+license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
 repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-yubihsm/"
