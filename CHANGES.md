@@ -1,3 +1,10 @@
+## [0.9.2] (2018-10-08)
+
+[0.9.2]: https://github.com/tendermint/signatory/pull/118
+
+* [#117](https://github.com/tendermint/signatory/pull/117)
+  More documentation fixups.
+
 ## [0.9.1] (2018-10-08)
 
 [0.9.1]: https://github.com/tendermint/signatory/pull/116
