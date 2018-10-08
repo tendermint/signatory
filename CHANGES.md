@@ -1,3 +1,10 @@
+## [0.9.1] (2018-10-08)
+
+[0.9.1]: https://github.com/tendermint/signatory/pull/116
+
+* [#115](https://github.com/tendermint/signatory/pull/115)
+  Cargo.toml: Fix docs.rs build.
+
 ## [0.9.0] (2018-10-08)
 
 [0.9.0]: https://github.com/tendermint/signatory/pull/114
