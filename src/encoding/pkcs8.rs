@@ -16,7 +16,7 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 #[cfg(feature = "std")]
 use zeroize::secure_zero_memory;
 
-#[cfg(feature = "std")]
+#[cfg(all(unix, feature = "std"))]
 use super::FILE_MODE;
 
 /// Load this type from a **PKCS#8** private key
