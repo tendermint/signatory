@@ -5,6 +5,7 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 use subtle_encoding::Encoding;
 use zeroize::secure_zero_memory;
 
+#[cfg(unix)]
 use super::FILE_MODE;
 use error::Error;
 use prelude::*;
