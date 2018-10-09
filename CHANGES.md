@@ -1,3 +1,13 @@
+## [0.9.3] (2018-10-09)
+
+[0.9.3]: https://github.com/tendermint/signatory/pull/124
+
+* [#123](https://github.com/tendermint/signatory/pull/123)
+  Upgrade to subtle-encoding v0.2.
+
+* [#122](https://github.com/tendermint/signatory/pull/122)
+  Fix unused import on Windows (closes #121).
+
 ## [0.9.2] (2018-10-08)
 
 [0.9.2]: https://github.com/tendermint/signatory/pull/118
