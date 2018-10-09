@@ -7,6 +7,7 @@ pub(crate) mod asn1;
 pub(crate) mod fixed;
 
 /// Signature `r` and `s` values parsed as `ScalarPair`
+#[cfg(feature = "encoding")]
 pub(crate) mod scalars;
 
 /// Marker trait for ECDSA signatures

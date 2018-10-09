@@ -32,6 +32,7 @@ mod public_key;
 mod seed;
 mod signature;
 
+#[cfg(feature = "test-vectors")]
 #[macro_use]
 mod test_macros;
 

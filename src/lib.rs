@@ -17,11 +17,11 @@
 //!
 //! - [signatory-dalek]: Ed25519 signing/verification using the pure-Rust
 //!   ed25519-dalek crate. This provider is enabled-by-default.
-//! - [signatory-ring]: Ed25519 signing/verification with the *ring*
-//!   cryptography library.
+//! - [signatory-ring]: ECDSA and Ed25519 signing/verification provider
+//!   for the *ring* cryptography library.
 //! - [signatory-secp256k1]: ECDSA signing/verification for the secp256k1
-//!    elliptic curve (commonly used by Bitcoin and other cryptocurrrencies)
-//!    which wraps the libsecp256k1 library from Bitcoin Core.
+//!   elliptic curve (commonly used by Bitcoin and other cryptocurrrencies)
+//!   which wraps the libsecp256k1 library from Bitcoin Core.
 //! - [signatory-sodiumoxide]: Ed25519 signing/verification with the
 //!   sodiumoxide crate, a Rust wrapper for libsodium (NOTE: requires
 //!   libsodium to be installed on the system)
@@ -143,8 +143,8 @@ extern crate rand;
 #[cfg(feature = "sha2")]
 extern crate sha2;
 #[cfg(feature = "encoding")]
-extern crate subtle_encoding;
-#[cfg(any(feature = "encoding", feature = "ed25519"))]
+pub extern crate subtle_encoding;
+#[cfg(feature = "zeroize")]
 extern crate zeroize;
 
 #[macro_use]

@@ -65,7 +65,7 @@ jobs:
         command: |
           rustc --version
           cargo --version
-          cargo test --lib --features=ecdsa,ed25519
+          cargo test --lib --features=ecdsa,ed25519,test-vectors
     - run:
         name: signatory-dalek crate
         command: |
