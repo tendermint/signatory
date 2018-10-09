@@ -7,6 +7,7 @@ use generic_array::GenericArray;
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
+#[cfg(feature = "encoding")]
 use super::{fixed::FixedSignature, scalars::ScalarPair};
 use curve::WeierstrassCurve;
 use ecdsa;
@@ -62,6 +63,7 @@ where
         };
 
         // Ensure result is well-formed ASN.1 DER
+        #[cfg(feature = "encoding")]
         ScalarPair::from_asn1_signature(&result)?;
 
         Ok(result)
@@ -126,6 +128,7 @@ where
     }
 }
 
+#[cfg(feature = "encoding")]
 impl<'s, C> From<&'s FixedSignature<C>> for Asn1Signature<C>
 where
     C: WeierstrassCurve,
@@ -137,6 +140,7 @@ where
     }
 }
 
+#[cfg(feature = "encoding")]
 impl<'s, C> From<&'s Asn1Signature<C>> for FixedSignature<C>
 where
     C: WeierstrassCurve,
@@ -149,7 +153,7 @@ where
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "encoding", feature = "test-vectors"))]
 #[allow(unused_imports)]
 mod tests {
     use curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
