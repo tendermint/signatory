@@ -25,8 +25,9 @@
 //! - [signatory-sodiumoxide]: Ed25519 signing/verification with the
 //!   sodiumoxide crate, a Rust wrapper for libsodium (NOTE: requires
 //!   libsodium to be installed on the system)
-//! - [signatory-yubihsm]: Ed25519 signing-only provider using private keys
-//!   stored in a `YubiHSM2` hardware device, via the yubihsm-rs crate.
+//! - [signatory-yubihsm]: ECDSA and Ed25519 signing provider which uses
+//!   private keys stored in a `YubiHSM2` hardware device, via the
+//!   `yubihsm-rs` crate.
 //!
 //! ## Signing API
 //!

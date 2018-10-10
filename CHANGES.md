@@ -1,3 +1,10 @@
+## [0.9.4] (2018-10-10)
+
+[0.9.4]: https://github.com/tendermint/signatory/pull/126
+
+* [#125](https://github.com/tendermint/signatory/pull/125)
+  pkcs8: Properly gate `FILE_MODE` on Windows.
+
 ## [0.9.3] (2018-10-09)
 
 [0.9.3]: https://github.com/tendermint/signatory/pull/124
