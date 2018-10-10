@@ -16,18 +16,18 @@
 //! in their own crates:
 //!
 //! - [signatory-dalek]: Ed25519 signing/verification using the pure-Rust
-//!   ed25519-dalek crate. This provider is enabled-by-default.
+//!   [ed25519-dalek] crate.
 //! - [signatory-ring]: ECDSA and Ed25519 signing/verification provider
-//!   for the *ring* cryptography library.
+//!   for the [*ring*] cryptography library.
 //! - [signatory-secp256k1]: ECDSA signing/verification for the secp256k1
 //!   elliptic curve (commonly used by Bitcoin and other cryptocurrrencies)
-//!   which wraps the libsecp256k1 library from Bitcoin Core.
+//!   which wraps the [libsecp256k1] library from Bitcoin Core.
 //! - [signatory-sodiumoxide]: Ed25519 signing/verification with the
-//!   sodiumoxide crate, a Rust wrapper for libsodium (NOTE: requires
+//!   [sodiumoxide] crate, a Rust wrapper for libsodium (NOTE: requires
 //!   libsodium to be installed on the system)
 //! - [signatory-yubihsm]: ECDSA and Ed25519 signing provider which uses
 //!   private keys stored in a `YubiHSM2` hardware device, via the
-//!   `yubihsm-rs` crate.
+//!   [yubihsm-rs] crate.
 //!
 //! ## Signing API
 //!
@@ -91,10 +91,15 @@
 //! [ecdsa]: https://docs.rs/signatory/latest/signatory/ecdsa/index.html
 //! [ed25519]: https://docs.rs/signatory/latest/signatory/ed25519/index.html
 //! [signatory-dalek]: https://docs.rs/crate/signatory-dalek/
+//! [ed25519-dalek]: https://docs.rs/crate/ed25519-dalek/
 //! [signatory-ring]: https://docs.rs/crate/signatory-ring/
+//! [*ring*]: https://github.com/briansmith/ring
 //! [signatory-secp256k1]: https://docs.rs/crate/signatory-secp256k1/
+//! [libsecp256k1]: https://docs.rs/crate/secp256k1
 //! [signatory-sodiumoxide]: https://docs.rs/crate/signatory-sodiumoxide/
+//! [sodiumoxide]: https://docs.rs/crate/sodiumoxide/
 //! [signatory-yubihsm]:  https://docs.rs/crate/signatory-yubihsm/
+//! [yubihsm-rs]: https://docs.rs/crate/yubihsm/
 //! [signatory::sign]: https://docs.rs/signatory/latest/signatory/fn.sign.html
 //! [signatory::sign_digest]: https://docs.rs/signatory/latest/signatory/fn.sign_digest.html
 //! [signatory::sign_sha256]: https://docs.rs/signatory/latest/signatory/fn.sign_sha256.html
