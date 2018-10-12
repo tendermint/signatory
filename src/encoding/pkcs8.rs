@@ -14,7 +14,7 @@ use std::{fs::File, io::Read, path::Path};
 #[cfg(all(unix, feature = "std"))]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 #[cfg(feature = "std")]
-use zeroize::secure_zero_memory;
+use zeroize::Zeroize;
 
 #[cfg(all(unix, feature = "std"))]
 use super::FILE_MODE;
@@ -33,7 +33,7 @@ pub trait FromPkcs8: Sized {
             .read_to_end(&mut bytes)
             .map_err(|e| err!(KeyInvalid, "error reading key: {}", e))?;
         let result = Self::from_pkcs8(&bytes);
-        secure_zero_memory(&mut bytes);
+        bytes.zeroize();
         result
     }
 

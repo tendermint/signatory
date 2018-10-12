@@ -2,7 +2,7 @@
 use std::{fs::File, io::Read, path::Path};
 use subtle_encoding::Encoding;
 #[cfg(feature = "std")]
-use zeroize::secure_zero_memory;
+use zeroize::Zeroize;
 
 use error::Error;
 
@@ -34,7 +34,7 @@ pub trait Decode: Sized {
         let mut bytes = vec![];
         reader.read_to_end(bytes.as_mut())?;
         let result = Self::decode(&bytes, encoding);
-        secure_zero_memory(&mut bytes);
+        bytes.zeroize();
         result
     }
 
