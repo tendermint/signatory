@@ -3,7 +3,7 @@ use std::{fs::File, io::Write, path::Path};
 #[cfg(unix)]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 use subtle_encoding::Encoding;
-use zeroize::secure_zero_memory;
+use zeroize::Zeroize;
 
 #[cfg(unix)]
 use super::FILE_MODE;
@@ -33,7 +33,7 @@ pub trait Encode: Sized {
     {
         let mut encoded_bytes = self.encode(encoding);
         writer.write_all(encoded_bytes.as_ref())?;
-        secure_zero_memory(&mut encoded_bytes);
+        encoded_bytes.zeroize();
         Ok(encoded_bytes.len())
     }
 

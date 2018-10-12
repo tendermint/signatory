@@ -6,7 +6,7 @@ use generic_array::{typenum::Unsigned, GenericArray};
 use rand::{CryptoRng, OsRng, RngCore};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
-use zeroize::secure_zero_memory;
+use zeroize::Zeroize;
 
 use curve::WeierstrassCurve;
 #[cfg(feature = "encoding")]
@@ -132,6 +132,6 @@ where
     C: WeierstrassCurve,
 {
     fn drop(&mut self) {
-        secure_zero_memory(&mut self.bytes);
+        self.bytes.zeroize();
     }
 }

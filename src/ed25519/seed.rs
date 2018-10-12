@@ -5,7 +5,7 @@
 use rand::{CryptoRng, OsRng, RngCore};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
-use zeroize::secure_zero_memory;
+use zeroize::Zeroize;
 
 #[cfg(feature = "encoding")]
 use encoding::Decode;
@@ -135,7 +135,7 @@ impl Encode for Seed {
 
 impl Drop for Seed {
     fn drop(&mut self) {
-        secure_zero_memory(&mut self.0);
+        self.0.zeroize();
     }
 }
 
