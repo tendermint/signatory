@@ -132,6 +132,6 @@ where
     C: WeierstrassCurve,
 {
     fn drop(&mut self) {
-        self.bytes.zeroize();
+        self.bytes.as_mut().zeroize();
     }
 }
