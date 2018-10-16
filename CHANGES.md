@@ -1,3 +1,14 @@
+## [0.10.0] (2018-10-16)
+
+[0.10.0]: ttps://github.com/tendermint/signatory/pull/131
+
+* [#130](https://github.com/tendermint/signatory/pull/130)
+  Upgrade to `digest` 0.8, `generic-array` 0.12,  and
+  `yubihsm` 0.19.
+
+* [#129](https://github.com/tendermint/signatory/pull/129)
+  Upgrade to `zeroize` 0.4.
+
 ## [0.9.4] (2018-10-10)
 
 [0.9.4]: https://github.com/tendermint/signatory/pull/126
