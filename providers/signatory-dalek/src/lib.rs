@@ -21,6 +21,9 @@ extern crate sha2;
 #[cfg_attr(test, macro_use)]
 extern crate signatory;
 
+// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
+// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
+#[cfg(feature = "digest-0.8")]
 use digest::Digest;
 use ed25519_dalek::{Keypair, SecretKey};
 use sha2::Sha512;
@@ -28,9 +31,12 @@ use sha2::Sha512;
 use signatory::{
     ed25519,
     error::{Error, ErrorKind},
-    generic_array::typenum::U64,
-    DigestSigner, DigestVerifier, PublicKeyed, Signature, Signer, Verifier,
+    PublicKeyed, Signature, Signer, Verifier,
 };
+// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
+// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
+#[cfg(feature = "digest-0.8")]
+use signatory::{generic_array::typenum::U64, DigestSigner, DigestVerifier};
 
 /// Ed25519 signature provider for ed25519-dalek
 pub struct Ed25519Signer(Keypair);
@@ -72,6 +78,9 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519PhSigner {
 }
 
 // TODO: tests!
+// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
+// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
+#[cfg(feature = "digest-0.8")]
 impl<D> DigestSigner<D, ed25519::Signature> for Ed25519PhSigner
 where
     D: Digest<OutputSize = U64> + Default,
@@ -117,6 +126,9 @@ impl<'a> From<&'a ed25519::PublicKey> for Ed25519PhVerifier {
 }
 
 // TODO: tests!
+// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
+// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
+#[cfg(feature = "digest-0.8")]
 impl<D> DigestVerifier<D, ed25519::Signature> for Ed25519PhVerifier
 where
     D: Digest<OutputSize = U64> + Default,

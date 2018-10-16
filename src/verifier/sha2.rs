@@ -1,5 +1,5 @@
 #[cfg(all(feature = "digest", feature = "sha2"))]
-use digest::Input;
+use digest::Digest;
 #[cfg(all(feature = "digest", feature = "sha2"))]
 use sha2::{Sha256, Sha384, Sha512};
 
@@ -25,9 +25,7 @@ where
     T: DigestVerifier<Sha256, S>,
 {
     fn verify_sha256(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
-        let mut sha256 = Sha256::default();
-        sha256.process(msg);
-        self.verify(sha256, signature)
+        self.verify(Sha256::new().chain(msg), signature)
     }
 }
 
@@ -47,9 +45,7 @@ where
     T: DigestVerifier<Sha384, S>,
 {
     fn verify_sha384(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
-        let mut sha384 = Sha384::default();
-        sha384.process(msg);
-        self.verify(sha384, signature)
+        self.verify(Sha384::new().chain(msg), signature)
     }
 }
 
@@ -69,9 +65,7 @@ where
     T: DigestVerifier<Sha512, S>,
 {
     fn verify_sha512(&self, msg: &[u8], signature: &S) -> Result<(), Error> {
-        let mut sha512 = Sha512::default();
-        sha512.process(msg);
-        self.verify(sha512, signature)
+        self.verify(Sha512::new().chain(msg), signature)
     }
 }
 
