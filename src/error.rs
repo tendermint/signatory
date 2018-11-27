@@ -185,10 +185,12 @@ impl From<io::Error> for Error {
 impl From<subtle_encoding::Error> for Error {
     fn from(err: subtle_encoding::Error) -> Self {
         match err {
+            subtle_encoding::Error::ChecksumInvalid => err!(ParseError, "invalid checksum"),
             subtle_encoding::Error::EncodingInvalid => err!(ParseError, "invalid encoding"),
             subtle_encoding::Error::LengthInvalid => err!(ParseError, "invalid length"),
             #[cfg(feature = "std")]
             subtle_encoding::Error::IoError => err!(Io, &err.to_string()),
+            subtle_encoding::Error::PaddingInvalid => err!(ParseError, "invalid padding"),
         }
     }
 }
