@@ -1,3 +1,7 @@
+## [0.10.1] (2018-11-27)
+
+- Upgrade to subtle-encoding v0.3.0 (#132)
+
 ## [0.10.0] (2018-10-16)
 
 - Upgrade to `digest` 0.8, `generic-array` 0.12, and `yubihsm` 0.19 (#130)
@@ -120,6 +124,7 @@
 
 - Initial release
 
+[0.10.1]: https://github.com/tendermint/signatory/pull/134
 [0.10.0]: https://github.com/tendermint/signatory/pull/131
 [0.9.4]: https://github.com/tendermint/signatory/pull/126
 [0.9.3]: https://github.com/tendermint/signatory/pull/124
