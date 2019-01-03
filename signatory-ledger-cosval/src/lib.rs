@@ -80,36 +80,42 @@ mod tests {
 
         // Sign message1
         let some_message1 = [
-            0x8,                                    // (field_number << 3) | wire_type
-            0x1,                                    // PrevoteType
-            0x11,                                   // (field_number << 3) | wire_type
-            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // height
-            0x19,                                   // (field_number << 3) | wire_type
-            0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // round
+            0x8,  // (field_number << 3) | wire_type
+            0x1,  // PrevoteType
+            0x11, // (field_number << 3) | wire_type
+            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // height
+            0x19, // (field_number << 3) | wire_type
+            0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // round
             0x22, // (field_number << 3) | wire_type
             // remaining fields (timestamp):
-            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1];
+            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
+        ];
 
         match signer.sign(&some_message1) {
             Ok(_sig) => {}
-            Err(e) => { println!("Err {:#?}", e); }
+            Err(e) => {
+                println!("Err {:#?}", e);
+            }
         }
 
         // Sign message2
         let some_message2 = [
-            0x8,                                    // (field_number << 3) | wire_type
-            0x1,                                    // PrevoteType
-            0x11,                                   // (field_number << 3) | wire_type
-            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // height
-            0x19,                                   // (field_number << 3) | wire_type
-            0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // round
+            0x8,  // (field_number << 3) | wire_type
+            0x1,  // PrevoteType
+            0x11, // (field_number << 3) | wire_type
+            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // height
+            0x19, // (field_number << 3) | wire_type
+            0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // round
             0x22, // (field_number << 3) | wire_type
             // remaining fields (timestamp):
-            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1];
+            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
+        ];
 
         match signer.sign(&some_message2) {
             Ok(_sig) => {}
-            Err(e) => { println!("Err {:#?}", e); }
+            Err(e) => {
+                println!("Err {:#?}", e);
+            }
         }
     }
 
@@ -122,36 +128,42 @@ mod tests {
 
         // Sign message1
         let some_message1 = [
-            0x8,                                    // (field_number << 3) | wire_type
-            0x1,                                    // PrevoteType
-            0x11,                                   // (field_number << 3) | wire_type
+            0x8,  // (field_number << 3) | wire_type
+            0x1,  // PrevoteType
+            0x11, // (field_number << 3) | wire_type
             0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x0F, // height
-            0x19,                                   // (field_number << 3) | wire_type
-            0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // round
+            0x19, // (field_number << 3) | wire_type
+            0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // round
             0x22, // (field_number << 3) | wire_type
             // remaining fields (timestamp):
-            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1];
+            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
+        ];
 
         match signer.sign(&some_message1) {
             Ok(_sig) => {}
-            Err(e) => { println!("Err {:#?}", e); }
+            Err(e) => {
+                println!("Err {:#?}", e);
+            }
         }
 
         // Sign message2
         let some_message2 = [
-            0x8,                                    // (field_number << 3) | wire_type
-            0x1,                                    // PrevoteType
-            0x11,                                   // (field_number << 3) | wire_type
-            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // height
-            0x19,                                   // (field_number << 3) | wire_type
-            0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // round
+            0x8,  // (field_number << 3) | wire_type
+            0x1,  // PrevoteType
+            0x11, // (field_number << 3) | wire_type
+            0x10, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // height
+            0x19, // (field_number << 3) | wire_type
+            0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // round
             0x22, // (field_number << 3) | wire_type
             // remaining fields (timestamp):
-            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1];
+            0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
+        ];
 
         match signer.sign(&some_message2) {
             Ok(_sig) => {}
-            Err(e) => { println!("Err {:#?}", e); }
+            Err(e) => {
+                println!("Err {:#?}", e);
+            }
         }
     }
 
@@ -170,21 +182,23 @@ mod tests {
         for index in 50u8..254u8 {
             // Sign message1
             let some_message = [
-                0x8,                                    // (field_number << 3) | wire_type
-                0x1,                                    // PrevoteType
-                0x11,                                   // (field_number << 3) | wire_type
-                0x40, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // height
-                0x19,                                   // (field_number << 3) | wire_type
-                index, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, // round
+                0x8,  // (field_number << 3) | wire_type
+                0x1,  // PrevoteType
+                0x11, // (field_number << 3) | wire_type
+                0x40, 0x00, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // height
+                0x19, // (field_number << 3) | wire_type
+                index, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,  // round
                 0x22, // (field_number << 3) | wire_type
                 // remaining fields (timestamp):
-                0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1];
+                0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
+            ];
 
             match signer.sign(&some_message) {
                 Ok(_sig) => {}
-                Err(e) => { println!("Err {:#?}", e); }
+                Err(e) => {
+                    println!("Err {:#?}", e);
+                }
             }
         }
     }
-
 }
