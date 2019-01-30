@@ -22,7 +22,7 @@ pub trait Signer<S: Signature>: Send + Sync {
 /// Sign the given message (byte slice) with the given `Signer`, returning a
 /// signature on success.
 #[inline]
-pub fn sign<S>(signer: &Signer<S>, msg: &[u8]) -> Result<S, Error>
+pub fn sign<S>(signer: &dyn Signer<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {

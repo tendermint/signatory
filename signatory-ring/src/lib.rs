@@ -8,13 +8,13 @@
     html_root_url = "https://docs.rs/signatory-ring/0.10.0"
 )]
 
-extern crate ring;
-#[cfg_attr(all(test, feature = "ed25519"), macro_use)]
-extern crate signatory;
-extern crate untrusted;
 #[cfg(test)]
 #[macro_use]
 extern crate std;
+
+#[cfg(all(test, feature = "ed25519"))]
+#[macro_use]
+extern crate signatory;
 
 /// ECDSA signing and verification support
 #[cfg(feature = "ecdsa")]

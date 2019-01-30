@@ -5,8 +5,7 @@
 
 #[macro_use]
 extern crate criterion;
-extern crate signatory;
-extern crate signatory_dalek;
+use signatory;
 
 use criterion::Criterion;
 use signatory::{ed25519, test_vector::TestVector, Signature, Verifier};

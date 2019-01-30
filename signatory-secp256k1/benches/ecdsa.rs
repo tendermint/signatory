@@ -5,8 +5,7 @@
 
 #[macro_use]
 extern crate criterion;
-extern crate signatory;
-extern crate signatory_secp256k1;
+use signatory;
 
 use criterion::Criterion;
 use signatory::{

@@ -4,8 +4,7 @@
 
 #[macro_use]
 extern crate criterion;
-extern crate signatory;
-extern crate signatory_ring;
+use signatory;
 
 use criterion::Criterion;
 use signatory::{
