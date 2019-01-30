@@ -22,7 +22,7 @@ libc = "0.2"
 [dependencies.signatory]
 version = "0.10"
 features = ["digest", "ed25519", "generic-array", "test-vectors"]
-path = "../.."
+path = ".."
 
 [dev-dependencies]
 criterion = "0.2"

@@ -19,8 +19,8 @@ yubihsm = { version = "0.20.0-alpha1", default-features = false, features = ["pa
 
 [dependencies.signatory]
 version = "0.10"
-features = ["digest", "ecdsa", "ed25519",  "sha2"]
-path = "../.."
+features = ["digest", "ecdsa", "ed25519", "sha2"]
+path = ".."
 
 [dev-dependencies]
 lazy_static = "1"

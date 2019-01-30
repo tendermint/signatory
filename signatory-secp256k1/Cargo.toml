@@ -20,7 +20,7 @@ secp256k1 = "0.12"
 [dependencies.signatory]
 version = "0.10"
 features = ["digest", "ecdsa", "sha2", "test-vectors"]
-path = "../.."
+path = ".."
 
 [dev-dependencies]
 criterion = "0.2"

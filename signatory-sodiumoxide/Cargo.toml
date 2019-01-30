@@ -20,7 +20,7 @@ sodiumoxide = "0.2"
 [dependencies.signatory]
 version = "0.10"
 features = ["ed25519", "test-vectors"]
-path = "../.."
+path = ".."
 
 [dev-dependencies]
 criterion = "0.2"

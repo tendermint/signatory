@@ -22,7 +22,7 @@ untrusted = "0.6"
 version = "0.10"
 default-features = false
 features = ["pkcs8", "test-vectors"]
-path = "../.."
+path = ".."
 
 [dev-dependencies]
 criterion = "0.2"

@@ -36,12 +36,12 @@ test-vectors = []
 
 [workspace]
 members = [
-    "providers/signatory-dalek",
-    "providers/signatory-ledger-cosval",
-    "providers/signatory-ring",
-    "providers/signatory-secp256k1",
-    "providers/signatory-sodiumoxide",
-    "providers/signatory-yubihsm",
+    "signatory-dalek",
+    "signatory-ledger-cosval",
+    "signatory-ring",
+    "signatory-secp256k1",
+    "signatory-sodiumoxide",
+    "signatory-yubihsm",
 ]
 
 [profile.release]
