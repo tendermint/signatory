@@ -9,12 +9,13 @@ repository  = "https://github.com/tendermint/signatory/tree/master/providers/sig
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ed25519", "no_std", "sodiumoxide", "signatures"]
+edition     = "2018"
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-sodiumoxide = "0.1"
+sodiumoxide = "0.2"
 
 [dependencies.signatory]
 version = "0.10"

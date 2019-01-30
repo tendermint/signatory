@@ -1,7 +1,5 @@
 //! Signatory Ed25519 provider for *sodiumoxide*
 
-#![crate_name = "signatory_sodiumoxide"]
-#![crate_type = "lib"]
 #![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
@@ -10,9 +8,9 @@
     html_root_url = "https://docs.rs/signatory-sodiumoxide/0.10.0"
 )]
 
-#[cfg_attr(test, macro_use)]
+#[cfg(test)]
+#[macro_use]
 extern crate signatory;
-extern crate sodiumoxide;
 
 use signatory::{
     ed25519,
