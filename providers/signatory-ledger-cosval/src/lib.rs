@@ -1,7 +1,5 @@
 //! Ed25519 provider for the ledger cosmos validator app
 
-#![crate_name = "signatory_ledger_cosval"]
-#![crate_type = "lib"]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
@@ -9,11 +7,7 @@
     html_root_url = "https://docs.rs/signatory-ledger-cosval/0.10.0"
 )]
 
-extern crate ledger_cosmos;
-extern crate signatory;
-
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use signatory::{
     ed25519::{PublicKey, Signature},
@@ -22,7 +16,6 @@ use signatory::{
 };
 
 /// ed25519 signature provider for the ledger cosmos validator app
-#[allow(dead_code)]
 pub struct Ed25519CosmosAppSigner {
     app: Arc<Mutex<ledger_cosmos::CosmosValidatorApp>>,
 }
@@ -72,8 +65,8 @@ mod tests {
 
     #[test]
     fn public_key() {
+        use crate::Ed25519CosmosAppSigner;
         use signatory::PublicKeyed;
-        use Ed25519CosmosAppSigner;
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
 
         let _pk = signer.public_key().unwrap();
@@ -81,8 +74,8 @@ mod tests {
 
     #[test]
     fn sign() {
+        use crate::Ed25519CosmosAppSigner;
         use signatory::Signer;
-        use Ed25519CosmosAppSigner;
 
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
         let some_message1 = b"{\"height\":1,\"other\":\"Some dummy data\",\"round\":0}";

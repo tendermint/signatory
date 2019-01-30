@@ -9,6 +9,7 @@ repository  = "https://github.com/tendermint/signatory/tree/master/providers/sig
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cosmos", "ed25519", "signatures", "tendermint", "validator"]
+edition     = "2018"
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
