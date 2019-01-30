@@ -3,8 +3,8 @@ use std::sync::{Arc, Mutex};
 use yubihsm;
 
 use super::KeyId;
-use ecdsa::EcdsaSigner;
-use ed25519::Ed25519Signer;
+use crate::ecdsa::EcdsaSigner;
+use crate::ed25519::Ed25519Signer;
 
 /// End-to-end encrypted session with the `YubiHSM`
 pub struct Session(pub(super) Arc<Mutex<yubihsm::Client>>);
@@ -26,7 +26,7 @@ impl Session {
     where
         C: Into<Box<yubihsm::Connector>>,
     {
-        yubihsm::Client::new(connector, credentials)
+        yubihsm::Client::create(connector, credentials)
             .map(|c| Session(Arc::new(Mutex::new(c))))
             .map_err(|e| err!(ProviderError, "{}", e))
     }
@@ -102,12 +102,12 @@ impl Session {
     where
         C: WeierstrassCurve,
     {
-        EcdsaSigner::new(self, signing_key_id)
+        EcdsaSigner::create(self, signing_key_id)
     }
 
     /// Create an Ed25519 signer which uses this session
     #[cfg(feature = "ed25519")]
     pub fn ed25519_signer(&self, signing_key_id: KeyId) -> Result<Ed25519Signer, Error> {
-        Ed25519Signer::new(self, signing_key_id)
+        Ed25519Signer::create(self, signing_key_id)
     }
 }

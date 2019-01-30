@@ -14,9 +14,8 @@ keywords    = ["cryptography", "ecdsa", "ed25519", "signatures", "yubihsm"]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-lazy_static = "1"
-secp256k1 = { version = "0.11", optional = true }
-yubihsm = { version = "0.19", default-features = false, features = ["passwords"] }
+secp256k1 = { version = "0.12", optional = true }
+yubihsm = { version = "0.20.0-alpha1", default-features = false, features = ["passwords"] }
 
 [dependencies.signatory]
 version = "0.10"
@@ -24,9 +23,9 @@ features = ["digest", "ecdsa", "ed25519",  "sha2"]
 path = "../.."
 
 [dev-dependencies]
+lazy_static = "1"
 signatory-ring = { version = "0.10", path = "../signatory-ring" }
 signatory-secp256k1 = { version = "0.10", path = "../signatory-secp256k1" }
-lazy_static = "1"
 
 [features]
 default = ["http", "ecdsa", "ed25519"]

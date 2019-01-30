@@ -29,8 +29,7 @@ use signatory_yubihsm::{EcdsaSigner, KeyId, Session};
 const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
 
 /// Capability for test key
-const TEST_SIGNING_KEY_CAPABILITIES: yubihsm::Capability =
-    yubihsm::Capability::ASYMMETRIC_SIGN_ECDSA;
+const TEST_SIGNING_KEY_CAPABILITIES: yubihsm::Capability = yubihsm::Capability::SIGN_ECDSA;
 
 /// Label for test key
 const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
@@ -67,7 +66,8 @@ fn create_yubihsm_key(session: &mut Session, key_id: KeyId, alg: yubihsm::Asymme
         TEST_SIGNING_KEY_DOMAINS,
         TEST_SIGNING_KEY_CAPABILITIES,
         alg,
-    ).unwrap();
+    )
+    .unwrap();
 }
 
 // Use *ring* to verify NIST P-256 ECDSA signatures

@@ -19,8 +19,7 @@ const TEST_SIGNING_KEY_ID: KeyId = KeyId(200);
 const TEST_SIGNING_KEY_DOMAINS: yubihsm::Domain = yubihsm::Domain::DOM1;
 
 /// Capability for test key
-const TEST_SIGNING_KEY_CAPABILITIES: yubihsm::Capability =
-    yubihsm::Capability::ASYMMETRIC_SIGN_EDDSA;
+const TEST_SIGNING_KEY_CAPABILITIES: yubihsm::Capability = yubihsm::Capability::SIGN_EDDSA;
 
 /// Label for test key
 const TEST_SIGNING_KEY_LABEL: &str = "Signatory test key";
@@ -46,7 +45,8 @@ fn create_yubihsm_key(session: &mut Session) {
         TEST_SIGNING_KEY_DOMAINS,
         TEST_SIGNING_KEY_CAPABILITIES,
         yubihsm::AsymmetricAlg::Ed25519,
-    ).unwrap();
+    )
+    .unwrap();
 }
 
 #[test]

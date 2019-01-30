@@ -24,7 +24,7 @@ pub struct Ed25519Signer {
 
 impl Ed25519Signer {
     /// Create a new YubiHSM-backed Ed25519 signer
-    pub(crate) fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
+    pub(crate) fn create(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
             hsm: session.0.clone(),
             signing_key_id,
@@ -42,7 +42,7 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
         let mut hsm = self.hsm.lock().unwrap();
 
         let pubkey = hsm
-            .get_pubkey(self.signing_key_id.0)
+            .get_public_key(self.signing_key_id.0)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         if pubkey.algorithm != yubihsm::AsymmetricAlg::Ed25519 {

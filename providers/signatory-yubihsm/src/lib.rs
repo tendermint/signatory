@@ -4,8 +4,6 @@
 //! (HSMs) which natively implement many cryptographic primitives including
 //! ECDSA and Ed25519, both of which are supported by this adapter.
 
-#![crate_name = "signatory_yubihsm"]
-#![crate_type = "lib"]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
@@ -13,11 +11,6 @@
     html_root_url = "https://docs.rs/signatory-yubihsm/0.10.0"
 )]
 
-#[cfg(feature = "secp256k1")]
-#[macro_use]
-extern crate lazy_static;
-#[cfg(feature = "secp256k1")]
-extern crate secp256k1;
 pub extern crate signatory;
 pub extern crate yubihsm;
 

@@ -52,13 +52,13 @@ pub fn create_hsm_connector() -> Box<Connector> {
 /// Connect to the HSM via HTTP using `yubihsm-connector`
 #[cfg(feature = "http")]
 pub fn create_http_connector() -> Box<Connector> {
-    HttpConnector::new(&Default::default()).unwrap().into()
+    HttpConnector::create(&Default::default()).unwrap().into()
 }
 
 /// Connect to the HSM via USB
 #[cfg(feature = "usb")]
 pub fn create_usb_connector() -> Box<Connector> {
-    UsbConnector::new(&Default::default()).unwrap().into()
+    UsbConnector::create(&Default::default()).unwrap().into()
 }
 
 /// Create a mock HSM for testing in situations where a hardware device is

@@ -4,8 +4,6 @@
 //! `secp256k1` cargo feature enabled.
 
 #[cfg(feature = "secp256k1")]
-use secp256k1;
-#[cfg(feature = "secp256k1")]
 use signatory::curve::Secp256k1;
 use signatory::{
     curve::{NistP256, NistP384, WeierstrassCurve, WeierstrassCurveKind},
@@ -24,12 +22,6 @@ use std::{
 use yubihsm;
 
 use super::{KeyId, Session};
-
-#[cfg(feature = "secp256k1")]
-lazy_static! {
-    /// Lazily initialized secp256k1 engine
-    static ref SECP256K1_ENGINE: secp256k1::Secp256k1<secp256k1::All> = secp256k1::Secp256k1::new();
-}
 
 /// ECDSA signature provider for yubihsm-client
 pub struct EcdsaSigner<C>
@@ -51,7 +43,7 @@ where
     C: WeierstrassCurve,
 {
     /// Create a new YubiHSM-backed ECDSA signer
-    pub(crate) fn new(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
+    pub(crate) fn create(session: &Session, signing_key_id: KeyId) -> Result<Self, Error> {
         let signer = Self {
             hsm: session.0.clone(),
             signing_key_id,
@@ -83,7 +75,7 @@ where
         let mut hsm = self.hsm.lock().unwrap();
 
         let pubkey = hsm
-            .get_pubkey(self.signing_key_id.0)
+            .get_public_key(self.signing_key_id.0)
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         if pubkey.algorithm != Self::asymmetric_alg() {
@@ -148,9 +140,7 @@ where
 {
     /// Compute an ASN.1 DER-encoded secp256k1 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<Asn1Signature<Secp256k1>, Error> {
-        let asn1_sig = self
-            .sign_secp256k1(digest)?
-            .serialize_der(&SECP256K1_ENGINE);
+        let asn1_sig = self.sign_secp256k1(digest)?.serialize_der();
 
         Ok(Asn1Signature::from_bytes(&asn1_sig).unwrap())
     }
@@ -163,11 +153,8 @@ where
 {
     /// Compute a fixed-size secp256k1 ECDSA signature of the given digest
     fn sign(&self, digest: D) -> Result<FixedSignature<Secp256k1>, Error> {
-        let fixed_sig = GenericArray::clone_from_slice(
-            &self
-                .sign_secp256k1(digest)?
-                .serialize_compact(&SECP256K1_ENGINE),
-        );
+        let fixed_sig =
+            GenericArray::clone_from_slice(&self.sign_secp256k1(digest)?.serialize_compact());
 
         Ok(FixedSignature::from(fixed_sig))
     }
@@ -220,15 +207,14 @@ impl EcdsaSigner<Secp256k1> {
             .map_err(|e| err!(ProviderError, "{}", e))?;
 
         // Parse the signature using libsecp256k1
-        let mut sig =
-            secp256k1::Signature::from_der_lax(&SECP256K1_ENGINE, raw_sig.as_ref()).unwrap();
+        let mut sig = secp256k1::Signature::from_der_lax(raw_sig.as_ref()).unwrap();
 
         // Normalize the signature to a "low S" form. libsecp256k1 will only
         // accept signatures for which s is in the lower half of the field range.
         // The signatures produced by the YubiHSM do not have this property, so
         // we normalize them to maximize compatibility with secp256k1
         // applications (e.g. Bitcoin).
-        sig.normalize_s(&SECP256K1_ENGINE);
+        sig.normalize_s();
 
         Ok(sig)
     }
