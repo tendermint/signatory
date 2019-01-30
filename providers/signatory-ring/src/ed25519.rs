@@ -1,14 +1,13 @@
 //! Ed25519 signer and verifier implementation for *ring*
 
-use ring;
-#[cfg(feature = "std")]
-use ring::rand::SystemRandom;
-use ring::signature::Ed25519KeyPair;
-#[cfg(feature = "std")]
-use signatory::encoding::pkcs8::{self, GeneratePkcs8};
+use ring::{
+    self,
+    rand::SystemRandom,
+    signature::{Ed25519KeyPair, KeyPair},
+};
 use signatory::{
     ed25519,
-    encoding::FromPkcs8,
+    encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
     error::{Error, ErrorKind},
     PublicKeyed, Signature, Signer, Verifier,
 };
@@ -38,18 +37,17 @@ impl FromPkcs8 for Ed25519Signer {
     }
 }
 
-#[cfg(feature = "std")]
 impl GeneratePkcs8 for Ed25519Signer {
     /// Randomly generate an Ed25519 **PKCS#8** keypair
     fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
         let keypair = Ed25519KeyPair::generate_pkcs8(&SystemRandom::new()).unwrap();
-        pkcs8::SecretKey::new(keypair.as_ref())
+        pkcs8::SecretKey::from_bytes(keypair.as_ref())
     }
 }
 
 impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
     fn public_key(&self) -> Result<ed25519::PublicKey, Error> {
-        Ok(ed25519::PublicKey::from_bytes(self.0.public_key_bytes()).unwrap())
+        Ok(ed25519::PublicKey::from_bytes(self.0.public_key()).unwrap())
     }
 }
 
@@ -76,7 +74,8 @@ impl Verifier<ed25519::Signature> for Ed25519Verifier {
             untrusted::Input::from(self.0.as_bytes()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_bytes()),
-        ).map_err(|_| ErrorKind::SignatureInvalid.into())
+        )
+        .map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }
 

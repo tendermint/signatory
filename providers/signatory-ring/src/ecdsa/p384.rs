@@ -2,19 +2,16 @@
 
 use ring::{
     self,
+    rand::SystemRandom,
     signature::{
-        ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING, ECDSA_P384_SHA384_FIXED,
-        ECDSA_P384_SHA384_FIXED_SIGNING,
+        EcdsaKeyPair, ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING,
+        ECDSA_P384_SHA384_FIXED, ECDSA_P384_SHA384_FIXED_SIGNING,
     },
 };
-#[cfg(feature = "std")]
-use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
-#[cfg(feature = "std")]
-use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
-    curve::nistp384::NistP384,
-    ecdsa::{Asn1Signature, FixedSignature, PublicKey, Signature},
-    encoding::FromPkcs8,
+    curve::nistp384,
+    ecdsa,
+    encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha384Signer, Sha384Verifier,
 };
@@ -23,95 +20,103 @@ use untrusted;
 use super::signer::EcdsaSigner;
 
 /// NIST P-384 ECDSA signer
-pub type P384Signer<S> = EcdsaSigner<NistP384, S>;
-
-impl FromPkcs8 for P384Signer<Asn1Signature<NistP384>> {
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
-        Self::new(&ECDSA_P384_SHA384_ASN1_SIGNING, secret_key.as_ref())
-    }
-}
-
-impl FromPkcs8 for P384Signer<FixedSignature<NistP384>> {
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
-        Self::new(&ECDSA_P384_SHA384_FIXED_SIGNING, secret_key.as_ref())
-    }
-}
-
-#[cfg(feature = "std")]
-impl GeneratePkcs8 for P384Signer<Asn1Signature<NistP384>> {
-    /// Randomly generate a P-384 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
-        let keypair =
-            ECDSAKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_ASN1_SIGNING, &SystemRandom::new())
-                .unwrap();
-        pkcs8::SecretKey::new(keypair.as_ref())
-    }
-}
-
-#[cfg(feature = "std")]
-impl GeneratePkcs8 for P384Signer<FixedSignature<NistP384>> {
-    /// Randomly generate a P-384 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
-        let keypair =
-            ECDSAKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_FIXED_SIGNING, &SystemRandom::new())
-                .unwrap();
-        pkcs8::SecretKey::new(keypair.as_ref())
-    }
-}
-
-impl<S> PublicKeyed<PublicKey<NistP384>> for P384Signer<S>
+pub struct P384Signer<S>(EcdsaSigner<S>)
 where
-    S: Signature + Send + Sync,
+    S: ecdsa::Signature;
+
+impl FromPkcs8 for P384Signer<nistp384::Asn1Signature> {
+    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Ok(P384Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P384_SHA384_ASN1_SIGNING,
+            secret_key.as_ref(),
+        )?))
+    }
+}
+
+impl FromPkcs8 for P384Signer<nistp384::FixedSignature> {
+    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Ok(P384Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P384_SHA384_FIXED_SIGNING,
+            secret_key.as_ref(),
+        )?))
+    }
+}
+
+impl GeneratePkcs8 for P384Signer<nistp384::Asn1Signature> {
+    /// Randomly generate a P-384 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            EcdsaKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_ASN1_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::SecretKey::from_bytes(keypair.as_ref())
+    }
+}
+
+impl GeneratePkcs8 for P384Signer<nistp384::FixedSignature> {
+    /// Randomly generate a P-384 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            EcdsaKeyPair::generate_pkcs8(&ECDSA_P384_SHA384_FIXED_SIGNING, &SystemRandom::new())
+                .unwrap();
+        pkcs8::SecretKey::from_bytes(keypair.as_ref())
+    }
+}
+
+impl<S> PublicKeyed<nistp384::PublicKey> for P384Signer<S>
+where
+    S: ecdsa::Signature + Send + Sync,
 {
     /// Obtain the public key which identifies this signer
-    fn public_key(&self) -> Result<PublicKey<NistP384>, Error> {
-        Ok(self.public_key.clone())
+    fn public_key(&self) -> Result<nistp384::PublicKey, Error> {
+        nistp384::PublicKey::from_bytes(self.0.public_key())
     }
 }
 
-impl Sha384Signer<Asn1Signature<NistP384>> for P384Signer<Asn1Signature<NistP384>> {
-    fn sign_sha384(&self, msg: &[u8]) -> Result<Asn1Signature<NistP384>, Error> {
-        self.sign(msg)
+impl Sha384Signer<nistp384::Asn1Signature> for P384Signer<nistp384::Asn1Signature> {
+    fn sign_sha384(&self, msg: &[u8]) -> Result<nistp384::Asn1Signature, Error> {
+        self.0.sign(msg)
     }
 }
 
-impl Sha384Signer<FixedSignature<NistP384>> for P384Signer<FixedSignature<NistP384>> {
-    fn sign_sha384(&self, msg: &[u8]) -> Result<FixedSignature<NistP384>, Error> {
-        self.sign(msg)
+impl Sha384Signer<nistp384::FixedSignature> for P384Signer<nistp384::FixedSignature> {
+    fn sign_sha384(&self, msg: &[u8]) -> Result<nistp384::FixedSignature, Error> {
+        self.0.sign(msg)
     }
 }
 
 /// NIST P-384 ECDSA verifier
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct P384Verifier(PublicKey<NistP384>);
+pub struct P384Verifier(nistp384::PublicKey);
 
-impl<'a> From<&'a PublicKey<NistP384>> for P384Verifier {
-    fn from(public_key: &'a PublicKey<NistP384>) -> Self {
+impl<'a> From<&'a nistp384::PublicKey> for P384Verifier {
+    fn from(public_key: &'a nistp384::PublicKey) -> Self {
         P384Verifier(public_key.clone())
     }
 }
 
-impl Sha384Verifier<Asn1Signature<NistP384>> for P384Verifier {
-    fn verify_sha384(&self, msg: &[u8], signature: &Asn1Signature<NistP384>) -> Result<(), Error> {
+impl Sha384Verifier<nistp384::Asn1Signature> for P384Verifier {
+    fn verify_sha384(&self, msg: &[u8], signature: &nistp384::Asn1Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P384_SHA384_ASN1,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| SignatureInvalid.into())
+        )
+        .map_err(|_| SignatureInvalid.into())
     }
 }
 
-impl Sha384Verifier<FixedSignature<NistP384>> for P384Verifier {
-    fn verify_sha384(&self, msg: &[u8], signature: &FixedSignature<NistP384>) -> Result<(), Error> {
+impl Sha384Verifier<nistp384::FixedSignature> for P384Verifier {
+    fn verify_sha384(&self, msg: &[u8], signature: &nistp384::FixedSignature) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P384_SHA384_FIXED,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| SignatureInvalid.into())
+        )
+        .map_err(|_| SignatureInvalid.into())
     }
 }
 
@@ -180,13 +185,12 @@ mod tests {
             assert!(verifier.verify_sha384(vector.msg, &signature).is_ok());
 
             // Make sure the vector signature verifies
-            assert!(
-                verifier
-                    .verify_sha384(
-                        vector.msg,
-                        &FixedSignature::from_bytes(&vector.sig).unwrap()
-                    ).is_ok()
-            );
+            assert!(verifier
+                .verify_sha384(
+                    vector.msg,
+                    &FixedSignature::from_bytes(&vector.sig).unwrap()
+                )
+                .is_ok());
         }
     }
 

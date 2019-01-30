@@ -4,4 +4,4 @@ mod p256;
 mod p384;
 mod signer;
 
-pub use self::{p256::*, p384::*, signer::*};
+pub use self::{p256::*, p384::*};

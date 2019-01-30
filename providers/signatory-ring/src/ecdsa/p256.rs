@@ -2,19 +2,16 @@
 
 use ring::{
     self,
+    rand::SystemRandom,
     signature::{
-        ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING, ECDSA_P256_SHA256_FIXED,
-        ECDSA_P256_SHA256_FIXED_SIGNING,
+        EcdsaKeyPair, ECDSA_P256_SHA256_ASN1, ECDSA_P256_SHA256_ASN1_SIGNING,
+        ECDSA_P256_SHA256_FIXED, ECDSA_P256_SHA256_FIXED_SIGNING,
     },
 };
-#[cfg(feature = "std")]
-use ring::{rand::SystemRandom, signature::ECDSAKeyPair};
-#[cfg(feature = "std")]
-use signatory::encoding::pkcs8::{self, GeneratePkcs8};
 use signatory::{
-    curve::nistp256::NistP256,
-    ecdsa::{Asn1Signature, FixedSignature, PublicKey, Signature},
-    encoding::pkcs8::FromPkcs8,
+    curve::nistp256,
+    ecdsa,
+    encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha256Signer, Sha256Verifier,
 };
@@ -23,94 +20,104 @@ use untrusted;
 use super::signer::EcdsaSigner;
 
 /// NIST P-256 ECDSA signer
-pub type P256Signer<S> = EcdsaSigner<NistP256, S>;
-
-impl FromPkcs8 for P256Signer<Asn1Signature<NistP256>> {
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
-        Self::new(&ECDSA_P256_SHA256_ASN1_SIGNING, secret_key.as_ref())
-    }
-}
-
-impl FromPkcs8 for P256Signer<FixedSignature<NistP256>> {
-    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
-        Self::new(&ECDSA_P256_SHA256_FIXED_SIGNING, secret_key.as_ref())
-    }
-}
-
-#[cfg(feature = "std")]
-impl GeneratePkcs8 for P256Signer<Asn1Signature<NistP256>> {
-    /// Randomly generate a P-256 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
-        let keypair =
-            ECDSAKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_ASN1_SIGNING, &SystemRandom::new())
-                .unwrap();
-        pkcs8::SecretKey::new(keypair.as_ref())
-    }
-}
-
-#[cfg(feature = "std")]
-impl GeneratePkcs8 for P256Signer<FixedSignature<NistP256>> {
-    /// Randomly generate a P-256 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
-        let keypair =
-            ECDSAKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &SystemRandom::new())
-                .unwrap();
-        pkcs8::SecretKey::new(keypair.as_ref())
-    }
-}
-
-impl<S> PublicKeyed<PublicKey<NistP256>> for P256Signer<S>
+pub struct P256Signer<S>(EcdsaSigner<S>)
 where
-    S: Signature + Send + Sync,
+    S: ecdsa::Signature;
+
+impl FromPkcs8 for P256Signer<nistp256::Asn1Signature> {
+    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Ok(P256Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P256_SHA256_ASN1_SIGNING,
+            secret_key.as_ref(),
+        )?))
+    }
+}
+
+impl FromPkcs8 for P256Signer<nistp256::FixedSignature> {
+    /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+        Ok(P256Signer(EcdsaSigner::from_pkcs8(
+            &ECDSA_P256_SHA256_FIXED_SIGNING,
+            secret_key.as_ref(),
+        )?))
+    }
+}
+
+impl GeneratePkcs8 for P256Signer<nistp256::Asn1Signature> {
+    /// Randomly generate a P-256 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_ASN1_SIGNING, &SystemRandom::new())
+                .unwrap();
+
+        pkcs8::SecretKey::from_bytes(keypair.as_ref())
+    }
+}
+
+impl GeneratePkcs8 for P256Signer<nistp256::FixedSignature> {
+    /// Randomly generate a P-256 **PKCS#8** keypair
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+        let keypair =
+            EcdsaKeyPair::generate_pkcs8(&ECDSA_P256_SHA256_FIXED_SIGNING, &SystemRandom::new())
+                .unwrap();
+
+        pkcs8::SecretKey::from_bytes(keypair.as_ref())
+    }
+}
+
+impl<S> PublicKeyed<nistp256::PublicKey> for P256Signer<S>
+where
+    S: ecdsa::Signature + Send + Sync,
 {
-    fn public_key(&self) -> Result<PublicKey<NistP256>, Error> {
-        Ok(self.public_key.clone())
+    fn public_key(&self) -> Result<nistp256::PublicKey, Error> {
+        nistp256::PublicKey::from_bytes(self.0.public_key())
     }
 }
 
-impl Sha256Signer<Asn1Signature<NistP256>> for P256Signer<Asn1Signature<NistP256>> {
-    fn sign_sha256(&self, msg: &[u8]) -> Result<Asn1Signature<NistP256>, Error> {
-        self.sign(msg)
+impl Sha256Signer<nistp256::Asn1Signature> for P256Signer<nistp256::Asn1Signature> {
+    fn sign_sha256(&self, msg: &[u8]) -> Result<nistp256::Asn1Signature, Error> {
+        self.0.sign(msg)
     }
 }
 
-impl Sha256Signer<FixedSignature<NistP256>> for P256Signer<FixedSignature<NistP256>> {
-    fn sign_sha256(&self, msg: &[u8]) -> Result<FixedSignature<NistP256>, Error> {
-        self.sign(msg)
+impl Sha256Signer<nistp256::FixedSignature> for P256Signer<nistp256::FixedSignature> {
+    fn sign_sha256(&self, msg: &[u8]) -> Result<nistp256::FixedSignature, Error> {
+        self.0.sign(msg)
     }
 }
 
 /// NIST P-256 ECDSA verifier
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct P256Verifier(PublicKey<NistP256>);
+pub struct P256Verifier(nistp256::PublicKey);
 
-impl<'a> From<&'a PublicKey<NistP256>> for P256Verifier {
-    fn from(public_key: &'a PublicKey<NistP256>) -> Self {
+impl<'a> From<&'a nistp256::PublicKey> for P256Verifier {
+    fn from(public_key: &'a nistp256::PublicKey) -> Self {
         P256Verifier(public_key.clone())
     }
 }
 
-impl Sha256Verifier<Asn1Signature<NistP256>> for P256Verifier {
-    fn verify_sha256(&self, msg: &[u8], signature: &Asn1Signature<NistP256>) -> Result<(), Error> {
+impl Sha256Verifier<nistp256::Asn1Signature> for P256Verifier {
+    fn verify_sha256(&self, msg: &[u8], signature: &nistp256::Asn1Signature) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_ASN1,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| SignatureInvalid.into())
+        )
+        .map_err(|_| SignatureInvalid.into())
     }
 }
 
-impl Sha256Verifier<FixedSignature<NistP256>> for P256Verifier {
-    fn verify_sha256(&self, msg: &[u8], signature: &FixedSignature<NistP256>) -> Result<(), Error> {
+impl Sha256Verifier<nistp256::FixedSignature> for P256Verifier {
+    fn verify_sha256(&self, msg: &[u8], signature: &nistp256::FixedSignature) -> Result<(), Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_FIXED,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
-        ).map_err(|_| SignatureInvalid.into())
+        )
+        .map_err(|_| SignatureInvalid.into())
     }
 }
 
@@ -179,13 +186,12 @@ mod tests {
             assert!(verifier.verify_sha256(vector.msg, &signature).is_ok());
 
             // Make sure the vector signature verifies
-            assert!(
-                verifier
-                    .verify_sha256(
-                        vector.msg,
-                        &FixedSignature::from_bytes(&vector.sig).unwrap()
-                    ).is_ok()
-            );
+            assert!(verifier
+                .verify_sha256(
+                    vector.msg,
+                    &FixedSignature::from_bytes(&vector.sig).unwrap()
+                )
+                .is_ok());
         }
     }
 
@@ -236,7 +242,8 @@ mod tests {
             \x00\x06\x9d\x3a\x33\x6b\x40\xc0\x83\x83\x36\x2e\xe5\x8c\x46\x71\
             \x7e\x22\x30\x1e\xd9\x98\xb6\xcc\xaa\x43\x35\x7f\x97\x56\xe2\x5c"
                 .as_ref(),
-        ).unwrap();
+        )
+        .unwrap();
 
         let public_key = PublicKey::from_untagged_point(&GenericArray::from_slice(vector.pk));
         let verifier = P256Verifier::from(&public_key);

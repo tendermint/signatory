@@ -1,7 +1,5 @@
 //! Signatory ECDSA and Ed25519 provider for *ring*
 
-#![crate_name = "signatory_ring"]
-#![crate_type = "lib"]
 #![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]

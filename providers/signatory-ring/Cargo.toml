@@ -9,12 +9,13 @@ repository  = "https://github.com/tendermint/signatory/tree/master/providers/sig
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ecdsa", "ed25519", "ring", "signatures"]
+edition     = "2018"
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-ring = "0.13"
+ring = "0.14"
 untrusted = "0.6"
 
 [dependencies.signatory]
