@@ -9,14 +9,15 @@ repository  = "https://github.com/tendermint/signatory/tree/master/providers/sig
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "dalek", "ed25519", "signing", "signatures"]
+edition     = "2018"
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-digest = { version = "0.7", default-features = false }
-ed25519-dalek = { version = "0.8", default-features = false }
-sha2 = { version =  "0.7", default-features = false }
+digest = { version = "0.8", default-features = false }
+ed25519-dalek = { version = "1.0.0-pre.1", default-features = false }
+sha2 = { version =  "0.8", default-features = false }
 
 [dependencies.signatory]
 version = "0.10"

@@ -5,8 +5,6 @@
 //!
 //! [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 
-#![crate_name = "signatory_dalek"]
-#![crate_type = "lib"]
 #![no_std]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
@@ -15,27 +13,18 @@
     html_root_url = "https://docs.rs/signatory-dalek/0.10.0"
 )]
 
-extern crate digest;
-extern crate ed25519_dalek;
-extern crate sha2;
-#[cfg_attr(test, macro_use)]
+#[cfg(test)]
+#[macro_use]
 extern crate signatory;
 
-// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
-// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
-#[cfg(feature = "digest-0.8")]
 use digest::Digest;
 use ed25519_dalek::{Keypair, SecretKey};
-use sha2::Sha512;
 
 use signatory::{
     ed25519,
     error::{Error, ErrorKind},
     PublicKeyed, Signature, Signer, Verifier,
 };
-// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
-// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
-#[cfg(feature = "digest-0.8")]
 use signatory::{generic_array::typenum::U64, DigestSigner, DigestVerifier};
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -56,7 +45,7 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
 
 impl Signer<ed25519::Signature> for Ed25519Signer {
     fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
-        let signature = self.0.sign::<Sha512>(msg).to_bytes();
+        let signature = self.0.sign(msg).to_bytes();
         Ok(Signature::from_bytes(&signature[..]).unwrap())
     }
 }
@@ -78,9 +67,6 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519PhSigner {
 }
 
 // TODO: tests!
-// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
-// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
-#[cfg(feature = "digest-0.8")]
 impl<D> DigestSigner<D, ed25519::Signature> for Ed25519PhSigner
 where
     D: Digest<OutputSize = U64> + Default,
@@ -110,7 +96,7 @@ impl Verifier<ed25519::Signature> for Ed25519Verifier {
     fn verify(&self, msg: &[u8], sig: &ed25519::Signature) -> Result<(), Error> {
         let dalek_sig = ed25519_dalek::Signature::from_bytes(sig.as_ref()).unwrap();
         self.0
-            .verify::<Sha512>(msg, &dalek_sig)
+            .verify(msg, &dalek_sig)
             .map_err(|_| ErrorKind::SignatureInvalid.into())
     }
 }
@@ -126,9 +112,6 @@ impl<'a> From<&'a ed25519::PublicKey> for Ed25519PhVerifier {
 }
 
 // TODO: tests!
-// TEMPORARILY DISABLED UNTIL DALEK IS UPDATED TO DIGEST 0.8
-// See: https://github.com/dalek-cryptography/curve25519-dalek/pull/201
-#[cfg(feature = "digest-0.8")]
 impl<D> DigestVerifier<D, ed25519::Signature> for Ed25519PhVerifier
 where
     D: Digest<OutputSize = U64> + Default,
@@ -146,7 +129,7 @@ where
 /// Convert a Signatory seed into a Dalek keypair
 fn keypair_from_seed(seed: &ed25519::Seed) -> Keypair {
     let secret = SecretKey::from_bytes(seed.as_secret_slice()).unwrap();
-    let public = ed25519_dalek::PublicKey::from_secret::<Sha512>(&secret);
+    let public = ed25519_dalek::PublicKey::from(&secret);
     Keypair { secret, public }
 }
 
