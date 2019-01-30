@@ -1,30 +1,29 @@
 //! Raw ECDSA secret keys: `x` value for ECDSA.
 
-use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
-#[cfg(all(feature = "rand", feature = "std"))]
-use rand::{CryptoRng, OsRng, RngCore};
+#[cfg(all(feature = "rand_os", feature = "std"))]
+use rand_os::{
+    rand_core::{CryptoRng, RngCore},
+    OsRng,
+};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
 
-use curve::WeierstrassCurve;
+use crate::curve::WeierstrassCurve;
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
+use crate::encoding::Encode;
+use crate::error::Error;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use prelude::*;
+use crate::prelude::*;
 
 /// Raw ECDSA secret keys: raw scalar value `WeierstrassCurve::ScalarBytes`
 /// in size used as the `x` value for ECDSA.
 pub struct SecretKey<C: WeierstrassCurve> {
     /// Byte serialization of a secret scalar for ECDSA
     bytes: GenericArray<u8, C::ScalarSize>,
-
-    /// Placeholder for elliptic curve type
-    curve: PhantomData<C>,
 }
 
 impl<C> SecretKey<C>
@@ -38,7 +37,6 @@ where
     {
         Self {
             bytes: into_bytes.into(),
-            curve: PhantomData,
         }
     }
 
@@ -61,22 +59,22 @@ where
 
     /// Generate a new ECDSA secret key using the operating system's
     /// cryptographically secure random number generator
-    #[cfg(all(feature = "rand", feature = "std"))]
+    #[cfg(feature = "rand_os")]
     pub fn generate() -> Self {
         let mut csprng = OsRng::new().expect("RNG initialization failure!");
-        Self::generate_from_rng::<OsRng>(&mut csprng)
+        Self::generate_from_rng(&mut csprng)
     }
 
     /// Generate a new ECDSA secret key using the provided random number generator
-    #[cfg(feature = "rand")]
-    pub fn generate_from_rng<R: CryptoRng + RngCore>(csprng: &mut R) -> Self {
+    #[cfg(feature = "rand_os")]
+    pub fn generate_from_rng<R>(csprng: &mut R) -> Self
+    where
+        R: CryptoRng + RngCore,
+    {
         let mut bytes = GenericArray::default();
         csprng.fill_bytes(bytes.as_mut_slice());
 
-        Self {
-            bytes,
-            curve: PhantomData,
-        }
+        Self { bytes }
     }
 
     /// Expose this `SecretKey` as a byte slice
@@ -109,10 +107,7 @@ where
             C::ScalarSize::to_usize()
         );
 
-        Ok(Self {
-            bytes,
-            curve: PhantomData,
-        })
+        Ok(Self { bytes })
     }
 }
 

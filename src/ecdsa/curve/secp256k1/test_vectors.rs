@@ -4,7 +4,7 @@
 
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-use test_vector::{TestVector, TestVectorAlgorithm};
+use crate::test_vector::{TestVector, TestVectorAlgorithm};
 
 /// ECDSA secp256k1 fixed-sized signature test vectors (self-generated, should probably be replaced)
 // TODO: Test vectors for ASN.1 encoded signatures

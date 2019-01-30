@@ -4,7 +4,7 @@ use subtle_encoding::Encoding;
 #[cfg(feature = "std")]
 use zeroize::Zeroize;
 
-use error::Error;
+use crate::error::Error;
 
 /// Decode keys/signatures from encoded data (e.g. hex, Base64).
 /// Uses constant time encoder/decoder implementations.

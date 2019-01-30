@@ -9,7 +9,7 @@ pub mod point;
 pub mod secp256k1;
 
 pub use self::{nistp256::NistP256, nistp384::NistP384, secp256k1::Secp256k1};
-use error::Error;
+use crate::error::Error;
 
 /// Elliptic curve in short Weierstrass form suitable for use with ECDSA
 pub trait WeierstrassCurve:

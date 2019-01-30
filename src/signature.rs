@@ -1,8 +1,8 @@
 use core::fmt::Debug;
 
-use error::Error;
+use crate::error::Error;
 #[allow(unused_imports)]
-use prelude::*;
+use crate::prelude::*;
 
 /// Common trait for all signatures
 pub trait Signature: AsRef<[u8]> + Debug + Sized {

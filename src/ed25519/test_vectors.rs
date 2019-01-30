@@ -1,6 +1,6 @@
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
-use test_vector::{TestVector, TestVectorAlgorithm};
+use crate::test_vector::{TestVector, TestVectorAlgorithm};
 
 /// Ed25519 test vectors (from RFC 8032, converted to Rust bytestring literals)
 pub const TEST_VECTORS: &[TestVector] = &[

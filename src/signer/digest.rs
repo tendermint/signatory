@@ -4,8 +4,8 @@
 
 use digest::Digest;
 
-use error::Error;
-use Signature;
+use crate::error::Error;
+use crate::Signature;
 
 /// Trait for signers which take a prehashed `Digest` as input.
 /// The `digest` cargo feature must be enabled for this to be available.

@@ -2,7 +2,7 @@
 
 use core::fmt::Debug;
 
-use error::Error;
+use crate::error::Error;
 
 /// Signers which know their public keys (to be implemented by Signatory
 /// providers)

@@ -47,10 +47,10 @@ pub use self::{
     seed::{Seed, SEED_SIZE},
     signature::{Signature, SIGNATURE_SIZE},
 };
-use error::Error;
-use public_key::PublicKeyed;
-use signer::Signer;
-use verifier::Verifier;
+use crate::error::Error;
+use crate::public_key::PublicKeyed;
+use crate::signer::Signer;
+use crate::verifier::Verifier;
 
 /// Get the public key for the given public keyed object (i.e. a `Signer`)
 pub fn public_key(keyed: &PublicKeyed<PublicKey>) -> Result<PublicKey, Error> {

@@ -56,13 +56,13 @@ impl WeierstrassCurve for NistP256 {
 }
 
 /// NIST P-256 secret key
-pub type SecretKey = ::ecdsa::SecretKey<NistP256>;
+pub type SecretKey = crate::ecdsa::SecretKey<NistP256>;
 
 /// NIST P-256 public key
-pub type PublicKey = ::ecdsa::PublicKey<NistP256>;
+pub type PublicKey = crate::ecdsa::PublicKey<NistP256>;
 
 /// ASN.1 DER encoded secp256k1 ECDSA signature
-pub type Asn1Signature = ::ecdsa::Asn1Signature<NistP256>;
+pub type Asn1Signature = crate::ecdsa::Asn1Signature<NistP256>;
 
 /// Compact, fixed-sized secp256k1 ECDSA signature
-pub type FixedSignature = ::ecdsa::FixedSignature<NistP256>;
+pub type FixedSignature = crate::ecdsa::FixedSignature<NistP256>;

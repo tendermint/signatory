@@ -1,24 +1,21 @@
 //! ASN.1 DER-encoded ECDSA signatures
 
 use core::fmt::{self, Debug};
-use core::marker::PhantomData;
-use generic_array::typenum::Unsigned;
-use generic_array::GenericArray;
+use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
 #[cfg(feature = "encoding")]
 use super::{fixed::FixedSignature, scalars::ScalarPair};
-use curve::WeierstrassCurve;
-use ecdsa;
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
 #[allow(unused_imports)]
-use prelude::*;
-use util::fmt_colon_delimited_hex;
+use crate::prelude::*;
+use crate::{
+    curve::WeierstrassCurve, ecdsa, encoding::Encode, error::Error, util::fmt_colon_delimited_hex,
+    Signature,
+};
 
 /// ECDSA signatures encoded as ASN.1 DER
 #[derive(Clone, PartialEq, Eq)]
@@ -28,12 +25,9 @@ pub struct Asn1Signature<C: WeierstrassCurve> {
 
     /// Length of the signature in bytes (DER is variable-width)
     pub(super) length: usize,
-
-    /// Placeholder for elliptic curve type
-    pub(super) curve: PhantomData<C>,
 }
 
-impl<C> ::Signature for Asn1Signature<C>
+impl<C> Signature for Asn1Signature<C>
 where
     C: WeierstrassCurve,
 {
@@ -59,7 +53,6 @@ where
         let result = Self {
             bytes: array,
             length,
-            curve: PhantomData,
         };
 
         // Ensure result is well-formed ASN.1 DER
@@ -106,7 +99,6 @@ where
         let result = Self {
             bytes: array,
             length: decoded_len,
-            curve: PhantomData,
         };
 
         // Ensure result is well-formed ASN.1 DER
@@ -156,8 +148,8 @@ where
 #[cfg(all(test, feature = "encoding", feature = "test-vectors"))]
 #[allow(unused_imports)]
 mod tests {
-    use curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
-    use Signature;
+    use crate::curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
+    use crate::Signature;
 
     #[test]
     fn test_fixed_to_asn1_signature_roundtrip() {

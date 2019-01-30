@@ -4,9 +4,8 @@ use digest::Digest;
 use sha2::{Sha256, Sha384, Sha512};
 
 #[cfg(all(feature = "digest", feature = "sha2"))]
-use super::DigestSigner;
-use error::Error;
-use signature::Signature;
+use super::digest::DigestSigner;
+use crate::{error::Error, signature::Signature};
 
 // TODO: define these using a macro?
 

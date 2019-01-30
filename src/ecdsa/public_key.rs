@@ -6,16 +6,16 @@ use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
-use curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
-use curve::WeierstrassCurve;
+use crate::curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
+use crate::curve::WeierstrassCurve;
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
+use crate::encoding::Encode;
+use crate::error::Error;
 #[allow(unused_imports)]
-use prelude::*;
-use util::fmt_colon_delimited_hex;
+use crate::prelude::*;
+use crate::util::fmt_colon_delimited_hex;
 
 /// ECDSA public keys
 #[derive(Clone, Eq, PartialEq)]
@@ -44,11 +44,11 @@ where
 
         if length == C::CompressedPointSize::to_usize() {
             let array = GenericArray::clone_from_slice(slice);
-            let point = CompressedCurvePoint::new(array)?;
+            let point = CompressedCurvePoint::from_bytes(array)?;
             Ok(PublicKey::Compressed(point))
         } else if length == C::UncompressedPointSize::to_usize() {
             let array = GenericArray::clone_from_slice(slice);
-            let point = UncompressedCurvePoint::new(array)?;
+            let point = UncompressedCurvePoint::from_bytes(array)?;
             Ok(PublicKey::Uncompressed(point))
         } else {
             fail!(
@@ -70,7 +70,7 @@ where
     where
         B: Into<GenericArray<u8, C::CompressedPointSize>>,
     {
-        let point = CompressedCurvePoint::new(into_bytes)?;
+        let point = CompressedCurvePoint::from_bytes(into_bytes)?;
         Ok(PublicKey::Compressed(point))
     }
 
@@ -85,7 +85,7 @@ where
         tagged_bytes.as_mut_slice()[0] = 0x04;
         tagged_bytes.as_mut_slice()[1..].copy_from_slice(bytes.as_ref());
 
-        PublicKey::Uncompressed(UncompressedCurvePoint::new(tagged_bytes).unwrap())
+        PublicKey::Uncompressed(UncompressedCurvePoint::from_bytes(tagged_bytes).unwrap())
     }
 
     /// Obtain public key as a byte array reference
@@ -156,4 +156,4 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> ::PublicKey for PublicKey<C> {}
+impl<C: WeierstrassCurve> crate::PublicKey for PublicKey<C> {}

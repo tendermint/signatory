@@ -5,14 +5,14 @@ use core::fmt::{self, Debug};
 use subtle_encoding::Encoding;
 
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
+use crate::encoding::Encode;
+use crate::error::Error;
 #[allow(unused_imports)]
-use prelude::*;
-use signature::Signature as SignatureTrait;
-use util::fmt_colon_delimited_hex;
+use crate::prelude::*;
+use crate::signature::Signature as SignatureTrait;
+use crate::util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 signature in bytes (512-bits)
 pub const SIGNATURE_SIZE: usize = 64;

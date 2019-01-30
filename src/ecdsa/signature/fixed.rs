@@ -1,33 +1,27 @@
 //! Fixed-size, compact ECDSA signatures (as used in e.g. PKCS#11)
 
+#[cfg(feature = "encoding")]
+use crate::encoding::Decode;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::encoding::Encode;
+#[allow(unused_imports)]
+use crate::prelude::*;
+use crate::{
+    curve::WeierstrassCurve, ecdsa, error::Error, util::fmt_colon_delimited_hex, Signature,
+};
 use core::fmt::{self, Debug};
-use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
-
-use curve::WeierstrassCurve;
-use ecdsa;
-#[cfg(feature = "encoding")]
-use encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
-#[allow(unused_imports)]
-use prelude::*;
-use util::fmt_colon_delimited_hex;
 
 /// ECDSA signatures serialized in a compact, fixed-sized form
 #[derive(Clone, PartialEq, Eq)]
 pub struct FixedSignature<C: WeierstrassCurve> {
     /// Signature data as bytes
     bytes: GenericArray<u8, C::FixedSignatureSize>,
-
-    /// Placeholder for elliptic curve type
-    curve: PhantomData<C>,
 }
 
-impl<C> ::Signature for FixedSignature<C>
+impl<C> Signature for FixedSignature<C>
 where
     C: WeierstrassCurve,
 {
@@ -118,9 +112,6 @@ where
     C: WeierstrassCurve,
 {
     fn from(bytes: GenericArray<u8, C::FixedSignatureSize>) -> Self {
-        Self {
-            bytes,
-            curve: PhantomData,
-        }
+        Self { bytes }
     }
 }

@@ -1,19 +1,22 @@
 //! Ed25519 seeds: 32-bit uniformly random secret value used to derive scalars
 //! and nonce prefixes
 
-#[cfg(all(feature = "rand", feature = "std"))]
-use rand::{CryptoRng, OsRng, RngCore};
+#[cfg(feature = "rand_os")]
+use rand_os::{
+    rand_core::{CryptoRng, RngCore},
+    OsRng,
+};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
 
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
+use crate::encoding::Encode;
+use crate::error::Error;
 #[allow(unused_imports)]
-use prelude::*;
+use crate::prelude::*;
 
 /// Size of the "seed" value for an Ed25519 private key
 pub const SEED_SIZE: usize = 32;
@@ -33,15 +36,18 @@ impl Seed {
 
     /// Generate a new Ed25519 seed using the operating system's
     /// cryptographically secure random number generator
-    #[cfg(all(feature = "rand", feature = "std"))]
+    #[cfg(feature = "rand_os")]
     pub fn generate() -> Self {
         let mut csprng = OsRng::new().expect("RNG initialization failure!");
         Self::generate_from_rng::<OsRng>(&mut csprng)
     }
 
     /// Generate a new Ed25519 seed using the provided random number generator
-    #[cfg(feature = "rand")]
-    pub fn generate_from_rng<R: CryptoRng + RngCore>(csprng: &mut R) -> Self {
+    #[cfg(feature = "rand_os")]
+    pub fn generate_from_rng<R>(csprng: &mut R) -> Self
+    where
+        R: CryptoRng + RngCore,
+    {
         let mut bytes = [0u8; SEED_SIZE];
         csprng.fill_bytes(&mut bytes[..]);
         Self::new(bytes)

@@ -7,8 +7,8 @@ use zeroize::Zeroize;
 
 #[cfg(unix)]
 use super::FILE_MODE;
-use error::Error;
-use prelude::*;
+use crate::error::Error;
+use crate::prelude::*;
 
 /// Serialize keys/signatures with the given encoding (e.g. hex, Base64).
 /// Uses constant time encoder/decoder implementations.

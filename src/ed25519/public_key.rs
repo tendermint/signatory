@@ -5,13 +5,13 @@ use core::fmt::{self, Debug};
 use subtle_encoding::Encoding;
 
 #[cfg(feature = "encoding")]
-use encoding::Decode;
+use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use encoding::Encode;
-use error::Error;
+use crate::encoding::Encode;
+use crate::error::Error;
 #[allow(unused_imports)]
-use prelude::*;
-use util::fmt_colon_delimited_hex;
+use crate::prelude::*;
+use crate::util::fmt_colon_delimited_hex;
 
 /// Size of an Ed25519 public key in bytes (256-bits)
 pub const PUBLIC_KEY_SIZE: usize = 32;
@@ -99,4 +99,4 @@ impl Encode for PublicKey {
     }
 }
 
-impl ::PublicKey for PublicKey {}
+impl crate::PublicKey for PublicKey {}

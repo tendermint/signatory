@@ -4,20 +4,15 @@
 //!
 //! <http://www.secg.org/sec1-v2.pdf>
 
-use core::marker::PhantomData;
-use generic_array::GenericArray;
-
 use super::WeierstrassCurve;
-use error::Error;
+use crate::error::Error;
+use generic_array::GenericArray;
 
 /// Compressed elliptic curve points serialized according to the
 /// `Elliptic-Curve-Point-to-Octet-String` algorithm
 pub struct CompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the compressed point
     bytes: GenericArray<u8, C::CompressedPointSize>,
-
-    /// Placeholder for elliptic curve type
-    curve: PhantomData<C>,
 }
 
 impl<C> CompressedCurvePoint<C>
@@ -25,7 +20,7 @@ where
     C: WeierstrassCurve,
 {
     /// Create a new compressed elliptic curve point
-    pub fn new<B>(into_bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(into_bytes: B) -> Result<Self, Error>
     where
         B: Into<GenericArray<u8, C::CompressedPointSize>>,
     {
@@ -39,10 +34,7 @@ where
             tag_byte
         );
 
-        Ok(Self {
-            bytes,
-            curve: PhantomData,
-        })
+        Ok(Self { bytes })
     }
 
     /// Obtain public key as a byte array reference
@@ -67,7 +59,7 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for CompressedCurvePoint<C> {
 
 impl<C: WeierstrassCurve> Clone for CompressedCurvePoint<C> {
     fn clone(&self) -> Self {
-        Self::new(self.bytes.clone()).unwrap()
+        Self::from_bytes(self.bytes.clone()).unwrap()
     }
 }
 
@@ -85,9 +77,6 @@ impl<C: WeierstrassCurve> PartialEq for CompressedCurvePoint<C> {
 pub struct UncompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the uncompressed point
     bytes: GenericArray<u8, C::UncompressedPointSize>,
-
-    /// Placeholder for elliptic curve type
-    curve: PhantomData<C>,
 }
 
 impl<C> UncompressedCurvePoint<C>
@@ -95,7 +84,7 @@ where
     C: WeierstrassCurve,
 {
     /// Create a new uncompressed elliptic curve point
-    pub fn new<B>(into_bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(into_bytes: B) -> Result<Self, Error>
     where
         B: Into<GenericArray<u8, C::UncompressedPointSize>>,
     {
@@ -108,10 +97,7 @@ where
             bytes.as_ref()[0]
         );
 
-        Ok(Self {
-            bytes,
-            curve: PhantomData,
-        })
+        Ok(Self { bytes })
     }
 
     /// Obtain public key as a byte array reference
@@ -136,7 +122,7 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for UncompressedCurvePoint<C> {
 
 impl<C: WeierstrassCurve> Clone for UncompressedCurvePoint<C> {
     fn clone(&self) -> Self {
-        Self::new(self.bytes.clone()).unwrap()
+        Self::from_bytes(self.bytes.clone()).unwrap()
     }
 }
 

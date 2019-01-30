@@ -4,12 +4,8 @@
 pub(crate) mod digest;
 pub(crate) mod sha2;
 
-use error::Error;
-use Signature;
-
-#[cfg(feature = "digest")]
-pub use self::digest::*;
-pub use self::sha2::*;
+use crate::error::Error;
+use crate::Signature;
 
 /// Trait for all signers which accept a message (byte slice) and produce a
 /// signature of that message using this signer's private key.
