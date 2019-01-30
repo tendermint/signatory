@@ -9,13 +9,13 @@ repository  = "https://github.com/tendermint/signatory/tree/master/providers/sig
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "bitcoin", "ecdsa", "secp256k1", "signatures"]
+edition     = "2018"
 
 [badges]
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-lazy_static = "1"
-secp256k1 = "0.11"
+secp256k1 = "0.12"
 
 [dependencies.signatory]
 version = "0.10"

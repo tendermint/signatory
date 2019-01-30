@@ -1,7 +1,5 @@
 //! ECDSA provider for the `secp256k1` crate (a.k.a. secp256k1-rs)
 
-#![crate_name = "signatory_secp256k1"]
-#![crate_type = "lib"]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
@@ -9,60 +7,39 @@
     html_root_url = "https://docs.rs/signatory-secp256k1/0.10.0"
 )]
 
-#[macro_use]
-extern crate lazy_static;
-extern crate secp256k1;
-extern crate signatory;
-
+use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
     curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
     digest::Digest,
+    error::ErrorKind::SignatureInvalid,
     generic_array::typenum::U32,
     DigestSigner, DigestVerifier, Error, PublicKeyed, Signature,
 };
 
-lazy_static! {
-    /// Lazily initialized secp256k1 engine
-    static ref SECP256K1_ENGINE: secp256k1::Secp256k1<secp256k1::All> = secp256k1::Secp256k1::new();
-}
-
-/// Create a new error (of a given enum variant) with a formatted message
-macro_rules! err {
-    ($variant:ident, $msg:expr) => {{
-        ::signatory::error::Error::new(
-            ::signatory::error::ErrorKind::$variant,
-            Some(&format!("{}", $msg)),
-        )
-    }};
-}
-
-/// Create and return an error with a formatted message
-#[allow(unused_macros)]
-macro_rules! fail {
-    ($kind:ident, $msg:expr) => {
-        return Err(err!($kind, $msg).into());
-    };
-}
-
 /// ECDSA signature provider for the secp256k1 crate
-pub struct EcdsaSigner(secp256k1::key::SecretKey);
+pub struct EcdsaSigner {
+    /// ECDSA secret key
+    secret_key: secp256k1::SecretKey,
+
+    /// secp256k1 engine
+    engine: Secp256k1<SignOnly>,
+}
 
 impl<'a> From<&'a SecretKey> for EcdsaSigner {
     /// Create a new secp256k1 signer from the given `SecretKey`
     fn from(secret_key: &'a SecretKey) -> EcdsaSigner {
-        let sk =
-            secp256k1::key::SecretKey::from_slice(&SECP256K1_ENGINE, secret_key.as_secret_slice())
-                .unwrap();
+        let secret_key = secp256k1::SecretKey::from_slice(secret_key.as_secret_slice()).unwrap();
+        let engine = Secp256k1::signing_only();
 
-        EcdsaSigner(sk)
+        EcdsaSigner { secret_key, engine }
     }
 }
 
 impl PublicKeyed<PublicKey> for EcdsaSigner {
     /// Return the public key that corresponds to the private key for this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
-        let pk = secp256k1::key::PublicKey::from_secret_key(&SECP256K1_ENGINE, &self.0);
-        PublicKey::from_bytes(&pk.serialize()[..])
+        let public_key = secp256k1::PublicKey::from_secret_key(&self.engine, &self.secret_key);
+        PublicKey::from_bytes(&public_key.serialize()[..])
     }
 }
 
@@ -72,9 +49,9 @@ where
 {
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: D) -> Result<Asn1Signature, Error> {
-        let m = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
-        let sig = SECP256K1_ENGINE.sign(&m, &self.0);
-        Ok(Asn1Signature::from_bytes(sig.serialize_der(&SECP256K1_ENGINE)).unwrap())
+        let msg = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
+        let sig = self.engine.sign(&msg, &self.secret_key);
+        Ok(Asn1Signature::from_bytes(sig.serialize_der()).unwrap())
     }
 }
 
@@ -84,22 +61,28 @@ where
 {
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
     fn sign(&self, digest: D) -> Result<FixedSignature, Error> {
-        let m = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
-        let sig = SECP256K1_ENGINE.sign(&m, &self.0);
-        Ok(FixedSignature::from_bytes(&sig.serialize_compact(&SECP256K1_ENGINE)[..]).unwrap())
+        let msg = secp256k1::Message::from_slice(digest.result().as_slice()).unwrap();
+        let sig = self.engine.sign(&msg, &self.secret_key);
+        Ok(FixedSignature::from_bytes(&sig.serialize_compact()[..]).unwrap())
     }
 }
 
 /// ECDSA verifier provider for the secp256k1 crate
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct EcdsaVerifier(secp256k1::key::PublicKey);
+pub struct EcdsaVerifier {
+    /// ECDSA public key
+    public_key: secp256k1::PublicKey,
+
+    /// ECDSA engine
+    engine: Secp256k1<VerifyOnly>,
+}
 
 impl<'a> From<&'a PublicKey> for EcdsaVerifier {
     fn from(public_key: &'a PublicKey) -> Self {
-        EcdsaVerifier(
-            secp256k1::key::PublicKey::from_slice(&SECP256K1_ENGINE, public_key.as_bytes())
-                .unwrap(),
-        )
+        let public_key = secp256k1::PublicKey::from_slice(public_key.as_bytes()).unwrap();
+        let engine = Secp256k1::verification_only();
+
+        EcdsaVerifier { public_key, engine }
     }
 }
 
@@ -108,15 +91,18 @@ where
     D: Digest<OutputSize = U32> + Default,
 {
     fn verify(&self, digest: D, signature: &Asn1Signature) -> Result<(), Error> {
-        let sig = secp256k1::Signature::from_der(&SECP256K1_ENGINE, signature.as_slice())
-            .map_err(|e| err!(SignatureInvalid, e))?;
+        let sig = secp256k1::Signature::from_der(signature.as_slice())
+            .map_err(|_| Error::from(SignatureInvalid))?;
 
-        SECP256K1_ENGINE
+        self.engine
             .verify(
                 &secp256k1::Message::from_slice(digest.result().as_slice()).unwrap(),
                 &sig,
-                &self.0,
-            ).map_err(|e| err!(SignatureInvalid, e))
+                &self.public_key,
+            )
+            .map_err(|_| Error::from(SignatureInvalid))?;
+
+        Ok(())
     }
 }
 
@@ -125,15 +111,15 @@ where
     D: Digest<OutputSize = U32> + Default,
 {
     fn verify(&self, digest: D, signature: &FixedSignature) -> Result<(), Error> {
-        let sig =
-            secp256k1::Signature::from_compact(&SECP256K1_ENGINE, signature.as_slice()).unwrap();
+        let sig = secp256k1::Signature::from_compact(signature.as_slice()).unwrap();
 
-        SECP256K1_ENGINE
+        self.engine
             .verify(
                 &secp256k1::Message::from_slice(digest.result().as_slice()).unwrap(),
                 &sig,
-                &self.0,
-            ).map_err(|e| err!(SignatureInvalid, e))
+                &self.public_key,
+            )
+            .map_err(|_| SignatureInvalid.into())
     }
 }
 
