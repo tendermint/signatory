@@ -61,9 +61,10 @@ impl Signer<Signature> for Ed25519CosmosAppSigner {
 
 #[cfg(test)]
 mod tests {
+    use crate::Ed25519CosmosAppSigner;
+
     #[test]
     fn public_key() {
-        use crate::Ed25519CosmosAppSigner;
         use signatory::PublicKeyed;
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
 
@@ -122,7 +123,6 @@ mod tests {
     #[test]
     fn sign2() {
         use signatory::Signer;
-        use Ed25519CosmosAppSigner;
 
         let signer = Ed25519CosmosAppSigner::connect().unwrap();
 
