@@ -9,8 +9,10 @@ use signatory;
 
 use criterion::Criterion;
 use signatory::{
-    curve::secp256k1::{FixedSignature, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS},
-    ecdsa::PublicKey,
+    ecdsa::{
+        curve::secp256k1::{FixedSignature, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS},
+        PublicKey,
+    },
     generic_array::GenericArray,
     test_vector::TestVector,
     Sha256Verifier, Signature,

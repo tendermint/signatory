@@ -4,10 +4,12 @@
 //! `secp256k1` cargo feature enabled.
 
 #[cfg(feature = "secp256k1")]
-use signatory::curve::Secp256k1;
+use signatory::ecdsa::curve::Secp256k1;
 use signatory::{
-    curve::{NistP256, NistP384, WeierstrassCurve, WeierstrassCurveKind},
-    ecdsa::{Asn1Signature, FixedSignature, PublicKey},
+    ecdsa::{
+        curve::{NistP256, NistP384, WeierstrassCurve, WeierstrassCurveKind},
+        Asn1Signature, FixedSignature, PublicKey,
+    },
     error::Error,
     generic_array::{
         typenum::{U32, U48},

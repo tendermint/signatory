@@ -1,6 +1,11 @@
 //! Ed25519 seeds: 32-bit uniformly random secret value used to derive scalars
 //! and nonce prefixes
 
+#[cfg(feature = "encoding")]
+use crate::encoding::Decode;
+use crate::error::Error;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::{encoding::Encode, prelude::*};
 #[cfg(feature = "rand_os")]
 use rand_os::{
     rand_core::{CryptoRng, RngCore},
@@ -9,14 +14,6 @@ use rand_os::{
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
-
-#[cfg(feature = "encoding")]
-use crate::encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-use crate::error::Error;
-#[allow(unused_imports)]
-use crate::prelude::*;
 
 /// Size of the "seed" value for an Ed25519 private key
 pub const SEED_SIZE: usize = 32;

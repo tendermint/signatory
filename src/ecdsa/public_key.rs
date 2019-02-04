@@ -1,21 +1,22 @@
 //! ECDSA public keys: compressed or uncompressed Weierstrass elliptic
 //! curve points.
 
+#[cfg(feature = "encoding")]
+use crate::encoding::Decode;
+use crate::{
+    ecdsa::curve::{
+        point::{CompressedCurvePoint, UncompressedCurvePoint},
+        WeierstrassCurve,
+    },
+    error::Error,
+    util::fmt_colon_delimited_hex,
+};
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::{encoding::Encode, prelude::*};
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
-
-use crate::curve::point::{CompressedCurvePoint, UncompressedCurvePoint};
-use crate::curve::WeierstrassCurve;
-#[cfg(feature = "encoding")]
-use crate::encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-use crate::error::Error;
-#[allow(unused_imports)]
-use crate::prelude::*;
-use crate::util::fmt_colon_delimited_hex;
 
 /// ECDSA public keys
 #[derive(Clone, Eq, PartialEq)]

@@ -8,8 +8,10 @@ use signatory;
 
 use criterion::Criterion;
 use signatory::{
-    curve::nistp256::{self, FixedSignature},
-    ecdsa::PublicKey,
+    ecdsa::{
+        curve::nistp256::{self, FixedSignature},
+        PublicKey,
+    },
     encoding::FromPkcs8,
     generic_array::GenericArray,
     test_vector::TestVector,

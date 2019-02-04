@@ -6,14 +6,13 @@
 //! This curve is part of the US National Security Agency's "Suite B" and
 //! and is widely used in protocols like TLS and the associated X.509 PKI.
 
-use generic_array::typenum::{U32, U33, U64, U65, U73};
-
-use super::{WeierstrassCurve, WeierstrassCurveKind};
-
 #[cfg(feature = "test-vectors")]
 mod test_vectors;
+
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
+use super::{WeierstrassCurve, WeierstrassCurveKind};
+use generic_array::typenum::{U32, U33, U64, U65, U73};
 
 /// The NIST P-256 elliptic curve: y² = x³ - 3x + b over a ~256-bit prime field
 /// where b is "verifiably random"† constant:

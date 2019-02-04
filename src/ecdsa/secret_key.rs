@@ -1,5 +1,13 @@
 //! Raw ECDSA secret keys: `x` value for ECDSA.
 
+use super::curve::WeierstrassCurve;
+#[cfg(feature = "encoding")]
+use crate::encoding::Decode;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::encoding::Encode;
+use crate::error::Error;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::prelude::*;
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(all(feature = "rand_os", feature = "std"))]
 use rand_os::{
@@ -9,15 +17,6 @@ use rand_os::{
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
-
-use crate::curve::WeierstrassCurve;
-#[cfg(feature = "encoding")]
-use crate::encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-use crate::error::Error;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::prelude::*;
 
 /// Raw ECDSA secret keys: raw scalar value `WeierstrassCurve::ScalarBytes`
 /// in size used as the `x` value for ECDSA.

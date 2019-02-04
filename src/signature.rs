@@ -1,8 +1,7 @@
-use core::fmt::Debug;
-
 use crate::error::Error;
-#[allow(unused_imports)]
+#[cfg(feature = "alloc")]
 use crate::prelude::*;
+use core::fmt::Debug;
 
 /// Common trait for all signatures
 pub trait Signature: AsRef<[u8]> + Debug + Sized {

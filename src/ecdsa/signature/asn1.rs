@@ -1,21 +1,21 @@
 //! ASN.1 DER-encoded ECDSA signatures
 
-use core::fmt::{self, Debug};
-use generic_array::{typenum::Unsigned, GenericArray};
-#[cfg(feature = "encoding")]
-use subtle_encoding::Encoding;
-
 #[cfg(feature = "encoding")]
 use super::{fixed::FixedSignature, scalars::ScalarPair};
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-#[allow(unused_imports)]
-use crate::prelude::*;
 use crate::{
-    curve::WeierstrassCurve, ecdsa, encoding::Encode, error::Error, util::fmt_colon_delimited_hex,
+    ecdsa::{self, curve::WeierstrassCurve},
+    error::Error,
+    util::fmt_colon_delimited_hex,
     Signature,
 };
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::{encoding::Encode, prelude::*};
+use core::fmt::{self, Debug};
+use generic_array::{typenum::Unsigned, GenericArray};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
 /// ECDSA signatures encoded as ASN.1 DER
 #[derive(Clone, PartialEq, Eq)]
@@ -108,7 +108,7 @@ where
     }
 }
 
-#[cfg(all(feature = "encoding", feature = "alloc"))]
+#[cfg(all(feature = "alloc", feature = "encoding"))]
 impl<C> Encode for Asn1Signature<C>
 where
     C: WeierstrassCurve,
@@ -146,10 +146,11 @@ where
 }
 
 #[cfg(all(test, feature = "encoding", feature = "test-vectors"))]
-#[allow(unused_imports)]
 mod tests {
-    use crate::curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS};
-    use crate::Signature;
+    use crate::{
+        ecdsa::curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
+        Signature,
+    };
 
     #[test]
     fn test_fixed_to_asn1_signature_roundtrip() {

@@ -2,13 +2,11 @@
 //!
 //! TODO: find better test vectors and document where we got them from!
 
-#![cfg_attr(rustfmt, rustfmt_skip)]
-
 use crate::test_vector::{TestVector, TestVectorAlgorithm};
 
 /// ECDSA secp256k1 fixed-sized signature test vectors (self-generated, should probably be replaced)
 // TODO: Test vectors for ASN.1 encoded signatures
-#[allow(dead_code)]
+#[rustfmt::skip]
 pub const SHA256_FIXED_SIZE_TEST_VECTORS: &[TestVector] = &[
     TestVector {
         alg: TestVectorAlgorithm::Secp256k1,

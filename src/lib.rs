@@ -161,7 +161,7 @@ mod verifier;
 
 #[cfg(feature = "ecdsa")]
 pub use crate::ecdsa::{
-    curve, PublicKey as EcdsaPublicKey, SecretKey as EcdsaSecretKey, Signature as EcdsaSignature,
+    PublicKey as EcdsaPublicKey, SecretKey as EcdsaSecretKey, Signature as EcdsaSignature,
 };
 #[cfg(feature = "ed25519")]
 pub use crate::ed25519::{

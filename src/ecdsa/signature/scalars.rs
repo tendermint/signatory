@@ -6,15 +6,10 @@
 //! This type provides a convenient representation for converting between
 //! formats, i.e. all of the serialization code is in this module.
 
+use super::{asn1::Asn1Signature, fixed::FixedSignature};
+use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1, error::Error, signature::Signature};
 use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
-
-use super::asn1::Asn1Signature;
-use super::fixed::FixedSignature;
-use crate::curve::WeierstrassCurve;
-use crate::encoding::asn1;
-use crate::error::Error;
-use crate::signature::Signature;
 
 /// ECDSA signature `r` and `s` values, represented as slices which are at
 /// most `C::ScalarSize` bytes (but *may* be smaller)

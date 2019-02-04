@@ -9,8 +9,7 @@ use ring::{
     },
 };
 use signatory::{
-    curve::nistp256,
-    ecdsa,
+    ecdsa::{self, curve::nistp256},
     encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
     error::{Error, ErrorKind::SignatureInvalid},
     PublicKeyed, Sha256Signer, Sha256Verifier,
@@ -128,7 +127,7 @@ mod tests {
     use super::{P256Signer, P256Verifier};
     use signatory::{
         self,
-        curve::nistp256::{
+        ecdsa::curve::nistp256::{
             Asn1Signature, FixedSignature, PublicKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         encoding::FromPkcs8,

@@ -3,7 +3,6 @@
 #[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
-
 use crate::error::Error;
 use crate::Signature;
 

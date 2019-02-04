@@ -9,8 +9,8 @@
 
 use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
-    curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
     digest::Digest,
+    ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
     error::ErrorKind::SignatureInvalid,
     generic_array::typenum::U32,
     DigestSigner, DigestVerifier, Error, PublicKeyed, Signature,
@@ -129,7 +129,7 @@ mod tests {
     use super::{EcdsaSigner, EcdsaVerifier};
     use signatory::{
         self,
-        curve::secp256k1::{
+        ecdsa::curve::secp256k1::{
             Asn1Signature, FixedSignature, PublicKey, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         PublicKeyed, Sha256Verifier, Signature,

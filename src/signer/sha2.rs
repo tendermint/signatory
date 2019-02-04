@@ -1,11 +1,10 @@
 #[cfg(all(feature = "digest", feature = "sha2"))]
+use super::digest::DigestSigner;
+use crate::{error::Error, signature::Signature};
+#[cfg(all(feature = "digest", feature = "sha2"))]
 use digest::Digest;
 #[cfg(all(feature = "digest", feature = "sha2"))]
 use sha2::{Sha256, Sha384, Sha512};
-
-#[cfg(all(feature = "digest", feature = "sha2"))]
-use super::digest::DigestSigner;
-use crate::{error::Error, signature::Signature};
 
 // TODO: define these using a macro?
 

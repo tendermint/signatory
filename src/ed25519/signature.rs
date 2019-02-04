@@ -1,18 +1,13 @@
 //! Ed25519 signatures
 
-use core::fmt::{self, Debug};
-#[cfg(feature = "encoding")]
-use subtle_encoding::Encoding;
-
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-use crate::error::Error;
-#[allow(unused_imports)]
-use crate::prelude::*;
-use crate::signature::Signature as SignatureTrait;
-use crate::util::fmt_colon_delimited_hex;
+use crate::{encoding::Encode, prelude::*};
+use crate::{error::Error, signature::Signature as SignatureTrait, util::fmt_colon_delimited_hex};
+use core::fmt::{self, Debug};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
 /// Size of an Ed25519 signature in bytes (512-bits)
 pub const SIGNATURE_SIZE: usize = 64;

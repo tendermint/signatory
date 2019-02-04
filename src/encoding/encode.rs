@@ -1,14 +1,12 @@
+#[cfg(unix)]
+use super::FILE_MODE;
+use crate::{error::Error, prelude::*};
 #[cfg(feature = "std")]
 use std::{fs::File, io::Write, path::Path};
 #[cfg(unix)]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
-
-#[cfg(unix)]
-use super::FILE_MODE;
-use crate::error::Error;
-use crate::prelude::*;
 
 /// Serialize keys/signatures with the given encoding (e.g. hex, Base64).
 /// Uses constant time encoder/decoder implementations.

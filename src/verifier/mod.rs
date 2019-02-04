@@ -3,9 +3,7 @@
 #[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
-
-use crate::error::Error;
-use crate::Signature;
+use crate::{error::Error, Signature};
 
 /// Trait for all verifiers which accept a message (byte slice) and signature
 pub trait Verifier<S: Signature>: Send + Sync {

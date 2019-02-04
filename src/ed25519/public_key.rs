@@ -1,17 +1,13 @@
 //! Ed25519 public keys
 
-use core::fmt::{self, Debug};
-#[cfg(feature = "encoding")]
-use subtle_encoding::Encoding;
-
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-use crate::error::Error;
-#[allow(unused_imports)]
-use crate::prelude::*;
-use crate::util::fmt_colon_delimited_hex;
+use crate::{encoding::Encode, prelude::*};
+use crate::{error::Error, util::fmt_colon_delimited_hex};
+use core::fmt::{self, Debug};
+#[cfg(feature = "encoding")]
+use subtle_encoding::Encoding;
 
 /// Size of an Ed25519 public key in bytes (256-bits)
 pub const PUBLIC_KEY_SIZE: usize = 32;
@@ -91,7 +87,7 @@ impl Decode for PublicKey {
     }
 }
 
-#[cfg(all(feature = "encoding", feature = "alloc"))]
+#[cfg(all(feature = "alloc", feature = "encoding"))]
 impl Encode for PublicKey {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
     fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {

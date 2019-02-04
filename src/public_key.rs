@@ -1,8 +1,7 @@
 //! Traits for public keys
 
-use core::fmt::Debug;
-
 use crate::error::Error;
+use core::fmt::Debug;
 
 /// Signers which know their public keys (to be implemented by Signatory
 /// providers)

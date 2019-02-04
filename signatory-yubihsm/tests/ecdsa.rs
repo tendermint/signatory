@@ -15,8 +15,10 @@ pub mod support;
 #[cfg(all(feature = "secp256k1", not(feature = "mockhsm")))]
 use signatory::curve::Secp256k1;
 use signatory::{
-    curve::{NistP256, NistP384, WeierstrassCurve},
-    ecdsa::Asn1Signature,
+    ecdsa::{
+        curve::{NistP256, NistP384, WeierstrassCurve},
+        Asn1Signature,
+    },
     PublicKeyed,
 };
 use signatory_ring::ecdsa;

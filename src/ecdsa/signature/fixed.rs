@@ -2,13 +2,14 @@
 
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::encoding::Encode;
-#[allow(unused_imports)]
-use crate::prelude::*;
 use crate::{
-    curve::WeierstrassCurve, ecdsa, error::Error, util::fmt_colon_delimited_hex, Signature,
+    ecdsa::{self, curve::WeierstrassCurve},
+    error::Error,
+    util::fmt_colon_delimited_hex,
+    Signature,
 };
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::{encoding::Encode, prelude::*};
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "encoding")]

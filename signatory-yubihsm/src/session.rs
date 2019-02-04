@@ -1,10 +1,9 @@
-use signatory::{curve::WeierstrassCurve, Error};
+use signatory::{ecdsa::curve::WeierstrassCurve, Error};
 use std::sync::{Arc, Mutex};
 use yubihsm;
 
 use super::KeyId;
-use crate::ecdsa::EcdsaSigner;
-use crate::ed25519::Ed25519Signer;
+use crate::{ecdsa::EcdsaSigner, ed25519::Ed25519Signer};
 
 /// End-to-end encrypted session with the `YubiHSM`
 pub struct Session(pub(super) Arc<Mutex<yubihsm::Client>>);
