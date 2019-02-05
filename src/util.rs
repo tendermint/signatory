@@ -3,7 +3,7 @@
 use core::fmt;
 
 #[allow(dead_code)]
-pub(crate) fn fmt_colon_delimited_hex<B>(f: &mut fmt::Formatter, bytes: B) -> fmt::Result
+pub(crate) fn fmt_colon_delimited_hex<B>(f: &mut fmt::Formatter<'_>, bytes: B) -> fmt::Result
 where
     B: AsRef<[u8]>,
 {

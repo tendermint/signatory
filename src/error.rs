@@ -48,7 +48,7 @@ impl fmt::Display for Error {
 
 #[cfg(feature = "std")]
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.description {
             Some(ref desc) => write!(f, "{}: {}", self.description(), desc),
             None => write!(f, "{}", self.description()),
@@ -112,7 +112,7 @@ impl ErrorKind {
 }
 
 impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
     }
 }
@@ -121,10 +121,10 @@ impl fmt::Display for ErrorKind {
 #[cfg(not(feature = "std"))]
 macro_rules! err {
     ($variant:ident, $msg:expr) => {
-        ::error::Error::from(::error::ErrorKind::$variant)
+        $crate::error::Error::from($crate::error::ErrorKind::$variant)
     };
     ($variant:ident, $fmt:expr, $($arg:tt)+) => {
-        ::error::Error::from(::error::ErrorKind::$variant)
+        $crate::error::Error::from($crate::error::ErrorKind::$variant)
     };
 }
 
@@ -132,8 +132,8 @@ macro_rules! err {
 #[cfg(feature = "std")]
 macro_rules! err {
     ($variant:ident, $msg:expr) => {
-        ::error::Error::new(
-            ::error::ErrorKind::$variant,
+        $crate::error::Error::new(
+            $crate::error::ErrorKind::$variant,
             Some($msg)
         )
     };

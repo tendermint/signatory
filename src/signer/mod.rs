@@ -3,13 +3,8 @@
 #[cfg(feature = "digest")]
 pub(crate) mod digest;
 pub(crate) mod sha2;
-
-use error::Error;
-use Signature;
-
-#[cfg(feature = "digest")]
-pub use self::digest::*;
-pub use self::sha2::*;
+use crate::error::Error;
+use crate::Signature;
 
 /// Trait for all signers which accept a message (byte slice) and produce a
 /// signature of that message using this signer's private key.
@@ -26,7 +21,7 @@ pub trait Signer<S: Signature>: Send + Sync {
 /// Sign the given message (byte slice) with the given `Signer`, returning a
 /// signature on success.
 #[inline]
-pub fn sign<S>(signer: &Signer<S>, msg: &[u8]) -> Result<S, Error>
+pub fn sign<S>(signer: &dyn Signer<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {

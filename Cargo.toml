@@ -9,6 +9,7 @@ repository  = "https://github.com/tendermint/signatory/tree/master"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ecdsa", "ed25519", "signing", "signatures"]
+edition     = "2018"
 autobenches = false
 
 [badges]
@@ -17,30 +18,30 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 digest = { version = "0.8", optional = true, default-features = false }
 generic-array = { version = "0.12", optional = true }
-rand = { version = "0.5", optional = true, default-features = false }
+rand_os = { version = "0.1", optional = true, default-features = false }
 sha2 = { version = "0.8", optional = true, default-features = false }
 subtle-encoding = { version = "0.3", optional = true, default-features = false, features = ["base64", "hex"] }
-zeroize = { version = "0.4", optional = true }
+zeroize = { version = "0.5", optional = true }
 
 [features]
 alloc = []
-default = ["encoding", "rand", "std"]
+default = ["encoding", "rand_os", "std"]
 ecdsa = ["generic-array", "zeroize"]
 ed25519 = ["zeroize"]
 encoding = ["subtle-encoding", "zeroize"]
 nightly = ["alloc", "zeroize/nightly"]
 pkcs8 = ["encoding"]
-std = ["alloc", "rand/std", "subtle-encoding/std"]
+std = ["alloc", "subtle-encoding/std"]
 test-vectors = []
 
 [workspace]
 members = [
-    "providers/signatory-dalek",
-    "providers/signatory-ledger-cosval",
-    "providers/signatory-ring",
-    "providers/signatory-secp256k1",
-    "providers/signatory-sodiumoxide",
-    "providers/signatory-yubihsm",
+    "signatory-dalek",
+    "signatory-ledger-cosval",
+    "signatory-ring",
+    "signatory-secp256k1",
+    "signatory-sodiumoxide",
+    "signatory-yubihsm",
 ]
 
 [profile.release]

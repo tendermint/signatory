@@ -4,7 +4,7 @@
 //!
 //! <https://csrc.nist.gov/Projects/Cryptographic-Algorithm-Validation-Program/Digital-Signatures>
 
-use test_vector::{TestVector, TestVectorAlgorithm};
+use crate::test_vector::{TestVector, TestVectorAlgorithm};
 
 /// ECDSA P-384 test vectors from NIST's Cryptographic Algorithm Validation Program
 pub const SHA384_FIXED_SIZE_TEST_VECTORS: &[TestVector] = &[

@@ -1,8 +1,7 @@
 //! Traits for public keys
 
+use crate::error::Error;
 use core::fmt::Debug;
-
-use error::Error;
 
 /// Signers which know their public keys (to be implemented by Signatory
 /// providers)
@@ -15,6 +14,6 @@ pub trait PublicKeyed<K: PublicKey>: Send + Sync {
 pub trait PublicKey: AsRef<[u8]> + Debug + Sized {}
 
 /// Get the public key for the given public keyed object (i.e. a `Signer`)
-pub fn public_key<K: PublicKey>(keyed: &PublicKeyed<K>) -> Result<K, Error> {
+pub fn public_key<K: PublicKey>(keyed: &dyn PublicKeyed<K>) -> Result<K, Error> {
     keyed.public_key()
 }

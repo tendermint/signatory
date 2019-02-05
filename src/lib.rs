@@ -122,13 +122,8 @@
 //! [Sha512Verifier]: https://docs.rs/signatory/latest/signatory/trait.Sha512Verifier.html
 //! [turbofish]: https://turbo.fish/
 
-#![crate_name = "signatory"]
-#![crate_type = "lib"]
 #![no_std]
-#![cfg_attr(
-    all(feature = "nightly", not(feature = "std")),
-    feature(alloc)
-)]
+#![cfg_attr(all(feature = "nightly", not(feature = "std")), feature(alloc))]
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
@@ -144,14 +139,6 @@ extern crate std;
 pub extern crate digest;
 #[cfg(feature = "generic-array")]
 pub extern crate generic_array;
-#[cfg(feature = "rand")]
-extern crate rand;
-#[cfg(feature = "sha2")]
-extern crate sha2;
-#[cfg(feature = "encoding")]
-pub extern crate subtle_encoding;
-#[cfg(feature = "zeroize")]
-extern crate zeroize;
 
 #[macro_use]
 pub mod error;
@@ -172,32 +159,27 @@ pub mod test_vector;
 mod util;
 mod verifier;
 
-#[cfg(feature = "digest")]
-pub use digest::Digest;
 #[cfg(feature = "ecdsa")]
-pub use ecdsa::{
-    curve, PublicKey as EcdsaPublicKey, SecretKey as EcdsaSecretKey, Signature as EcdsaSignature,
+pub use crate::ecdsa::{
+    PublicKey as EcdsaPublicKey, SecretKey as EcdsaSecretKey, Signature as EcdsaSignature,
 };
 #[cfg(feature = "ed25519")]
-pub use ed25519::{
+pub use crate::ed25519::{
     PublicKey as Ed25519PublicKey, Seed as Ed25519Seed, Signature as Ed25519Signature,
 };
 #[cfg(feature = "encoding")]
-pub use encoding::*;
-pub use error::{Error, ErrorKind};
-pub use public_key::{public_key, PublicKey, PublicKeyed};
-pub use signature::Signature;
-#[cfg(feature = "digest")]
-pub use signer::digest::sign_digest;
-pub use signer::*;
-pub use signer::{
-    sha2::{sign_sha256, sign_sha384, sign_sha512},
-    sign,
+pub use crate::encoding::*;
+pub use crate::{
+    error::{Error, ErrorKind},
+    public_key::{public_key, PublicKey, PublicKeyed},
+    signature::Signature,
+    signer::{sha2::*, sign, Signer},
+    verifier::{sha2::*, verify, Verifier},
 };
 #[cfg(feature = "digest")]
-pub use verifier::digest::verify_digest;
-pub use verifier::*;
-pub use verifier::{
-    sha2::{verify_sha256, verify_sha384, verify_sha512},
-    verify,
+pub use crate::{
+    signer::digest::{sign_digest, DigestSigner},
+    verifier::digest::{verify_digest, DigestVerifier},
 };
+#[cfg(feature = "digest")]
+pub use digest::Digest;

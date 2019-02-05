@@ -1,8 +1,7 @@
 //! Hax PKCS#8 serializers for test vectors
 
 use super::{TestVector, TestVectorAlgorithm};
-#[allow(unused_imports)]
-use prelude::*;
+use crate::prelude::*;
 
 /// PKCS#8 header for a NIST P-256 private key
 const P256_PKCS8_HEADER: &[u8] =
@@ -29,7 +28,8 @@ impl TestVector {
             TestVectorAlgorithm::NistP256 => P256_PKCS8_HEADER,
             TestVectorAlgorithm::NistP384 => P384_PKCS8_HEADER,
             other => panic!("unsupported test vector algorithm: {:?}", other),
-        }.to_vec();
+        }
+        .to_vec();
 
         pkcs8_document.extend_from_slice(&self.sk);
         pkcs8_document.extend_from_slice(match self.alg {

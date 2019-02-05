@@ -4,9 +4,9 @@
 //! [RFC 5208]: https://tools.ietf.org/html/rfc5208
 //! [RFC 5915]: https://tools.ietf.org/html/rfc5915
 
-use error::Error;
+use crate::error::Error;
 #[cfg(feature = "std")]
-use prelude::*;
+use crate::prelude::*;
 #[cfg(feature = "std")]
 use std::io::Write;
 #[cfg(feature = "std")]
@@ -91,9 +91,9 @@ pub struct SecretKey(Vec<u8>);
 
 #[cfg(feature = "alloc")]
 impl SecretKey {
-    /// Create a new **PKCS#8** `PrivateKey` from the given bytes.
+    /// Create a new **PKCS#8** `SecretKey` from the given bytes.
     // TODO: parse the document and verify it's well-formed
-    pub fn new(secret_key_bytes: &[u8]) -> Result<Self, Error> {
+    pub fn from_bytes(secret_key_bytes: &[u8]) -> Result<Self, Error> {
         Ok(SecretKey(secret_key_bytes.to_vec()))
     }
 }

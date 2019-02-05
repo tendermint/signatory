@@ -47,13 +47,13 @@ impl WeierstrassCurve for Secp256k1 {
 }
 
 /// secp256k1 secret key
-pub type SecretKey = ::ecdsa::SecretKey<Secp256k1>;
+pub type SecretKey = crate::ecdsa::SecretKey<Secp256k1>;
 
 /// secp256k1 public key
-pub type PublicKey = ::ecdsa::PublicKey<Secp256k1>;
+pub type PublicKey = crate::ecdsa::PublicKey<Secp256k1>;
 
 /// ASN.1 DER encoded secp256k1 ECDSA signature
-pub type Asn1Signature = ::ecdsa::Asn1Signature<Secp256k1>;
+pub type Asn1Signature = crate::ecdsa::Asn1Signature<Secp256k1>;
 
 /// Compact, fixed-sized secp256k1 ECDSA signature
-pub type FixedSignature = ::ecdsa::FixedSignature<Secp256k1>;
+pub type FixedSignature = crate::ecdsa::FixedSignature<Secp256k1>;

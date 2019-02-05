@@ -6,14 +6,13 @@
 //! This curve is part of the US National Security Agency's "Suite B" and
 //! and is widely used in protocols like TLS and the associated X.509 PKI.
 
-use generic_array::typenum::{U105, U48, U49, U96, U97};
-
-use super::{WeierstrassCurve, WeierstrassCurveKind};
-
 #[cfg(feature = "test-vectors")]
 mod test_vectors;
+
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::SHA384_FIXED_SIZE_TEST_VECTORS;
+use super::{WeierstrassCurve, WeierstrassCurveKind};
+use generic_array::typenum::{U105, U48, U49, U96, U97};
 
 /// The NIST P-384 elliptic curve: y² = x³ - 3x + b over a ~384-bit prime field
 /// where b is "verifiably random"† constant:
@@ -57,13 +56,13 @@ impl WeierstrassCurve for NistP384 {
 }
 
 /// NIST P-256 secret key
-pub type SecretKey = ::ecdsa::SecretKey<NistP384>;
+pub type SecretKey = crate::ecdsa::SecretKey<NistP384>;
 
 /// NIST P-384 public key
-pub type PublicKey = ::ecdsa::PublicKey<NistP384>;
+pub type PublicKey = crate::ecdsa::PublicKey<NistP384>;
 
 /// ASN.1 DER encoded secp384k1 ECDSA signature
-pub type Asn1Signature = ::ecdsa::Asn1Signature<NistP384>;
+pub type Asn1Signature = crate::ecdsa::Asn1Signature<NistP384>;
 
 /// Compact, fixed-sized secp384k1 ECDSA signature
-pub type FixedSignature = ::ecdsa::FixedSignature<NistP384>;
+pub type FixedSignature = crate::ecdsa::FixedSignature<NistP384>;

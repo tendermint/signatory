@@ -6,19 +6,14 @@
 //! This type provides a convenient representation for converting between
 //! formats, i.e. all of the serialization code is in this module.
 
+use super::{asn1::Asn1Signature, fixed::FixedSignature};
+use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1, error::Error, signature::Signature};
 use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
 
-use super::asn1::Asn1Signature;
-use super::fixed::FixedSignature;
-use curve::WeierstrassCurve;
-use encoding::asn1;
-use error::Error;
-use signature::Signature;
-
 /// ECDSA signature `r` and `s` values, represented as slices which are at
 /// most `C::ScalarSize` bytes (but *may* be smaller)
-pub(crate) struct ScalarPair<'a, C: WeierstrassCurve> {
+pub(crate) struct ScalarPair<'a, C: 'a + WeierstrassCurve> {
     /// `r` scalar value
     r: &'a [u8],
 
@@ -29,7 +24,7 @@ pub(crate) struct ScalarPair<'a, C: WeierstrassCurve> {
     curve: PhantomData<C>,
 }
 
-impl<'a, C> ScalarPair<'a, C>
+impl<'a, C: 'a> ScalarPair<'a, C>
 where
     C: WeierstrassCurve,
 {
@@ -187,17 +182,10 @@ where
         // Second INTEGER (s)
         Self::asn1_int_serialize(self.s, &mut bytes[offset..], slen);
 
-        let result = Asn1Signature {
+        Asn1Signature {
             bytes,
             length: offset.checked_add(2).unwrap().checked_add(slen).unwrap(),
-            curve: PhantomData,
-        };
-
-        // Double-check we produced an ASN.1 signature we can parse ourselves
-        #[cfg(debug_assertions)]
-        Self::from_asn1_signature(&result).unwrap();
-
-        result
+        }
     }
 
     pub(crate) fn to_fixed_signature(&self) -> FixedSignature<C> {

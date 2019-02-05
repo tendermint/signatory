@@ -2,10 +2,8 @@
 //!
 //! Enable Signatory's `digest` cargo feature to enable this trait.
 
+use crate::{error::Error, Signature};
 use digest::Digest;
-
-use error::Error;
-use Signature;
 
 /// Trait for signers which take a prehashed `Digest` as input.
 /// The `digest` cargo feature must be enabled for this to be available.

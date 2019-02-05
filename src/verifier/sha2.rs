@@ -4,8 +4,8 @@ use digest::Digest;
 use sha2::{Sha256, Sha384, Sha512};
 
 #[cfg(all(feature = "digest", feature = "sha2"))]
-use super::DigestVerifier;
-use {Error, Signature};
+use super::digest::DigestVerifier;
+use crate::{Error, Signature};
 
 // TODO: define these using a macro?
 
@@ -72,7 +72,7 @@ where
 /// Verify SHA-256 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Verifier` and `Signature` traits
 pub fn verify_sha256<S>(
-    verifier: &Sha256Verifier<S>,
+    verifier: &dyn Sha256Verifier<S>,
     msg: &[u8],
     signature: &S,
 ) -> Result<(), Error>
@@ -85,7 +85,7 @@ where
 /// Verify SHA-384 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Verifier` and `Signature` traits
 pub fn verify_sha384<S>(
-    verifier: &Sha384Verifier<S>,
+    verifier: &dyn Sha384Verifier<S>,
     msg: &[u8],
     signature: &S,
 ) -> Result<(), Error>
@@ -98,7 +98,7 @@ where
 /// Verify SHA-512 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Verifier` and `Signature` traits
 pub fn verify_sha512<S>(
-    verifier: &Sha512Verifier<S>,
+    verifier: &dyn Sha512Verifier<S>,
     msg: &[u8],
     signature: &S,
 ) -> Result<(), Error>

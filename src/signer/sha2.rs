@@ -1,12 +1,10 @@
 #[cfg(all(feature = "digest", feature = "sha2"))]
+use super::digest::DigestSigner;
+use crate::{error::Error, signature::Signature};
+#[cfg(all(feature = "digest", feature = "sha2"))]
 use digest::Digest;
 #[cfg(all(feature = "digest", feature = "sha2"))]
 use sha2::{Sha256, Sha384, Sha512};
-
-#[cfg(all(feature = "digest", feature = "sha2"))]
-use super::DigestSigner;
-use error::Error;
-use signature::Signature;
 
 // TODO: define these using a macro?
 
@@ -72,7 +70,7 @@ where
 
 /// Compute SHA-256 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Signer` and `Signature` traits
-pub fn sign_sha256<S>(signer: &Sha256Signer<S>, msg: &[u8]) -> Result<S, Error>
+pub fn sign_sha256<S>(signer: &dyn Sha256Signer<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {
@@ -81,7 +79,7 @@ where
 
 /// Compute SHA-384 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Signer` and `Signature` traits
-pub fn sign_sha384<S>(signer: &Sha384Signer<S>, msg: &[u8]) -> Result<S, Error>
+pub fn sign_sha384<S>(signer: &dyn Sha384Signer<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {
@@ -90,7 +88,7 @@ where
 
 /// Compute SHA-512 of the given message and then sign the resulting digest.
 /// This can be used to avoid importing the `Signer` and `Signature` traits
-pub fn sign_sha512<S>(signer: &Sha512Signer<S>, msg: &[u8]) -> Result<S, Error>
+pub fn sign_sha512<S>(signer: &dyn Sha512Signer<S>, msg: &[u8]) -> Result<S, Error>
 where
     S: Signature,
 {

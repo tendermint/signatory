@@ -1,0 +1,40 @@
+[package]
+name        = "signatory-dalek"
+description = "Signatory Ed25519 provider for ed25519-dalek"
+version     = "0.10.0" # Also update html_root_url in lib.rs when bumping this
+license     = "Apache-2.0 OR MIT"
+authors     = ["Tony Arcieri <tony@iqlusion.io>"]
+homepage    = "https://github.com/tendermint/signatory"
+repository  = "https://github.com/tendermint/signatory/tree/master/providers/signatory-dalek/"
+readme      = "README.md"
+categories  = ["authentication", "cryptography", "no-std"]
+keywords    = ["cryptography", "dalek", "ed25519", "signing", "signatures"]
+edition     = "2018"
+
+[badges]
+circle-ci = { repository = "tendermint/signatory" }
+
+[dependencies]
+digest = { version = "0.8", default-features = false }
+ed25519-dalek = { version = "1.0.0-pre.1", default-features = false }
+sha2 = { version =  "0.8", default-features = false }
+
+[dependencies.signatory]
+version = "0.10"
+default-features = false
+features = ["digest", "ed25519", "generic-array", "sha2", "test-vectors"]
+path = ".."
+
+[dev-dependencies]
+criterion = "0.2"
+
+[features]
+default = ["u64_backend"]
+avx2_backend = ["ed25519-dalek/avx2_backend"]
+u32_backend = ["ed25519-dalek/u32_backend"]
+u64_backend = ["ed25519-dalek/u64_backend"]
+nightly = ["ed25519-dalek/nightly"]
+
+[[bench]]
+name = "ed25519"
+harness = false
