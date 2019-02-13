@@ -64,7 +64,7 @@ own respective crates:
 | [signatory‑sodiumoxide] | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
 | [signatory‑yubihsm]     | [yubihsm‑rs]    | Hard | ~8/s    | N/A          |
 
-### Tendermint only providers (amino votes)
+### Tendermint only providers (amino encoded consensus votes)
 
 | Provider Crate        | Backend Crate   | Type | Signing | Verification |
 | --------------------- | --------------- | ---- | ------- | ------------ |
