@@ -1,3 +1,13 @@
+## [0.11.0] (2019-02-12)
+
+- signatory-yubihsm: Update `yubihsm` crate to v0.20 ([#138])
+- signatory-dalek: Update `ed25519-dalek` crate to 1.0.0-pre.1 ([#137])
+- signatory-ring: Update `ring` crate to 0.14 ([#137])
+- signatory-sodiumoxide: Update `sodiumoxide` crate to 0.2 ([#137]) 
+- signatory-secp256k1: Update `secp256k1` crate to 0.12 ([#137])
+- Upgrade to Rust 2018 edition ([#137])
+- signatory-ledger-cosval: Upgrade ledger provider to validator app 0.2.1 ([#135])
+
 ## [0.10.1] (2018-11-27)
 
 - Upgrade to subtle-encoding v0.3.0 (#132)
@@ -124,6 +134,10 @@
 
 - Initial release
 
+[0.11.0]: https://github.com/tendermint/signatory/pull/139
+[#138]: https://github.com/tendermint/signatory/pull/138
+[#137]: https://github.com/tendermint/signatory/pull/137
+[#135]: https://github.com/tendermint/signatory/pull/135
 [0.10.1]: https://github.com/tendermint/signatory/pull/134
 [0.10.0]: https://github.com/tendermint/signatory/pull/131
 [0.9.4]: https://github.com/tendermint/signatory/pull/126
