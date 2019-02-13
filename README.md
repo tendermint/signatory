@@ -37,6 +37,10 @@ Signatory exposes a thread-and-object-safe API for creating digital signatures
 which allows several signature providers to be compiled-in and available with
 specific providers selected at runtime.
 
+## Requirements
+
+All Signatory providers require Rust 1.31+.
+
 ## Provider Support
 
 Signatory includes the following providers, which are each packaged into their
