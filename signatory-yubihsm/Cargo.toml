@@ -15,7 +15,7 @@ circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
 secp256k1 = { version = "0.12", optional = true }
-yubihsm = { version = "0.20.0-alpha1", default-features = false, features = ["passwords"] }
+yubihsm = { version = "0.20", default-features = false, features = ["passwords"] }
 
 [dependencies.signatory]
 version = "0.10"
