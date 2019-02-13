@@ -37,7 +37,7 @@ test-vectors = []
 [workspace]
 members = [
     "signatory-dalek",
-    "signatory-ledger-cosval",
+    "signatory-ledger-tm",
     "signatory-ring",
     "signatory-secp256k1",
     "signatory-sodiumoxide",

@@ -1,5 +1,6 @@
 /target/
 /providers/signatory-*/target
+/signatory-*/target
 **/*.rs.bk
 Cargo.lock
 
