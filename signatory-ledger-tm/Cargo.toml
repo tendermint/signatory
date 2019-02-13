@@ -1,6 +1,6 @@
 [package]
 name        = "signatory-ledger-tm"
-description = "Signatory provider for Ledger Tenderming Validator app"
+description = "Signatory provider for Ledger Tendermint Validator app"
 version     = "0.11.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["ZondaX GmbH <info@zondax.ch>"]
