@@ -27,10 +27,6 @@ path = ".."
 [dev-dependencies]
 criterion = "0.2"
 
-[features]
-default = []
-#mockhsm = ["ledger-tm/mockhsm"]
-
 [[bench]]
 name = "ed25519"
 harness = false
