@@ -30,7 +30,7 @@ and [sodiumoxide].
 [secp256k1‑rs]: https://github.com/rust-bitcoin/rust-secp256k1/
 [sodiumoxide]: https://github.com/dnaq/sodiumoxide
 [yubihsm‑rs]: https://github.com/tendermint/yubihsm-rs
-[ledger-cosmos]: https://crates.io/crates/ledger-cosmos
+[ledger-tendermint]: https://crates.io/crates/ledger-tendermint
 
 ## About
 
@@ -68,7 +68,7 @@ own respective crates:
 
 | Provider Crate        | Backend Crate   | Type | Signing | Verification |
 | --------------------- | --------------- | ---- | ------- | ------------ |
-| [signatory‑ledger-tm] | [ledger-cosmos] | Hard | N/A     | N/A          |
+| [signatory‑ledger-tm] | [ledger-tendermint] | Hard | N/A     | N/A          |
 
 Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.30GHz.
 
