@@ -30,6 +30,7 @@ and [sodiumoxide].
 [secp256k1‑rs]: https://github.com/rust-bitcoin/rust-secp256k1/
 [sodiumoxide]: https://github.com/dnaq/sodiumoxide
 [yubihsm‑rs]: https://github.com/tendermint/yubihsm-rs
+[ledger-tendermint]: https://crates.io/crates/ledger-tendermint
 
 ## About
 
@@ -49,19 +50,25 @@ own respective crates:
 ### ECDSA providers
 
 | Provider Crate        | Backend Crate  | Type | P‑256 | P‑384 | secp256k1 |
-|-----------------------|----------------|------|-------|-------|-----------|
-| [signatory‑ring]      | [ring]         | Soft | ✅    | ✅    | ⛔        |
-| [signatory‑secp256k1] | [secp256k1‑rs] | Soft | ⛔    | ⛔    | ✅        |
-| [signatory‑yubihsm]   | [yubihsm‑rs]   | Hard | ✅    | ✅    | ✅        |
+| --------------------- | -------------- | ---- | ----- | ----- | --------- |
+| [signatory‑ring]      | [ring]         | Soft | ✅     | ✅     | ⛔         |
+| [signatory‑secp256k1] | [secp256k1‑rs] | Soft | ⛔     | ⛔     | ✅         |
+| [signatory‑yubihsm]   | [yubihsm‑rs]   | Hard | ✅     | ✅     | ✅         |
 
 ### Ed25519 providers
 
 | Provider Crate          | Backend Crate   | Type | Signing | Verification |
-|-------------------------|-----------------|------|---------|--------------|
+| ----------------------- | --------------- | ---- | ------- | ------------ |
 | [signatory‑dalek]       | [ed25519‑dalek] | Soft | 51 k/s  | 18 k/s       |
 | [signatory‑ring]        | [ring]          | Soft | 47 k/s  | 16 k/s       |
 | [signatory‑sodiumoxide] | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
 | [signatory‑yubihsm]     | [yubihsm‑rs]    | Hard | ~8/s    | N/A          |
+
+### Tendermint only providers (amino encoded consensus votes)
+
+| Provider Crate        | Backend Crate   | Type | Signing | Verification |
+| --------------------- | --------------- | ---- | ------- | ------------ |
+| [signatory‑ledger-tm] | [ledger-tendermint] | Hard | N/A     | N/A          |
 
 Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.30GHz.
 
@@ -70,6 +77,7 @@ Above benchmarks performed using `cargo bench` on an Intel Xeon E3-1225 v5 @ 3.3
 [signatory‑secp256k1]: https://crates.io/crates/signatory-secp256k1
 [signatory‑sodiumoxide]: https://crates.io/crates/signatory-sodiumoxide
 [signatory‑yubihsm]: https://crates.io/crates/signatory-yubihsm
+[signatory‑ledger-tm]: https://crates.io/crates/signatory-ledger-tm
 
 ## License
 
