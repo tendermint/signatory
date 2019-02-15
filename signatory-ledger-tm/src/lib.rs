@@ -158,13 +158,7 @@ mod tests {
                 0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
             ];
 
-            match signer.sign(&some_message) {
-                Ok(_sig) => {}
-                Err(e) => {
-                    println!("Err {:#?}", e);
-                    panic!()
-                }
-            }
+            signer.sign(&some_message).unwrap();
         }
     }
 }
