@@ -41,7 +41,6 @@ members = [
     "signatory-ring",
     "signatory-secp256k1",
     "signatory-sodiumoxide",
-    "signatory-yubihsm",
 ]
 
 [profile.release]

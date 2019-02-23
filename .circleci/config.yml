@@ -95,13 +95,6 @@ jobs:
           cargo build --benches --package=signatory-sodiumoxide
           cargo test --package=signatory-sodiumoxide
     - run:
-        name: signatory-yubihsm crate
-        command: |
-          rustc --version
-          cargo --version
-          cargo build --package=signatory-yubihsm
-          cd signatory-yubihsm && cargo test --features=secp256k1,mockhsm
-    - run:
         name: signatory-ledger-tm crate
         command: |
           rustc --version
