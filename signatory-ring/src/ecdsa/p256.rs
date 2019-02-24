@@ -92,7 +92,7 @@ pub struct P256Verifier(nistp256::PublicKey);
 
 impl<'a> From<&'a nistp256::PublicKey> for P256Verifier {
     fn from(public_key: &'a nistp256::PublicKey) -> Self {
-        P256Verifier(public_key.clone())
+        P256Verifier(*public_key)
     }
 }
 
