@@ -6,10 +6,11 @@
 
 use super::WeierstrassCurve;
 use crate::error::Error;
-use generic_array::GenericArray;
+use generic_array::{ArrayLength, GenericArray};
 
 /// Compressed elliptic curve points serialized according to the
 /// `Elliptic-Curve-Point-to-Octet-String` algorithm
+#[derive(Hash, Eq, PartialEq)]
 pub struct CompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the compressed point
     bytes: GenericArray<u8, C::CompressedPointSize>,
@@ -57,23 +58,23 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for CompressedCurvePoint<C> {
     }
 }
 
+impl<C> Copy for CompressedCurvePoint<C>
+where
+    C: WeierstrassCurve,
+    <<C as WeierstrassCurve>::CompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+{
+}
+
 impl<C: WeierstrassCurve> Clone for CompressedCurvePoint<C> {
     fn clone(&self) -> Self {
         Self::from_bytes(self.bytes.clone()).unwrap()
     }
 }
 
-impl<C: WeierstrassCurve> Eq for CompressedCurvePoint<C> {}
-
-impl<C: WeierstrassCurve> PartialEq for CompressedCurvePoint<C> {
-    fn eq(&self, other: &CompressedCurvePoint<C>) -> bool {
-        self.bytes == other.bytes
-    }
-}
-
 /// Uncompressed elliptic curve points serialized according to the
 /// `Elliptic-Curve-Point-to-Octet-String` algorithm, including the `0x04`
 /// tag identifying the bytestring as a curve point.
+#[derive(Hash, Eq, PartialEq)]
 pub struct UncompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the uncompressed point
     bytes: GenericArray<u8, C::UncompressedPointSize>,
@@ -120,16 +121,15 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for UncompressedCurvePoint<C> {
     }
 }
 
+impl<C> Copy for UncompressedCurvePoint<C>
+where
+    C: WeierstrassCurve,
+    <<C as WeierstrassCurve>::UncompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+{
+}
+
 impl<C: WeierstrassCurve> Clone for UncompressedCurvePoint<C> {
     fn clone(&self) -> Self {
         Self::from_bytes(self.bytes.clone()).unwrap()
-    }
-}
-
-impl<C: WeierstrassCurve> Eq for UncompressedCurvePoint<C> {}
-
-impl<C: WeierstrassCurve> PartialEq for UncompressedCurvePoint<C> {
-    fn eq(&self, other: &UncompressedCurvePoint<C>) -> bool {
-        self.bytes == other.bytes
     }
 }

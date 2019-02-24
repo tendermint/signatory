@@ -91,7 +91,7 @@ pub struct P384Verifier(nistp384::PublicKey);
 
 impl<'a> From<&'a nistp384::PublicKey> for P384Verifier {
     fn from(public_key: &'a nistp384::PublicKey) -> Self {
-        P384Verifier(public_key.clone())
+        P384Verifier(*public_key)
     }
 }
 

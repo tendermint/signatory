@@ -13,13 +13,16 @@ use crate::{
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
-use core::fmt::{self, Debug};
-use generic_array::{typenum::Unsigned, GenericArray};
+use core::{
+    fmt::{self, Debug},
+    hash::{Hash, Hasher},
+};
+use generic_array::{typenum::Unsigned, ArrayLength, GenericArray};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
 /// ECDSA public keys
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone)]
 pub enum PublicKey<C: WeierstrassCurve> {
     /// Compressed Weierstrass elliptic curve point
     Compressed(CompressedCurvePoint<C>),
@@ -109,6 +112,14 @@ where
     }
 }
 
+impl<C> Copy for PublicKey<C>
+where
+    C: WeierstrassCurve,
+    <<C as WeierstrassCurve>::CompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+    <<C as WeierstrassCurve>::UncompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+{
+}
+
 impl<C> Debug for PublicKey<C>
 where
     C: WeierstrassCurve,
@@ -154,6 +165,51 @@ where
     /// <http://www.secg.org/sec1-v2.pdf>
     fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
         encoding.encode(self.as_ref())
+    }
+}
+
+impl<C: WeierstrassCurve> Eq for PublicKey<C>
+where
+    C: WeierstrassCurve,
+    <C as WeierstrassCurve>::CompressedPointSize: Eq,
+    <C as WeierstrassCurve>::UncompressedPointSize: Eq,
+{
+}
+
+impl<C: WeierstrassCurve> PartialEq for PublicKey<C>
+where
+    C: WeierstrassCurve,
+    <C as WeierstrassCurve>::CompressedPointSize: PartialEq,
+    <C as WeierstrassCurve>::UncompressedPointSize: PartialEq,
+{
+    fn eq(&self, other: &PublicKey<C>) -> bool {
+        match self {
+            PublicKey::Compressed(p1) => match other {
+                PublicKey::Compressed(p2) => p1.eq(p2),
+                _ => false,
+            },
+            PublicKey::Uncompressed(p1) => match other {
+                PublicKey::Uncompressed(p2) => p1.eq(p2),
+                _ => false,
+            },
+        }
+    }
+}
+
+impl<C> Hash for PublicKey<C>
+where
+    C: WeierstrassCurve,
+    <C as WeierstrassCurve>::CompressedPointSize: Hash,
+    <C as WeierstrassCurve>::UncompressedPointSize: Hash,
+{
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: Hasher,
+    {
+        match self {
+            PublicKey::Compressed(p) => p.hash(state),
+            PublicKey::Uncompressed(p) => p.hash(state),
+        }
     }
 }
 
