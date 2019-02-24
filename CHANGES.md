@@ -1,3 +1,8 @@
+## [0.11.1] (2019-02-23)
+
+-  ecdsa: impl `Copy` + `Hash` for ECDSA curve points and public keys
+   ([#143], [#144])
+
 ## [0.11.0] (2019-02-12)
 
 - signatory-yubihsm: Update `yubihsm` crate to v0.20 ([#138])
@@ -134,6 +139,9 @@
 
 - Initial release
 
+[0.11.1]: https://github.com/tendermint/signatory/pull/145
+[#144]: https://github.com/tendermint/signatory/pull/144
+[#143]: https://github.com/tendermint/signatory/pull/143
 [0.11.0]: https://github.com/tendermint/signatory/pull/139
 [#138]: https://github.com/tendermint/signatory/pull/138
 [#137]: https://github.com/tendermint/signatory/pull/137
