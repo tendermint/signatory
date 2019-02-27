@@ -61,7 +61,7 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for CompressedCurvePoint<C> {
 impl<C> Copy for CompressedCurvePoint<C>
 where
     C: WeierstrassCurve,
-    <<C as WeierstrassCurve>::CompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+    <C::CompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
 {
 }
 
@@ -124,7 +124,7 @@ impl<C: WeierstrassCurve> AsRef<[u8]> for UncompressedCurvePoint<C> {
 impl<C> Copy for UncompressedCurvePoint<C>
 where
     C: WeierstrassCurve,
-    <<C as WeierstrassCurve>::UncompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
+    <C::UncompressedPointSize as ArrayLength<u8>>::ArrayType: Copy,
 {
 }
 
