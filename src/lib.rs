@@ -25,9 +25,10 @@
 //! - [signatory-sodiumoxide]: Ed25519 signing/verification with the
 //!   [sodiumoxide] crate, a Rust wrapper for libsodium (NOTE: requires
 //!   libsodium to be installed on the system)
-//! - [signatory-yubihsm]: ECDSA and Ed25519 signing provider which uses
+//! - [yubihsm-rs]: ECDSA and Ed25519 signing provider support for
 //!   private keys stored in a `YubiHSM2` hardware device, via the
-//!   [yubihsm-rs] crate.
+//!   Signatory signers types in the [yubihsm-rs] crate
+//!   ([yubihsm::ecdsa::Signer] and [yubihsm::ed25519::Signer]).
 //!
 //! ## Signing API
 //!
@@ -98,8 +99,9 @@
 //! [libsecp256k1]: https://docs.rs/crate/secp256k1
 //! [signatory-sodiumoxide]: https://docs.rs/crate/signatory-sodiumoxide/
 //! [sodiumoxide]: https://docs.rs/crate/sodiumoxide/
-//! [signatory-yubihsm]:  https://docs.rs/crate/signatory-yubihsm/
 //! [yubihsm-rs]: https://docs.rs/crate/yubihsm/
+//! [yubihsm::ecdsa::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ecdsa/struct.Signer.html
+//! [yubihsm::ed25519::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ed25519/struct.Signer.html
 //! [signatory::sign]: https://docs.rs/signatory/latest/signatory/fn.sign.html
 //! [signatory::sign_digest]: https://docs.rs/signatory/latest/signatory/fn.sign_digest.html
 //! [signatory::sign_sha256]: https://docs.rs/signatory/latest/signatory/fn.sign_sha256.html
@@ -128,7 +130,7 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/master/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory/0.11.1"
+    html_root_url = "https://docs.rs/signatory/0.11.2"
 )]
 
 #[cfg(any(feature = "std", test))]
