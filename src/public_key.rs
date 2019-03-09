@@ -11,7 +11,7 @@ pub trait PublicKeyed<K: PublicKey>: Send + Sync {
 }
 
 /// Common trait for all public keys
-pub trait PublicKey: AsRef<[u8]> + Debug + Sized {}
+pub trait PublicKey: AsRef<[u8]> + Debug + Sized + Eq + Ord {}
 
 /// Get the public key for the given public keyed object (i.e. a `Signer`)
 pub fn public_key<K: PublicKey>(keyed: &dyn PublicKeyed<K>) -> Result<K, Error> {

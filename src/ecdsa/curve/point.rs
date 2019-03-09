@@ -10,7 +10,7 @@ use generic_array::{ArrayLength, GenericArray};
 
 /// Compressed elliptic curve points serialized according to the
 /// `Elliptic-Curve-Point-to-Octet-String` algorithm
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct CompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the compressed point
     bytes: GenericArray<u8, C::CompressedPointSize>,
@@ -74,7 +74,7 @@ impl<C: WeierstrassCurve> Clone for CompressedCurvePoint<C> {
 /// Uncompressed elliptic curve points serialized according to the
 /// `Elliptic-Curve-Point-to-Octet-String` algorithm, including the `0x04`
 /// tag identifying the bytestring as a curve point.
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct UncompressedCurvePoint<C: WeierstrassCurve> {
     /// Raw serialized bytes of the uncompressed point
     bytes: GenericArray<u8, C::UncompressedPointSize>,

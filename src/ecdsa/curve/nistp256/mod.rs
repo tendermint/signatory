@@ -23,7 +23,7 @@ use generic_array::typenum::{U32, U33, U64, U65, U73};
 ///   (it is the SHA-1 digest of an inexplicable NSA-selected constant)
 ///
 /// NIST P-256 is also known as prime256v1 (ANSI X9.62) and secp256r1 (SECG)
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct NistP256;
 
 impl WeierstrassCurve for NistP256 {

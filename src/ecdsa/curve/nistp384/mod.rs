@@ -24,7 +24,7 @@ use generic_array::typenum::{U105, U48, U49, U96, U97};
 ///   (it is the SHA-1 digest of an inexplicable NSA-selected constant)
 ///
 /// NIST P-384 is also known as secp384r1 (SECG)
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct NistP384;
 
 impl WeierstrassCurve for NistP384 {

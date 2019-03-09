@@ -16,7 +16,7 @@ use super::{WeierstrassCurve, WeierstrassCurveKind};
 pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 
 /// The secp256k1 elliptic curve: y² = x³ + 7 over a ~256-bit prime field
-#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Secp256k1;
 
 impl WeierstrassCurve for Secp256k1 {

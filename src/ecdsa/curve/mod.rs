@@ -12,7 +12,7 @@ use generic_array::ArrayLength;
 
 /// Elliptic curve in short Weierstrass form suitable for use with ECDSA
 pub trait WeierstrassCurve:
-    Clone + Debug + Default + Hash + Eq + PartialEq + Send + Sized + Sync
+    Clone + Debug + Default + Hash + Eq + PartialEq + PartialOrd + Ord + Send + Sized + Sync
 {
     /// Elliptic curve kind
     const CURVE_KIND: WeierstrassCurveKind;
@@ -30,7 +30,7 @@ pub trait WeierstrassCurve:
     /// section 2.3.3 of SEC 1: Elliptic Curve Cryptography (Version 2.0):
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
-    type CompressedPointSize: ArrayLength<u8> + Eq + Hash + PartialEq;
+    type CompressedPointSize: ArrayLength<u8> + Eq + Hash + PartialEq + PartialOrd + Ord;
 
     /// Size of a raw uncompressed elliptic curve point sans the `0x04`
     /// tag byte added in the `UncompressedPointSize` value.
@@ -39,7 +39,7 @@ pub trait WeierstrassCurve:
     /// Size of an uncompressed elliptic curve point serialized using
     /// the `Elliptic-Curve-Point-to-Octet-String` encoding (including the
     /// `0x04` tag)
-    type UncompressedPointSize: ArrayLength<u8> + Eq + Hash + PartialEq;
+    type UncompressedPointSize: ArrayLength<u8> + Eq + Hash + PartialEq + PartialOrd + Ord;
 
     /// Maximum size of an ASN.1 DER encoded ECDSA signature using this curve
     type Asn1SignatureMaxSize: ArrayLength<u8>;
