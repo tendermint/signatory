@@ -1,6 +1,11 @@
+## [0.11.2] (2019-03-09)
+
+- ecdsa: impl `PartialOrd` + `Ord` for PublicKeys ([#147])
+- ecdsa: Simplify trait bounds for Copy impl on curve point types ([#146])
+
 ## [0.11.1] (2019-02-23)
 
--  ecdsa: impl `Copy` + `Hash` for ECDSA curve points and public keys
+- ecdsa: impl `Copy` + `Hash` for ECDSA curve points and public keys
    ([#143], [#144])
 
 ## [0.11.0] (2019-02-12)
@@ -139,6 +144,9 @@
 
 - Initial release
 
+[0.11.2]: https://github.com/tendermint/signatory/pull/148
+[#147]: https://github.com/tendermint/signatory/pull/147
+[#146]: https://github.com/tendermint/signatory/pull/146
 [0.11.1]: https://github.com/tendermint/signatory/pull/145
 [#144]: https://github.com/tendermint/signatory/pull/144
 [#143]: https://github.com/tendermint/signatory/pull/143
