@@ -19,7 +19,7 @@ use generic_array::{typenum::Unsigned, ArrayLength, GenericArray};
 use subtle_encoding::Encoding;
 
 /// ECDSA public keys
-#[derive(Clone, Eq, Hash, PartialEq)]
+#[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub enum PublicKey<C: WeierstrassCurve> {
     /// Compressed Weierstrass elliptic curve point
     Compressed(CompressedCurvePoint<C>),

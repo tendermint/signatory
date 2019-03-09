@@ -1,5 +1,6 @@
 //! Macro for generating shared tests for all software Ed25519 implementations
 
+/// Generate tests for Ed25519
 #[macro_export]
 macro_rules! ed25519_tests {
     ($signer:ident, $verifier:ident) => {
