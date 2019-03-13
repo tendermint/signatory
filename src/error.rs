@@ -188,9 +188,10 @@ impl From<subtle_encoding::Error> for Error {
             subtle_encoding::Error::ChecksumInvalid => err!(ParseError, "invalid checksum"),
             subtle_encoding::Error::EncodingInvalid => err!(ParseError, "invalid encoding"),
             subtle_encoding::Error::LengthInvalid => err!(ParseError, "invalid length"),
+            subtle_encoding::Error::PaddingInvalid => err!(ParseError, "invalid padding"),
+            subtle_encoding::Error::TrailingWhitespace => err!(ParseError, "trailing whitestpace"),
             #[cfg(feature = "std")]
             subtle_encoding::Error::IoError => err!(Io, &err.to_string()),
-            subtle_encoding::Error::PaddingInvalid => err!(ParseError, "invalid padding"),
         }
     }
 }
