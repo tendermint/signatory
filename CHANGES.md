@@ -1,3 +1,7 @@
+## [0.11.3] (2019-03-13)
+
+- Fix Missing TrailingWhitespace type-case in subtle-encoding error conversion ([#149])
+
 ## [0.11.2] (2019-03-09)
 
 - ecdsa: impl `PartialOrd` + `Ord` for PublicKeys ([#147])
@@ -144,6 +148,8 @@
 
 - Initial release
 
+[0.11.3]: https://github.com/tendermint/signatory/pull/150
+[#149]: https://github.com/tendermint/signatory/pull/149
 [0.11.2]: https://github.com/tendermint/signatory/pull/148
 [#147]: https://github.com/tendermint/signatory/pull/147
 [#146]: https://github.com/tendermint/signatory/pull/146
