@@ -1,3 +1,8 @@
+## [0.11.4] (2019-05-20)
+
+- Support stable `alloc` API ([#154])
+- Upgrade to zeroize 0.8 ([#153])
+
 ## [0.11.3] (2019-03-13)
 
 - Fix Missing TrailingWhitespace type-case in subtle-encoding error conversion ([#149])
@@ -148,6 +153,9 @@
 
 - Initial release
 
+[0.11.4]: https://github.com/tendermint/signatory/pull/155
+[#154]: https://github.com/tendermint/signatory/pull/154
+[#153]: https://github.com/tendermint/signatory/pull/153
 [0.11.3]: https://github.com/tendermint/signatory/pull/150
 [#149]: https://github.com/tendermint/signatory/pull/149
 [0.11.2]: https://github.com/tendermint/signatory/pull/148
