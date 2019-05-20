@@ -2,12 +2,16 @@
 
 #![allow(unused_macros)]
 
+#[cfg(feature = "alloc")]
+use crate::prelude::*;
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+use alloc::string::FromUtf8Error;
 use core::fmt;
 #[cfg(feature = "std")]
 use std::{
     error::Error as StdError,
     io,
-    string::{FromUtf8Error, String, ToString},
+    string::{FromUtf8Error, String},
 };
 #[cfg(feature = "encoding")]
 use subtle_encoding;
@@ -17,7 +21,7 @@ use subtle_encoding;
 pub struct Error {
     kind: ErrorKind,
 
-    #[cfg(feature = "std")]
+    #[cfg(feature = "alloc")]
     description: Option<String>,
 }
 
@@ -28,7 +32,7 @@ impl Error {
         Error {
             kind,
 
-            #[cfg(feature = "std")]
+            #[cfg(feature = "alloc")]
             description: description.map(|desc| desc.to_string()),
         }
     }
@@ -39,7 +43,7 @@ impl Error {
     }
 }
 
-#[cfg(not(feature = "std"))]
+#[cfg(not(feature = "alloc"))]
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", self.kind.as_str())
@@ -72,7 +76,7 @@ impl From<ErrorKind> for Error {
         Error {
             kind,
 
-            #[cfg(feature = "std")]
+            #[cfg(feature = "alloc")]
             description: None,
         }
     }
@@ -118,7 +122,7 @@ impl fmt::Display for ErrorKind {
 }
 
 /// Create a new error (of a given enum variant) with a formatted message
-#[cfg(not(feature = "std"))]
+#[cfg(not(feature = "alloc"))]
 macro_rules! err {
     ($variant:ident, $msg:expr) => {
         $crate::error::Error::from($crate::error::ErrorKind::$variant)
@@ -129,7 +133,7 @@ macro_rules! err {
 }
 
 /// Create a new error (of a given enum variant) with a formatted message
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 macro_rules! err {
     ($variant:ident, $msg:expr) => {
         $crate::error::Error::new(
@@ -167,17 +171,17 @@ macro_rules! ensure {
     };
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 impl From<FromUtf8Error> for Error {
-    fn from(err: FromUtf8Error) -> Self {
-        err!(ParseError, &err.to_string())
+    fn from(err: FromUtf8Error) -> Error {
+        err!(ParseError, "{}", err)
     }
 }
 
 #[cfg(feature = "std")]
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
-        err!(Io, &err.to_string())
+        err!(Io, "{}", err)
     }
 }
 
