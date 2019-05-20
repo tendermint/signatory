@@ -18,7 +18,7 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 digest = { version = "0.8", optional = true, default-features = false }
 generic-array = { version = "0.12", optional = true }
-rand_os = { version = "0.1", optional = true, default-features = false }
+getrandom = { version = "0.1", optional = true, default-features = false }
 sha2 = { version = "0.8", optional = true, default-features = false }
 zeroize = { version = "0.8", optional = true }
 
@@ -30,7 +30,7 @@ features = ["base64", "hex"]
 
 [features]
 alloc = []
-default = ["encoding", "rand_os", "std"]
+default = ["encoding", "getrandom", "std"]
 ecdsa = ["generic-array", "zeroize"]
 ed25519 = ["zeroize"]
 encoding = ["subtle-encoding", "zeroize"]
