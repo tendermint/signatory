@@ -1,11 +1,17 @@
-#[cfg(unix)]
+//! Support for encoding and decoding keys and signatures in hex or Base64.
+//!
+//! Uses a constant-time implementation which is suitable for use with
+//! secret keys.
+
+#[cfg(all(unix, feature = "std"))]
 use super::FILE_MODE;
 use crate::{error::Error, prelude::*};
 #[cfg(feature = "std")]
 use std::{fs::File, io::Write, path::Path};
-#[cfg(unix)]
+#[cfg(all(unix, feature = "std"))]
 use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 use subtle_encoding::Encoding;
+#[cfg(feature = "std")]
 use zeroize::Zeroize;
 
 /// Serialize keys/signatures with the given encoding (e.g. hex, Base64).

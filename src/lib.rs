@@ -125,22 +125,33 @@
 //! [turbofish]: https://turbo.fish/
 
 #![no_std]
-#![cfg_attr(all(feature = "nightly", not(feature = "std")), feature(alloc))]
-#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
-#![deny(unsafe_code, unused_import_braces, unused_qualifications)]
+#![deny(
+    warnings,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unsafe_code,
+    unused_import_braces,
+    unused_qualifications
+)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
     html_root_url = "https://docs.rs/signatory/0.11.3"
 )]
+
+#[cfg(all(feature = "alloc", not(feature = "std")))]
+#[allow(unused_imports)] // rustc bug?
+#[macro_use]
+extern crate alloc;
 
 #[cfg(any(feature = "std", test))]
 #[macro_use]
 extern crate std;
 
 #[cfg(feature = "digest")]
-pub extern crate digest;
+pub use digest;
 #[cfg(feature = "generic-array")]
-pub extern crate generic_array;
+pub use generic_array;
 
 #[macro_use]
 pub mod error;

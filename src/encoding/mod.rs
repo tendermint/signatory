@@ -21,5 +21,5 @@ pub use self::encode::Encode;
 pub use self::pkcs8::FromPkcs8;
 
 /// Mode to use for newly created files
-#[cfg(unix)]
+#[cfg(all(unix, feature = "std"))]
 pub const FILE_MODE: u32 = 0o600;
