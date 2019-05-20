@@ -2,8 +2,9 @@
 
 [![crate][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
+![Apache2/MIT licensed][license-image]
+![Rust 1.31+][rustc-image]
 [![Build Status][build-image]][build-link]
-![MIT/Apache2 licensed][license-image]
 
 A pure Rust multi-provider digital signature library with support for elliptic
 curve digital signature algorithms, namely ECDSA (described in [FIPS 186‑4])
@@ -67,9 +68,10 @@ See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 [crate-link]: https://crates.io/crates/signatory
 [docs-image]: https://docs.rs/signatory/badge.svg
 [docs-link]: https://docs.rs/signatory/
+[license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.31+-blue.svg
 [build-image]: https://circleci.com/gh/tendermint/signatory.svg?style=shield
 [build-link]: https://circleci.com/gh/tendermint/signatory
-[license-image]: https://img.shields.io/badge/license-MIT/Apache2.0-blue.svg
 [FIPS 186‑4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519‑dalek]: https://github.com/dalek-cryptography/ed25519-dalek
