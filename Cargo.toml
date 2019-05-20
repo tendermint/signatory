@@ -5,7 +5,7 @@ version     = "0.11.3" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
-repository  = "https://github.com/tendermint/signatory/tree/master"
+repository  = "https://github.com/tendermint/signatory/tree/develop"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ecdsa", "ed25519", "signing", "signatures"]
@@ -13,7 +13,7 @@ edition     = "2018"
 autobenches = false
 
 [badges]
-circle-ci = { repository = "tendermint/signatory" }
+circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 
 [dependencies]
 digest = { version = "0.8", optional = true, default-features = false }
