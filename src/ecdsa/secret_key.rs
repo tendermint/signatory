@@ -9,11 +9,8 @@ use crate::error::Error;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::prelude::*;
 use generic_array::{typenum::Unsigned, GenericArray};
-#[cfg(all(feature = "rand_os", feature = "std"))]
-use rand_os::{
-    rand_core::{CryptoRng, RngCore},
-    OsRng,
-};
+#[cfg(feature = "getrandom")]
+use getrandom::getrandom;
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
@@ -58,21 +55,10 @@ where
 
     /// Generate a new ECDSA secret key using the operating system's
     /// cryptographically secure random number generator
-    #[cfg(feature = "rand_os")]
+    #[cfg(feature = "getrandom")]
     pub fn generate() -> Self {
-        let mut csprng = OsRng::new().expect("RNG initialization failure!");
-        Self::generate_from_rng(&mut csprng)
-    }
-
-    /// Generate a new ECDSA secret key using the provided random number generator
-    #[cfg(feature = "rand_os")]
-    pub fn generate_from_rng<R>(csprng: &mut R) -> Self
-    where
-        R: CryptoRng + RngCore,
-    {
         let mut bytes = GenericArray::default();
-        csprng.fill_bytes(bytes.as_mut_slice());
-
+        getrandom(bytes.as_mut_slice()).expect("RNG failure!");
         Self { bytes }
     }
 
