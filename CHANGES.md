@@ -1,3 +1,7 @@
+## [0.11.5] (2019-06-04)
+
+- Upgrade to zeroize 0.9 ([#158])
+
 ## [0.11.4] (2019-05-20)
 
 - Support stable `alloc` API ([#154])
@@ -153,6 +157,8 @@
 
 - Initial release
 
+[0.11.5]: https://github.com/tendermint/signatory/pull/159
+[#158]: https://github.com/tendermint/signatory/pull/158
 [0.11.4]: https://github.com/tendermint/signatory/pull/155
 [#154]: https://github.com/tendermint/signatory/pull/154
 [#153]: https://github.com/tendermint/signatory/pull/153
