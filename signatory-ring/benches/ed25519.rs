@@ -7,26 +7,27 @@ extern crate criterion;
 use signatory;
 
 use criterion::Criterion;
-use signatory::{ed25519, test_vector::TestVector, Signature, Verifier};
-use signatory_ring::ed25519::{Ed25519Signer, Ed25519Verifier};
+use signatory::{ed25519::TEST_VECTORS, test_vector::TestVector, Signature, Signer, Verifier};
+use signatory_ring::ed25519;
 
 /// Test vector to use for benchmarking
-const TEST_VECTOR: &TestVector = &ed25519::TEST_VECTORS[4];
+const TEST_VECTOR: &TestVector = &TEST_VECTORS[4];
 
 fn sign_ed25519(c: &mut Criterion) {
-    let signer = Ed25519Signer::from(&ed25519::Seed::from_bytes(TEST_VECTOR.sk).unwrap());
+    let signer = ed25519::Signer::from(&ed25519::Seed::from_bytes(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("ring: Ed25519 signer", move |b| {
-        b.iter(|| signatory::sign(&signer, TEST_VECTOR.msg).unwrap())
+        b.iter(|| signer.sign(TEST_VECTOR.msg))
     });
 }
 
 fn verify_ed25519(c: &mut Criterion) {
-    let signature = ed25519::Signature::from_bytes(TEST_VECTOR.sig).unwrap();
-    let verifier = Ed25519Verifier::from(&ed25519::PublicKey::from_bytes(TEST_VECTOR.pk).unwrap());
+    let pk = ed25519::PublicKey::from_bytes(TEST_VECTOR.pk).unwrap();
+    let sig = ed25519::Signature::from_bytes(TEST_VECTOR.sig).unwrap();
+    let verifier = ed25519::Verifier::from(&pk);
 
     c.bench_function("ring: Ed25519 verifier", move |b| {
-        b.iter(|| verifier.verify(TEST_VECTOR.msg, &signature).unwrap())
+        b.iter(|| verifier.verify(TEST_VECTOR.msg, &sig).unwrap())
     });
 }
 

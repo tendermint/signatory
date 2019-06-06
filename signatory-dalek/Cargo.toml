@@ -22,7 +22,7 @@ sha2 = { version =  "0.8", default-features = false }
 [dependencies.signatory]
 version = "0.11"
 default-features = false
-features = ["digest", "ed25519", "generic-array", "sha2", "test-vectors"]
+features = ["digest", "ed25519", "generic-array", "test-vectors"]
 path = ".."
 
 [dev-dependencies]

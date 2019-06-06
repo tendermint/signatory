@@ -15,29 +15,33 @@ use signatory::{
     encoding::FromPkcs8,
     generic_array::GenericArray,
     test_vector::TestVector,
-    Sha256Verifier, Signature,
+    Signature, Signer as _, Verifier as _,
 };
-use signatory_ring::ecdsa::{P256Signer, P256Verifier};
+use signatory_ring::ecdsa::p256::{Signer, Verifier};
 
 /// Test vector to use for benchmarking
 const TEST_VECTOR: &TestVector = &nistp256::SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
 fn sign_ecdsa_p256(c: &mut Criterion) {
-    let signer = P256Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8()).unwrap();
+    let signer = Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8()).unwrap();
 
     c.bench_function("ring: ECDSA (nistp256) signer", move |b| {
-        b.iter(|| signatory::sign_sha256::<FixedSignature>(&signer, TEST_VECTOR.msg).unwrap())
+        b.iter(|| {
+            let _: FixedSignature = signer.sign(TEST_VECTOR.msg);
+        })
     });
 }
 
 fn verify_ecdsa_p256(c: &mut Criterion) {
     let signature = FixedSignature::from_bytes(TEST_VECTOR.sig).unwrap();
-    let verifier = P256Verifier::from(&PublicKey::from_untagged_point(GenericArray::from_slice(
+    let verifier = Verifier::from(&PublicKey::from_untagged_point(GenericArray::from_slice(
         TEST_VECTOR.pk,
     )));
 
     c.bench_function("ring: ECDSA (nistp256) verifier", move |b| {
-        b.iter(|| verifier.verify_sha256(TEST_VECTOR.msg, &signature).unwrap())
+        b.iter(|| {
+            verifier.verify(TEST_VECTOR.msg, &signature).unwrap();
+        })
     });
 }
 

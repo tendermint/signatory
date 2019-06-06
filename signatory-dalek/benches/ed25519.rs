@@ -5,10 +5,9 @@
 
 #[macro_use]
 extern crate criterion;
-use signatory;
 
 use criterion::Criterion;
-use signatory::{ed25519, test_vector::TestVector, Signature, Verifier};
+use signatory::{ed25519, test_vector::TestVector, Signature, Signer, Verifier};
 use signatory_dalek::{Ed25519Signer, Ed25519Verifier};
 
 /// Test vector to use for benchmarking
@@ -18,7 +17,7 @@ fn sign_ed25519(c: &mut Criterion) {
     let signer = Ed25519Signer::from(&ed25519::Seed::from_bytes(TEST_VECTOR.sk).unwrap());
 
     c.bench_function("dalek: Ed25519 signer", move |b| {
-        b.iter(|| signatory::sign(&signer, TEST_VECTOR.msg).unwrap())
+        b.iter(|| signer.sign(TEST_VECTOR.msg))
     });
 }
 

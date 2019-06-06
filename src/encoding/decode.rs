@@ -1,4 +1,4 @@
-use crate::error::Error;
+use crate::Error;
 #[cfg(feature = "std")]
 use std::{fs::File, io::Read, path::Path};
 use subtle_encoding::Encoding;
@@ -31,7 +31,10 @@ pub trait Decode: Sized {
         E: Encoding,
     {
         let mut bytes = vec![];
-        reader.read_to_end(bytes.as_mut())?;
+        reader
+            .read_to_end(bytes.as_mut())
+            .map_err(Error::from_cause)?;
+
         let result = Self::decode(&bytes, encoding);
         bytes.zeroize();
         result
@@ -45,6 +48,8 @@ pub trait Decode: Sized {
         P: AsRef<Path>,
         E: Encoding,
     {
-        Self::decode_from_reader(&mut File::open(path.as_ref())?, encoding)
+        let mut file = File::open(path.as_ref()).map_err(Error::from_cause)?;
+
+        Self::decode_from_reader(&mut file, encoding)
     }
 }

@@ -4,7 +4,8 @@
 //! [RFC 5208]: https://tools.ietf.org/html/rfc5208
 //! [RFC 5915]: https://tools.ietf.org/html/rfc5915
 
-use crate::error::Error;
+#[cfg(all(unix, feature = "std"))]
+use super::FILE_MODE;
 #[cfg(feature = "std")]
 use crate::prelude::*;
 #[cfg(feature = "std")]
@@ -16,22 +17,20 @@ use std::{fs::OpenOptions, os::unix::fs::OpenOptionsExt};
 #[cfg(feature = "std")]
 use zeroize::Zeroize;
 
-#[cfg(all(unix, feature = "std"))]
-use super::FILE_MODE;
-
 /// Load this type from a **PKCS#8** private key
 pub trait FromPkcs8: Sized {
     /// Load from the given **PKCS#8**-encoded private key, returning `Self`
     /// or an error if the given data couldn't be loaded.
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error>;
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, signature::Error>;
 
     /// Read **PKCS#8** data from the given `std::io::Read`.
     #[cfg(feature = "std")]
-    fn read_pkcs8<R: Read>(mut reader: R) -> Result<Self, Error> {
+    fn read_pkcs8<R: Read>(mut reader: R) -> Result<Self, signature::Error> {
         let mut bytes = vec![];
         reader
             .read_to_end(&mut bytes)
-            .map_err(|e| err!(KeyInvalid, "error reading key: {}", e))?;
+            .map_err(signature::Error::from_cause)?;
+
         let result = Self::from_pkcs8(&bytes);
         bytes.zeroize();
         result
@@ -39,8 +38,9 @@ pub trait FromPkcs8: Sized {
 
     /// Read **PKCS#8** data from the file at the given path.
     #[cfg(feature = "std")]
-    fn from_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
-        Self::read_pkcs8(File::open(path)?)
+    fn from_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<Self, signature::Error> {
+        let file = File::open(path).map_err(signature::Error::from_cause)?;
+        Self::read_pkcs8(file)
     }
 }
 
@@ -49,7 +49,7 @@ pub trait FromPkcs8: Sized {
 pub trait GeneratePkcs8: Sized + FromPkcs8 {
     /// Randomly generate a **PKCS#8** private key for this type loadable
     /// via `from_pkcs8()`.
-    fn generate_pkcs8() -> Result<SecretKey, Error>;
+    fn generate_pkcs8() -> Result<SecretKey, signature::Error>;
 
     /// Write randomly generated **PKCS#8** private key to the file at the
     /// given path.
@@ -58,7 +58,7 @@ pub trait GeneratePkcs8: Sized + FromPkcs8 {
     /// `FILE_MODE` (i.e. `600`). If the file does exist, it will be erased
     /// and replaced.
     #[cfg(unix)]
-    fn generate_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<File, Error> {
+    fn generate_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<File, signature::Error> {
         let secret_key = Self::generate_pkcs8()?;
 
         let mut file = OpenOptions::new()
@@ -66,9 +66,12 @@ pub trait GeneratePkcs8: Sized + FromPkcs8 {
             .write(true)
             .truncate(true)
             .mode(FILE_MODE)
-            .open(path)?;
+            .open(path)
+            .map_err(signature::Error::from_cause)?;
 
-        file.write_all(secret_key.as_ref())?;
+        file.write_all(secret_key.as_ref())
+            .map_err(signature::Error::from_cause)?;
+
         Ok(file)
     }
 
@@ -77,7 +80,7 @@ pub trait GeneratePkcs8: Sized + FromPkcs8 {
     ///
     /// If the file does not exist, it will be created.
     #[cfg(not(unix))]
-    fn generate_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<File, Error> {
+    fn generate_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<File, signature::Error> {
         let secret_key = Self::generate_pkcs8()?;
         let mut file = File::create(path.as_ref())?;
         file.write_all(secret_key.as_ref())?;
@@ -93,7 +96,7 @@ pub struct SecretKey(Vec<u8>);
 impl SecretKey {
     /// Create a new **PKCS#8** `SecretKey` from the given bytes.
     // TODO: parse the document and verify it's well-formed
-    pub fn from_bytes(secret_key_bytes: &[u8]) -> Result<Self, Error> {
+    pub fn from_bytes(secret_key_bytes: &[u8]) -> Result<Self, signature::Error> {
         Ok(SecretKey(secret_key_bytes.to_vec()))
     }
 }

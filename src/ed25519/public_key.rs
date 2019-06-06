@@ -1,11 +1,12 @@
 //! Ed25519 public keys
 
+use crate::util::fmt_colon_delimited_hex;
+use core::fmt::{self, Debug};
+
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
-use crate::{error::Error, util::fmt_colon_delimited_hex};
-use core::fmt::{self, Debug};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
@@ -23,21 +24,17 @@ impl PublicKey {
     }
 
     /// Create an Ed25519 public key from its serialized (compressed Edwards-y) form
-    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(bytes: B) -> Option<Self>
     where
         B: AsRef<[u8]>,
     {
-        ensure!(
-            bytes.as_ref().len() == PUBLIC_KEY_SIZE,
-            KeyInvalid,
-            "expected {}-byte key (got {})",
-            PUBLIC_KEY_SIZE,
-            bytes.as_ref().len()
-        );
-
-        let mut public_key = [0u8; PUBLIC_KEY_SIZE];
-        public_key.copy_from_slice(bytes.as_ref());
-        Ok(PublicKey(public_key))
+        if bytes.as_ref().len() == PUBLIC_KEY_SIZE {
+            let mut public_key = [0u8; PUBLIC_KEY_SIZE];
+            public_key.copy_from_slice(bytes.as_ref());
+            Some(PublicKey(public_key))
+        } else {
+            None
+        }
     }
 
     /// Obtain public key as a byte array reference
@@ -71,19 +68,17 @@ impl Debug for PublicKey {
 #[cfg(feature = "encoding")]
 impl Decode for PublicKey {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, signature::Error> {
         let mut decoded_key = [0u8; PUBLIC_KEY_SIZE];
-        let decoded_len = encoding.decode_to_slice(encoded_key, &mut decoded_key)?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_key, &mut decoded_key)
+            .map_err(|_| signature::Error::new())?;
 
-        ensure!(
-            decoded_len == PUBLIC_KEY_SIZE,
-            KeyInvalid,
-            "invalid {}-byte public key (expected {})",
-            decoded_len,
-            PUBLIC_KEY_SIZE
-        );
-
-        Ok(Self::new(decoded_key))
+        if decoded_len == PUBLIC_KEY_SIZE {
+            Ok(Self::new(decoded_key))
+        } else {
+            Err(signature::Error::new())
+        }
     }
 }
 

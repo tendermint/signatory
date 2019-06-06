@@ -7,31 +7,26 @@
     html_root_url = "https://docs.rs/signatory-ledger-tm/0.11.0"
 )]
 
-use std::sync::{Arc, Mutex};
-
+use ledger_tendermint::TendermintValidatorApp;
 use signatory::{
     ed25519::{PublicKey, Signature},
-    error::{Error, ErrorKind},
-    PublicKeyed, Signer,
+    Error, PublicKeyed, Signer,
 };
+use std::sync::{Arc, Mutex};
 
 /// ed25519 signature provider for the Ledger Tendermint Validator app
 pub struct Ed25519LedgerTmAppSigner {
-    app: Arc<Mutex<ledger_tendermint::TendermintValidatorApp>>,
+    app: Arc<Mutex<TendermintValidatorApp>>,
 }
 
 impl Ed25519LedgerTmAppSigner {
     /// Create a new Ed25519 signer based on Ledger Nano S - Tendermint Validator app
     pub fn connect() -> Result<Self, Error> {
-        match ledger_tendermint::TendermintValidatorApp::connect() {
-            Ok(validator_app) => {
-                let app = Arc::new(Mutex::new(validator_app));
-                let signer = Ed25519LedgerTmAppSigner { app };
-                let _pk = signer.public_key().unwrap();
-                Ok(signer)
-            }
-            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
-        }
+        let validator_app = TendermintValidatorApp::connect().map_err(Error::from_cause)?;
+        let app = Arc::new(Mutex::new(validator_app));
+        let signer = Ed25519LedgerTmAppSigner { app };
+        let _pk = signer.public_key().unwrap();
+        Ok(signer)
     }
 }
 
@@ -39,23 +34,17 @@ impl PublicKeyed<PublicKey> for Ed25519LedgerTmAppSigner {
     /// Returns the public key that corresponds to the Tendermint Validator app connected to this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
         let app = self.app.lock().unwrap();
-
-        match app.public_key() {
-            Ok(pk) => Ok(PublicKey(pk)),
-            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
-        }
+        let pk = app.public_key().map_err(Error::from_cause)?;
+        Ok(PublicKey(pk))
     }
 }
 
 impl Signer<Signature> for Ed25519LedgerTmAppSigner {
     /// c: Compute a compact, fixed-sized signature of the given amino/json vote
-    fn sign(&self, msg: &[u8]) -> Result<Signature, Error> {
+    fn try_sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let app = self.app.lock().unwrap();
-
-        match app.sign(&msg) {
-            Ok(sig) => Ok(Signature(sig)),
-            Err(err) => Err(Error::new(ErrorKind::ProviderError, Some(&err.to_string()))),
-        }
+        let sig = app.sign(&msg).map_err(Error::from_cause)?;
+        Ok(Signature(sig))
     }
 }
 
@@ -92,7 +81,7 @@ mod tests {
             0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
         ];
 
-        signer.sign(&some_message1).unwrap();
+        signer.sign(&some_message1);
     }
 
     #[test]
@@ -114,7 +103,7 @@ mod tests {
             0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
         ];
 
-        signer.sign(&some_message1).unwrap();
+        signer.sign(&some_message1);
 
         // Sign message2
         let some_message2 = [
@@ -129,7 +118,7 @@ mod tests {
             0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
         ];
 
-        signer.sign(&some_message2).unwrap();
+        signer.sign(&some_message2);
     }
 
     #[test]
@@ -158,7 +147,7 @@ mod tests {
                 0xb, 0x8, 0x80, 0x92, 0xb8, 0xc3, 0x98, 0xfe, 0xff, 0xff, 0xff, 0x1,
             ];
 
-            signer.sign(&some_message).unwrap();
+            signer.sign(&some_message);
         }
     }
 }

@@ -32,60 +32,13 @@
 //!
 //! ## Signing API
 //!
-//! Signatory provides the following convenience methods for signing. Each of
-//! them dispatches through a trait object for the given trait:
-//!
-//! - [signatory::sign] - sign a byte slice using a given signing provider.
-//!   This method wraps the [Signer] trait and is most useful for computing
-//!   [ed25519] signatures.
-//! - [signatory::sign_digest] - sign the given precomputed digest using the
-//!   given signing provider, a.k.a. Initialize-Update-Finalize (IUF). This
-//!   method wraps the [DigestSigner] trait and is most useful for signing
-//!   large messages in conjunction with hardware-backed signers.
-//! - [signatory::sign_sha256], [signatory::sign_sha384],
-//!   [signatory::sign_sha512] - sign the given message after first computing
-//!   its SHA-2 digest. These methods wrap the [Sha256Signer],
-//!   [Sha384Signer], and [Sha512Signer] traits respectively, and are most
-//!   useful in conjunction with [ecdsa].
-//!
-//! Each of these methods and traits is generic around the signature type.
-//! This makes it important to annotate the particular type of signature
-//! which you would like when using them, e.g.
-//!
-//! ```
-//! use signatory::{self, ed25519};
-//!
-//! let sig: ed25519::Signature = signatory::sign(signer, &msg).unwrap();
-//! ```
-//!
-//! Or use the [turbofish]:
-//!
-//! ```
-//! use signatory::{self, ed25519};
-//!
-//! let sig = signatory::sign::<ed25519::Signature>(signer, &msg).unwrap();
-//! ```
-//!
-//! Alternatively, for Ed25519 signatures, the [ed25519] module provides
-//! methods which operate on concrete Ed25519 types.
+//! - [Signer]: trait for signing
+//! - [DigestSigner]: trait for signing digests
 //!
 //! ## Verifier API
 //!
-//! Signatory provides the following convenience methods for verifying
-//! signatures, which map 1:1 to the methods provided for signing:
-//!
-//! * [signatory::verify] - verify a byte slice using a given provider.
-//!   This method wraps the [Verifier] trait and is most useful for verifying
-//!   [ed25519] signatures.
-//! * [signatory::verify_digest] - verify the given precomputed message digest
-//!   against the provided signature, i.e. IUF. This method wraps the
-//!   [DigestVerifier] trait and is most useful for verifying large messages
-//!   in conjunction with hardware-backed signers.
-//! * [signatory::verify_sha256], [signatory::verify_sha384],
-//!   [signatory::verify_sha512] - verify the given message after first
-//!   computing its SHA-2 digest. These methods wrap the [Sha256Verifier],
-//!   [Sha384Verifier], and [Sha512Verifier] traits respectively, and are most
-//!   useful in conjunction with [ecdsa].
+//! - [Verifier]: trait for verifying
+//! - [DigestVerifier]: trait for verifying digests
 //!
 //! [FIPS 186-4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 //! [RFC 8032]: https://tools.ietf.org/html/rfc8032
@@ -102,26 +55,9 @@
 //! [yubihsm-rs]: https://docs.rs/crate/yubihsm/
 //! [yubihsm::ecdsa::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ecdsa/struct.Signer.html
 //! [yubihsm::ed25519::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ed25519/struct.Signer.html
-//! [signatory::sign]: https://docs.rs/signatory/latest/signatory/fn.sign.html
-//! [signatory::sign_digest]: https://docs.rs/signatory/latest/signatory/fn.sign_digest.html
-//! [signatory::sign_sha256]: https://docs.rs/signatory/latest/signatory/fn.sign_sha256.html
-//! [signatory::sign_sha384]: https://docs.rs/signatory/latest/signatory/fn.sign_sha384.html
-//! [signatory::sign_sha512]: https://docs.rs/signatory/latest/signatory/fn.sign_sha512.html
 //! [Signer]: https://docs.rs/signatory/latest/signatory/trait.Signer.html
-//! [DigestSigner]: https://docs.rs/signatory/latest/signatory/trait.DigestSigner.html
-//! [Sha256Signer]: https://docs.rs/signatory/latest/signatory/trait.Sha256Signer.html
-//! [Sha384Signer]: https://docs.rs/signatory/latest/signatory/trait.Sha384Signer.html
-//! [Sha512Signer]: https://docs.rs/signatory/latest/signatory/trait.Sha512Signer.html
-//! [signatory::verify]: https://docs.rs/signatory/latest/signatory/fn.verify.html
-//! [signatory::verify_digest]: https://docs.rs/signatory/latest/signatory/fn.verify_digest.html
-//! [signatory::verify_sha256]: https://docs.rs/signatory/latest/signatory/fn.verify_sha256.html
-//! [signatory::verify_sha384]: https://docs.rs/signatory/latest/signatory/fn.verify_sha384.html
-//! [signatory::verify_sha512]: https://docs.rs/signatory/latest/signatory/fn.verify_sha512.html
 //! [Verifier]: https://docs.rs/signatory/latest/signatory/trait.Verifier.html
 //! [DigestVerifier]: https://docs.rs/signatory/latest/signatory/trait.DigestVerifier.html
-//! [Sha256Verifier]: https://docs.rs/signatory/latest/signatory/trait.Sha256Verifier.html
-//! [Sha384Verifier]: https://docs.rs/signatory/latest/signatory/trait.Sha384Verifier.html
-//! [Sha512Verifier]: https://docs.rs/signatory/latest/signatory/trait.Sha512Verifier.html
 //! [turbofish]: https://turbo.fish/
 
 #![no_std]
@@ -148,14 +84,6 @@ extern crate alloc;
 #[macro_use]
 extern crate std;
 
-#[cfg(feature = "digest")]
-pub use digest;
-#[cfg(feature = "generic-array")]
-pub use generic_array;
-
-#[macro_use]
-pub mod error;
-
 #[cfg(feature = "ecdsa")]
 pub mod ecdsa;
 #[cfg(feature = "ed25519")]
@@ -165,34 +93,18 @@ pub mod ed25519;
 pub mod encoding;
 pub(crate) mod prelude;
 mod public_key;
-mod signature;
-mod signer;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
-mod verifier;
 
-#[cfg(feature = "ecdsa")]
-pub use crate::ecdsa::{
-    PublicKey as EcdsaPublicKey, SecretKey as EcdsaSecretKey, Signature as EcdsaSignature,
-};
-#[cfg(feature = "ed25519")]
-pub use crate::ed25519::{
-    PublicKey as Ed25519PublicKey, Seed as Ed25519Seed, Signature as Ed25519Signature,
-};
 #[cfg(feature = "encoding")]
 pub use crate::encoding::*;
-pub use crate::{
-    error::{Error, ErrorKind},
-    public_key::{public_key, PublicKey, PublicKeyed},
-    signature::Signature,
-    signer::{sha2::*, sign, Signer},
-    verifier::{sha2::*, verify, Verifier},
-};
+pub use crate::public_key::{PublicKey, PublicKeyed};
 #[cfg(feature = "digest")]
-pub use crate::{
-    signer::digest::{sign_digest, DigestSigner},
-    verifier::digest::{verify_digest, DigestVerifier},
-};
-#[cfg(feature = "digest")]
-pub use digest::Digest;
+pub use digest;
+#[cfg(feature = "generic-array")]
+pub use generic_array;
+pub use signature;
+
+// TODO(tarcieri): remove this and require downstream consumers to use `signatory::signature`
+pub use signature::*;

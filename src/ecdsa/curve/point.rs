@@ -5,7 +5,6 @@
 //! <http://www.secg.org/sec1-v2.pdf>
 
 use super::WeierstrassCurve;
-use crate::error::Error;
 use generic_array::{ArrayLength, GenericArray};
 
 /// Compressed elliptic curve points serialized according to the
@@ -21,21 +20,18 @@ where
     C: WeierstrassCurve,
 {
     /// Create a new compressed elliptic curve point
-    pub fn from_bytes<B>(into_bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(into_bytes: B) -> Option<Self>
     where
         B: Into<GenericArray<u8, C::CompressedPointSize>>,
     {
         let bytes = into_bytes.into();
         let tag_byte = bytes.as_ref()[0];
 
-        ensure!(
-            tag_byte == 0x02 || tag_byte == 0x03,
-            KeyInvalid,
-            "expected first byte to be 0x02 or 0x03 (got {})",
-            tag_byte
-        );
-
-        Ok(Self { bytes })
+        if tag_byte == 0x02 || tag_byte == 0x03 {
+            Some(Self { bytes })
+        } else {
+            None
+        }
     }
 
     /// Obtain public key as a byte array reference
@@ -85,20 +81,17 @@ where
     C: WeierstrassCurve,
 {
     /// Create a new uncompressed elliptic curve point
-    pub fn from_bytes<B>(into_bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(into_bytes: B) -> Option<Self>
     where
         B: Into<GenericArray<u8, C::UncompressedPointSize>>,
     {
         let bytes = into_bytes.into();
 
-        ensure!(
-            bytes.as_ref()[0] == 0x04,
-            KeyInvalid,
-            "expected first byte to be 0x04 (got {})",
-            bytes.as_ref()[0]
-        );
-
-        Ok(Self { bytes })
+        if bytes.get(0) == Some(&0x04) {
+            Some(Self { bytes })
+        } else {
+            None
+        }
     }
 
     /// Obtain public key as a byte array reference

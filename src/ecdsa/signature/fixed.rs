@@ -4,9 +4,8 @@
 use crate::encoding::Decode;
 use crate::{
     ecdsa::{self, curve::WeierstrassCurve},
-    error::Error,
     util::fmt_colon_delimited_hex,
-    Signature,
+    Error, Signature,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
@@ -28,15 +27,11 @@ where
 {
     /// Create an ECDSA signature from its serialized byte representation
     fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
-        ensure!(
-            bytes.as_ref().len() == C::FixedSignatureSize::to_usize(),
-            SignatureInvalid,
-            "expected {}-byte signature (got {})",
-            C::FixedSignatureSize::to_usize(),
-            bytes.as_ref().len()
-        );
-
-        Ok(Self::from(GenericArray::clone_from_slice(bytes.as_ref())))
+        if bytes.as_ref().len() == C::FixedSignatureSize::to_usize() {
+            Ok(Self::from(GenericArray::clone_from_slice(bytes.as_ref())))
+        } else {
+            Err(Error::new())
+        }
     }
 }
 
@@ -82,17 +77,15 @@ where
     /// given encoding (e.g. hex, Base64)
     fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut array = GenericArray::default();
-        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_signature, array.as_mut_slice())
+            .map_err(|_| Error::new())?;
 
-        ensure!(
-            decoded_len == C::FixedSignatureSize::to_usize(),
-            SignatureInvalid,
-            "expected {}-byte signature (got {})",
-            C::FixedSignatureSize::to_usize(),
-            decoded_len
-        );
-
-        Ok(Self::from(array))
+        if decoded_len == C::FixedSignatureSize::to_usize() {
+            Ok(Self::from(array))
+        } else {
+            Err(Error::new())
+        }
     }
 }
 
