@@ -6,9 +6,8 @@ use super::{fixed::FixedSignature, scalars::ScalarPair};
 use crate::encoding::Decode;
 use crate::{
     ecdsa::{self, curve::WeierstrassCurve},
-    error::Error,
     util::fmt_colon_delimited_hex,
-    Signature,
+    Error, Signature,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
@@ -39,13 +38,9 @@ where
         let length = bytes.as_ref().len();
 
         // TODO: better validate signature is well-formed ASN.1 DER
-        ensure!(
-            length <= C::Asn1SignatureMaxSize::to_usize(),
-            SignatureInvalid,
-            "max {}-byte signature (got {})",
-            C::Asn1SignatureMaxSize::to_usize(),
-            length
-        );
+        if length > C::Asn1SignatureMaxSize::to_usize() {
+            return Err(Error::new());
+        }
 
         let mut array = GenericArray::default();
         array.as_mut_slice()[..length].copy_from_slice(bytes.as_ref());
@@ -57,7 +52,7 @@ where
 
         // Ensure result is well-formed ASN.1 DER
         #[cfg(feature = "encoding")]
-        ScalarPair::from_asn1_signature(&result)?;
+        ScalarPair::from_asn1_signature(&result).ok_or_else(Error::new)?;
 
         Ok(result)
     }
@@ -94,7 +89,9 @@ where
     /// given encoding (e.g. hex, Base64)
     fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut array = GenericArray::default();
-        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_signature, array.as_mut_slice())
+            .map_err(|_| Error::new())?;
 
         let result = Self {
             bytes: array,
@@ -102,7 +99,7 @@ where
         };
 
         // Ensure result is well-formed ASN.1 DER
-        ScalarPair::from_asn1_signature(&result)?;
+        ScalarPair::from_asn1_signature(&result).ok_or_else(Error::new)?;
 
         Ok(result)
     }

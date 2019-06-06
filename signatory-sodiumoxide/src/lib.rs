@@ -12,11 +12,7 @@
 #[macro_use]
 extern crate signatory;
 
-use signatory::{
-    ed25519,
-    error::{Error, ErrorKind},
-    PublicKeyed, Signature, Signer, Verifier,
-};
+use signatory::{ed25519, Error, PublicKeyed, Signature, Signer, Verifier};
 use sodiumoxide::crypto::sign::ed25519::{self as sodiumoxide_ed25519, SecretKey};
 
 /// Ed25519 signature provider for *sodiumoxide*
@@ -46,7 +42,7 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
 }
 
 impl Signer<ed25519::Signature> for Ed25519Signer {
-    fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
+    fn try_sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
         let signature = sodiumoxide_ed25519::sign_detached(msg, &self.secret_key);
         Ok(Signature::from_bytes(&signature.0[..]).unwrap())
     }
@@ -68,7 +64,7 @@ impl Verifier<ed25519::Signature> for Ed25519Verifier {
         if sodiumoxide_ed25519::verify_detached(&sig, msg, &self.0) {
             Ok(())
         } else {
-            Err(ErrorKind::SignatureInvalid.into())
+            Err(Error::new())
         }
     }
 }

@@ -5,9 +5,9 @@ use super::curve::WeierstrassCurve;
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::encoding::Encode;
-use crate::error::Error;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::prelude::*;
+use crate::Error;
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "getrandom")]
 use getrandom::getrandom;
@@ -37,19 +37,14 @@ where
     }
 
     /// Decode a raw ECDSA secret key from the given byte slice
-    pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
+    pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Option<Self> {
         let slice = bytes.as_ref();
         let length = slice.len();
 
         if length == C::ScalarSize::to_usize() {
-            Ok(Self::new(GenericArray::clone_from_slice(slice)))
+            Some(Self::new(GenericArray::clone_from_slice(slice)))
         } else {
-            fail!(
-                KeyInvalid,
-                "invalid length for {:?} secret key: {}",
-                C::CURVE_KIND,
-                length
-            );
+            None
         }
     }
 
@@ -82,17 +77,15 @@ where
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
     fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut bytes = GenericArray::default();
-        let decoded_len = encoding.decode_to_slice(encoded_key, &mut bytes)?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_key, &mut bytes)
+            .map_err(|_| Error::new())?;
 
-        ensure!(
-            decoded_len == C::ScalarSize::to_usize(),
-            KeyInvalid,
-            "invalid {}-byte seed (expected {})",
-            decoded_len,
-            C::ScalarSize::to_usize()
-        );
-
-        Ok(Self { bytes })
+        if decoded_len == C::ScalarSize::to_usize() {
+            Ok(Self { bytes })
+        } else {
+            Err(Error::new())
+        }
     }
 }
 

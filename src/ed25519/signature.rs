@@ -4,7 +4,7 @@
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
-use crate::{error::Error, signature::Signature as SignatureTrait, util::fmt_colon_delimited_hex};
+use crate::{util::fmt_colon_delimited_hex, Error, Signature as SignatureTrait};
 use core::fmt::{self, Debug};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
@@ -55,17 +55,15 @@ impl Decode for Signature {
     /// (e.g. hex, Base64)
     fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
         let mut decoded_signature = [0u8; SIGNATURE_SIZE];
-        let decoded_len = encoding.decode_to_slice(encoded_signature, &mut decoded_signature)?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_signature, &mut decoded_signature)
+            .map_err(|_| Error::new())?;
 
-        ensure!(
-            decoded_len == SIGNATURE_SIZE,
-            SignatureInvalid,
-            "invalid {}-byte signature (expected {})",
-            decoded_len,
-            SIGNATURE_SIZE
-        );
-
-        Ok(Self::new(decoded_signature))
+        if decoded_len == SIGNATURE_SIZE {
+            Ok(Self::new(decoded_signature))
+        } else {
+            Err(Error::new())
+        }
     }
 }
 
@@ -88,16 +86,12 @@ impl PartialEq for Signature {
 impl SignatureTrait for Signature {
     /// Create an Ed25519 signature from its serialized byte representation
     fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
-        ensure!(
-            bytes.as_ref().len() == SIGNATURE_SIZE,
-            KeyInvalid,
-            "expected {}-byte signature (got {})",
-            SIGNATURE_SIZE,
-            bytes.as_ref().len()
-        );
-
-        let mut signature = [0u8; SIGNATURE_SIZE];
-        signature.copy_from_slice(bytes.as_ref());
-        Ok(Signature(signature))
+        if bytes.as_ref().len() == SIGNATURE_SIZE {
+            let mut signature = [0u8; SIGNATURE_SIZE];
+            signature.copy_from_slice(bytes.as_ref());
+            Ok(Signature(signature))
+        } else {
+            Err(Error::new())
+        }
     }
 }

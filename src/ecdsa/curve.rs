@@ -6,7 +6,7 @@ pub mod point;
 pub mod secp256k1;
 
 pub use self::{nistp256::NistP256, nistp384::NistP384, secp256k1::Secp256k1};
-use crate::error::Error;
+use crate::Error;
 use core::{fmt::Debug, hash::Hash, str::FromStr};
 use generic_array::ArrayLength;
 
@@ -73,13 +73,12 @@ pub enum WeierstrassCurveKind {
 impl FromStr for WeierstrassCurveKind {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        #[allow(unused_variables)] // for no_std
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "nistp256" => Ok(WeierstrassCurveKind::NistP256),
             "nistp384" => Ok(WeierstrassCurveKind::NistP384),
             "secp256k1" => Ok(WeierstrassCurveKind::Secp256k1),
-            other => fail!(ParseError, "invalid elliptic curve type: {}", other),
+            _ => Err(Error::new()),
         }
     }
 }

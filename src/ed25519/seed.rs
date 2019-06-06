@@ -3,7 +3,6 @@
 
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
-use crate::error::Error;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
 #[cfg(feature = "getrandom")]
@@ -39,37 +38,28 @@ impl Seed {
 
     /// Create an Ed25519 seed from a byte slice, returning `KeyInvalid` if the
     /// slice is not the correct size (32-bytes)
-    pub fn from_bytes<B>(bytes: B) -> Result<Self, Error>
+    pub fn from_bytes<B>(bytes: B) -> Option<Self>
     where
         B: AsRef<[u8]>,
     {
-        ensure!(
-            bytes.as_ref().len() == SEED_SIZE,
-            KeyInvalid,
-            "expected {}-byte seed (got {})",
-            SEED_SIZE,
-            bytes.as_ref().len()
-        );
-
-        let mut seed = [0u8; SEED_SIZE];
-        seed.copy_from_slice(bytes.as_ref());
-
-        Ok(Seed::new(seed))
+        if bytes.as_ref().len() == SEED_SIZE {
+            let mut seed = [0u8; SEED_SIZE];
+            seed.copy_from_slice(bytes.as_ref());
+            Some(Seed::new(seed))
+        } else {
+            None
+        }
     }
 
     /// Create an Ed25519 seed from a keypair: i.e. a seed and its assocaited
     /// public key (i.e. compressed Edwards-y coordinate)
-    pub fn from_keypair(keypair: &[u8]) -> Result<Self, Error> {
-        ensure!(
-            keypair.len() == KEYPAIR_SIZE,
-            KeyInvalid,
-            "invalid {}-byte keypair (expected {})",
-            keypair.len(),
-            KEYPAIR_SIZE
-        );
-
-        // TODO: ensure public key part of keypair is correct
-        Self::from_bytes(&keypair[..SEED_SIZE])
+    pub fn from_keypair(keypair: &[u8]) -> Option<Self> {
+        if keypair.len() == KEYPAIR_SIZE {
+            // TODO: ensure public key part of keypair is correct
+            Self::from_bytes(&keypair[..SEED_SIZE])
+        } else {
+            None
+        }
     }
 
     /// Decode a `Seed` from an encoded (hex or Base64) Ed25519 keypair
@@ -77,17 +67,17 @@ impl Seed {
     pub fn decode_keypair<E: Encoding>(
         encoded_keypair: &[u8],
         encoding: &E,
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, signature::Error> {
         let mut decoded_keypair = [0u8; SEED_SIZE * 2];
-        let decoded_len = encoding.decode_to_slice(encoded_keypair, &mut decoded_keypair)?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_keypair, &mut decoded_keypair)
+            .map_err(|_| signature::Error::new())?;
 
-        ensure!(
-            decoded_len == SEED_SIZE * 2,
-            KeyInvalid,
-            "malformed keypair (incorrect length)"
-        );
-
-        Self::from_keypair(&decoded_keypair)
+        if decoded_len == SEED_SIZE * 2 {
+            Self::from_keypair(&decoded_keypair).ok_or_else(signature::Error::new)
+        } else {
+            Err(signature::Error::new())
+        }
     }
 
     /// Expose the secret values of the `Seed` as a byte slice
@@ -99,19 +89,17 @@ impl Seed {
 #[cfg(feature = "encoding")]
 impl Decode for Seed {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_seed: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(encoded_seed: &[u8], encoding: &E) -> Result<Self, signature::Error> {
         let mut decoded_seed = [0u8; SEED_SIZE];
-        let decoded_len = encoding.decode_to_slice(encoded_seed, &mut decoded_seed)?;
+        let decoded_len = encoding
+            .decode_to_slice(encoded_seed, &mut decoded_seed)
+            .map_err(|_| signature::Error::new())?;
 
-        ensure!(
-            decoded_len == SEED_SIZE,
-            KeyInvalid,
-            "invalid {}-byte seed (expected {})",
-            decoded_len,
-            SEED_SIZE
-        );
-
-        Ok(Self::new(decoded_seed))
+        if decoded_len == SEED_SIZE {
+            Ok(Self::new(decoded_seed))
+        } else {
+            Err(signature::Error::new())
+        }
     }
 }
 

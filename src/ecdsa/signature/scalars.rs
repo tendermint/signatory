@@ -7,7 +7,7 @@
 //! formats, i.e. all of the serialization code is in this module.
 
 use super::{asn1::Asn1Signature, fixed::FixedSignature};
-use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1, error::Error, signature::Signature};
+use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1, Signature};
 use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
 
@@ -30,7 +30,7 @@ where
 {
     /// Parse the given ASN.1 DER-encoded ECDSA signature, obtaining the
     /// `r` and `s` scalar pair
-    pub(crate) fn from_asn1_signature(signature: &'a Asn1Signature<C>) -> Result<Self, Error> {
+    pub(crate) fn from_asn1_signature(signature: &'a Asn1Signature<C>) -> Option<Self> {
         // Signature format is a SEQUENCE of two INTEGER values. We
         // support only integers of less than 127 bytes each (signed
         // encoding) so the resulting raw signature will have length
@@ -38,12 +38,9 @@ where
         let mut bytes = signature.as_slice();
 
         // First byte is SEQUENCE tag.
-        ensure!(
-            bytes[0] == asn1::Tag::Sequence as u8,
-            ParseError,
-            "ASN.1 error: expected first byte to be a SEQUENCE tag: {}",
-            bytes[0]
-        );
+        if bytes[0] != asn1::Tag::Sequence as u8 {
+            return None;
+        }
 
         // The SEQUENCE length will be encoded over one or two bytes. We
         // limit the total SEQUENCE contents to 255 bytes, because it
@@ -52,34 +49,24 @@ where
         let mut zlen = bytes[1] as usize;
 
         if zlen > 0x80 {
-            ensure!(
-                zlen == 0x81,
-                ParseError,
-                "ASN.1 error: overlength signature: {}",
-                zlen
-            );
+            if zlen != 0x81 {
+                return None;
+            }
 
             zlen = bytes[2] as usize;
-            ensure!(
-                zlen == bytes.len().checked_sub(3).unwrap(),
-                ParseError,
-                "ASN.1 error: sequence length mismatch ({} vs {})",
-                zlen,
-                bytes.len().checked_sub(3).unwrap()
-            );
+
+            if zlen != bytes.len().checked_sub(3).unwrap() {
+                return None;
+            }
 
             bytes = &bytes[3..];
         } else {
-            ensure!(
-                zlen == bytes.len().checked_sub(2).unwrap(),
-                ParseError,
-                "ASN.1 error: sequence length mismatch ({} vs {})",
-                zlen,
-                bytes.len().checked_sub(2).unwrap()
-            );
+            if zlen != bytes.len().checked_sub(2).unwrap() {
+                return None;
+            }
 
             bytes = &bytes[2..];
-        };
+        }
 
         // First INTEGER (r)
         let (mut r, bytes) = Self::asn1_int_parse(bytes)?;
@@ -87,42 +74,32 @@ where
         // Second INTEGER (s)
         let (mut s, bytes) = Self::asn1_int_parse(bytes)?;
 
-        ensure!(
-            bytes.is_empty(),
-            ParseError,
-            "ASN.1 error: trailing data at end of signature"
-        );
+        if !bytes.is_empty() {
+            return None;
+        }
 
         let scalar_size = C::ScalarSize::to_usize();
 
         if r.len() > scalar_size {
-            ensure!(
-                r.len() == scalar_size.checked_add(1).unwrap(),
-                ParseError,
-                "ASN.1 error: overlong 'r'"
-            );
+            if r.len() != scalar_size.checked_add(1).unwrap() {
+                return None;
+            }
 
-            ensure!(
-                r[0] == 0,
-                ParseError,
-                "ASN.1 error: expected leading 0 on 'r'"
-            );
+            if r[0] != 0 {
+                return None;
+            }
 
             r = &r[1..];
         }
 
         if s.len() > scalar_size {
-            ensure!(
-                s.len() == scalar_size.checked_add(1).unwrap(),
-                ParseError,
-                "ASN.1 error: overlong 's'"
-            );
+            if s.len() != scalar_size.checked_add(1).unwrap() {
+                return None;
+            }
 
-            ensure!(
-                s[0] == 0,
-                ParseError,
-                "ASN.1 error: expected leading 0 on 's'"
-            );
+            if s[0] != 0 {
+                return None;
+            }
 
             s = &s[1..];
         }
@@ -137,7 +114,7 @@ where
             s = &s[1..];
         }
 
-        Ok(Self {
+        Some(Self {
             r,
             s,
             curve: PhantomData,
@@ -218,33 +195,25 @@ where
     }
 
     /// Parse an integer from its ASN.1 DER serialization
-    fn asn1_int_parse(bytes: &[u8]) -> Result<(&[u8], &[u8]), Error> {
-        ensure!(
-            bytes.len() >= 3,
-            ParseError,
-            "ASN.1 error: truncated INTEGER"
-        );
+    fn asn1_int_parse(bytes: &[u8]) -> Option<(&[u8], &[u8])> {
+        if bytes.len() < 3 {
+            return None;
+        }
 
-        ensure!(
-            bytes[0] == asn1::Tag::Integer as u8,
-            ParseError,
-            "ASN.1 error: expected INTEGER tag (0x02) (got 0x{:x})",
-            bytes[0]
-        );
+        if bytes[0] != asn1::Tag::Integer as u8 {
+            return None;
+        }
 
         let len = bytes[1] as usize;
 
-        ensure!(
-            len < 0x80 && len.checked_add(2).unwrap() <= bytes.len(),
-            ParseError,
-            "ASN.1 error: unexpected length for INTEGER: {}",
-            len
-        );
+        if len >= 0x80 || len.checked_add(2).unwrap() > bytes.len() {
+            return None;
+        }
 
         let integer = &bytes[2..len.checked_add(2).unwrap()];
         let remaining = &bytes[len.checked_add(2).unwrap()..];
 
-        Ok((integer, remaining))
+        Some((integer, remaining))
     }
 
     /// Serialize scalar as ASN.1 DER

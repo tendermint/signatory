@@ -16,10 +16,9 @@ autobenches = false
 circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 
 [dependencies]
-digest = { version = "0.8", optional = true, default-features = false }
 generic-array = { version = "0.12", optional = true }
 getrandom = { version = "0.1", optional = true, default-features = false }
-sha2 = { version = "0.8", optional = true, default-features = false }
+signature = "0.1"
 zeroize = { version = "0.9", optional = true }
 
 [dependencies.subtle-encoding]
@@ -31,6 +30,7 @@ features = ["base64", "hex"]
 [features]
 alloc = []
 default = ["encoding", "getrandom", "std"]
+digest = ["signature/digest"]
 ecdsa = ["generic-array", "zeroize"]
 ed25519 = ["zeroize"]
 encoding = ["subtle-encoding", "zeroize"]
@@ -66,3 +66,6 @@ codegen-units = 1
 
 [package.metadata.docs.rs]
 features = ["digest", "ecdsa", "ed25519", "pkcs8", "sha2"]
+
+[patch.crates-io]
+signature = { git = "https://github.com/RustCrypto/signatures", rev = "a94234e" }

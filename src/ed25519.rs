@@ -7,7 +7,7 @@
 //!
 //! # Example (with ed25519-dalek)
 //!
-//! ```
+//! ```nobuild
 //! extern crate signatory;
 //! extern crate signatory_dalek; // or another Ed25519 provider
 //!
@@ -47,21 +47,3 @@ pub use self::{
     seed::{Seed, SEED_SIZE},
     signature::{Signature, SIGNATURE_SIZE},
 };
-use crate::{error::Error, public_key::PublicKeyed, signer::Signer, verifier::Verifier};
-
-/// Get the public key for the given public keyed object (i.e. a `Signer`)
-pub fn public_key(keyed: &PublicKeyed<PublicKey>) -> Result<PublicKey, Error> {
-    keyed.public_key()
-}
-
-/// Sign the given message slice with the given Ed25519 signer
-#[inline]
-pub fn sign(signer: &Signer<Signature>, msg: &[u8]) -> Result<Signature, Error> {
-    super::sign(signer, msg)
-}
-
-/// Verify the given message slice with the given Ed25519 verifier
-#[inline]
-pub fn verify(verifier: &Verifier<Signature>, msg: &[u8], sig: &Signature) -> Result<(), Error> {
-    super::verify(verifier, msg, sig)
-}
