@@ -4,7 +4,7 @@
 #![deny(unsafe_code, unused_import_braces, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-ledger-tm/0.11.0"
+    html_root_url = "https://docs.rs/signatory-ledger-tm/0.12.0"
 )]
 
 use ledger_tendermint::ledgertm::TendermintValidatorApp;

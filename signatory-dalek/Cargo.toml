@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-dalek"
 description = "Signatory Ed25519 provider for ed25519-dalek"
-version     = "0.11.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.12.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -20,7 +20,7 @@ ed25519-dalek = { version = "1.0.0-pre.1", default-features = false }
 sha2 = { version =  "0.8", default-features = false }
 
 [dependencies.signatory]
-version = "0.11"
+version = "0.12"
 default-features = false
 features = ["digest", "ed25519", "generic-array", "test-vectors"]
 path = ".."

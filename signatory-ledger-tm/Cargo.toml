@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-ledger-tm"
 description = "Signatory provider for Ledger Tendermint Validator app"
-version     = "0.11.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.12.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["ZondaX GmbH <info@zondax.ch>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -20,7 +20,7 @@ ledger-tendermint = "0.4"
 libc = "0.2"
 
 [dependencies.signatory]
-version = "0.11"
+version = "0.12"
 features = ["digest", "ed25519", "generic-array", "test-vectors"]
 path = ".."
 

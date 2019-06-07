@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-sodiumoxide"
 description = "Signatory Ed25519 provider for sodiumoxide"
-version     = "0.11.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.12.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -18,7 +18,7 @@ circle-ci = { repository = "tendermint/signatory" }
 sodiumoxide = "0.2"
 
 [dependencies.signatory]
-version = "0.11"
+version = "0.12"
 features = ["ed25519", "test-vectors"]
 path = ".."
 
