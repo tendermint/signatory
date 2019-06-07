@@ -1,11 +1,15 @@
+## [0.12.0] (2019-06-07)
+
+- Use the `signature` crate ([#160], [#161])
+
 ## [0.11.5] (2019-06-04)
 
-- Upgrade to zeroize 0.9 ([#158])
+- Upgrade to `zeroize` 0.9 ([#158])
 
 ## [0.11.4] (2019-05-20)
 
 - Support stable `alloc` API ([#154])
-- Upgrade to zeroize 0.8 ([#153])
+- Upgrade to `zeroize` 0.8 ([#153])
 
 ## [0.11.3] (2019-03-13)
 
@@ -33,7 +37,7 @@
 
 ## [0.10.1] (2018-11-27)
 
-- Upgrade to subtle-encoding v0.3.0 (#132)
+- Upgrade to `subtle-encoding` v0.3.0 (#132)
 
 ## [0.10.0] (2018-10-16)
 
@@ -46,7 +50,7 @@
 
 ## [0.9.3] (2018-10-09)
 
-- Upgrade to subtle-encoding v0.2 (#123)
+- Upgrade to `subtle-encoding` v0.2 (#123)
 - Fix unused import on Windows (closes #121) (#122)
 
 ## [0.9.2] (2018-10-08)
@@ -81,12 +85,12 @@
 
 ## [0.8.0] (2018-08-19)
 
-- Extract 'from_pkcs8' into a trait (#67)
+- Extract `from_pkcs8` into a trait (#67)
 - signatory-yubihsm: Make ecdsa and ed25519 modules public (#65)
 
 ## [0.7.0] (2018-08-19)
 
-- Factor providers into their own 'signatory-*' crates (#63)
+- Factor providers into their own `signatory-*` crates (#63)
 - Unify ECDSA traits across DER and fixed-sized signatures (#62)
 - ECDSA DER signature parsing and serialization (#61)
 
@@ -99,19 +103,19 @@
 - Factor ECDSA PublicKey into compressed/uncompressed curve points (#56)
 - ECDSA support for `yubihsm-provider` (#55)
 - Upgrade to `yubihsm` crate 0.14 (#54)
-- Add Rustdoc logo (#53)
-- Audit project for security vulnerabilities with cargo-audit (#52)
-- Update to ed25519-dalek 0.8 (#51)
+- Add rustdoc logo (#53)
+- Audit project for security vulnerabilities with `cargo-audit` (#52)
+- Update to `ed25519-dalek` 0.8 (#51)
 - Add ECDSA NIST P-256 support with *ring* provider (#49)
 - Factor ECDSA traits apart into separate traits per method (#46)
-- Upgrade to sodiumoxide 0.1 (#40)
+- Upgrade to `sodiumoxide` 0.1 (#40)
 - Add `ed25519::Seed::from_keypair` method (#38)
 - No default features (#37)
 - Add `ed25519::Seed` type (#35)
 
 ## [0.5.2] (2018-05-19)
 
-- Update to yubihsm-rs 0.9 (#32)
+- Update to `yubihsm-rs` 0.9 (#32)
 - Fix benchmarks (#30)
 
 ## [0.5.1] (2018-04-13)
@@ -120,30 +124,30 @@
 
 ## [0.5.0] (2018-04-12)
 
-- Upgrade to yubihsm-rs 0.8 (#27)
+- Upgrade to `yubihsm-rs` 0.8 (#27)
 - ECDSA verification support (#26)
 - ECDSA support with secp256k1 provider (#25)
 - Ed25519 FromSeed trait and miscellaneous cleanups (#24)
-- Remove unnecessary direct dependency on curve25519-dalek (#12)
+- Remove unnecessary direct dependency on `curve25519-dalek` (#12)
 
 ## [0.4.1] (2018-04-05)
 
-- Add more bounds to the Verifier trait (#20)
+- Add more bounds to the `Verifier` trait (#20)
 
 ## [0.4.0] (2018-04-05)
 
-- Add an "ed25519" module to all providers (#19)
-- sodiumoxide provider for Ed25519 (#18)
+- Add an `ed25519` module to all providers (#19)
+- `sodiumoxide` provider for Ed25519 (#18)
 - *ring* Ed25519 provider (#17)
-- ed25519::Verifier trait (#16)
+- `ed25519::Verifier` trait (#16)
 
 ## [0.3.2] (2018-03-31)
 
-- Upgrade ed25519-dalek to 0.6.2 (#15)
+- Upgrade `ed25519-dalek` to 0.6.2 (#15)
 
 ## [0.3.1] (2018-03-27)
 
-- Update to yubihsm-rs 0.7 (#14)
+- Update to `yubihsm-rs` 0.7 (#14)
 
 ## [0.3.0] (2018-03-20)
 
@@ -157,6 +161,9 @@
 
 - Initial release
 
+[0.12.0]: https://github.com/tendermint/signatory/pull/162
+[#161]: https://github.com/tendermint/signatory/pull/161
+[#160]: https://github.com/tendermint/signatory/pull/160
 [0.11.5]: https://github.com/tendermint/signatory/pull/159
 [#158]: https://github.com/tendermint/signatory/pull/158
 [0.11.4]: https://github.com/tendermint/signatory/pull/155

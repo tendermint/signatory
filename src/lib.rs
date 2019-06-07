@@ -72,7 +72,7 @@
 )]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory/0.11.5"
+    html_root_url = "https://docs.rs/signatory/0.12.0"
 )]
 
 #[cfg(all(feature = "alloc", not(feature = "std")))]

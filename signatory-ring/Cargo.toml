@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-ring"
 description = "Signatory ECDSA (NIST P-256) and Ed25519 provider for *ring*"
-version     = "0.11.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.12.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -19,7 +19,7 @@ ring = "0.14"
 untrusted = "0.6"
 
 [dependencies.signatory]
-version = "0.11"
+version = "0.12"
 default-features = false
 features = ["pkcs8", "test-vectors"]
 path = ".."

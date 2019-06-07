@@ -11,7 +11,7 @@ curve digital signature algorithms, namely ECDSA (described in [FIPS 186‑4])
 and Ed25519 (described in [RFC 8032]).
 
 Signatory provides a thread-safe and object-safe API and implements providers
-for many popular Rust crates, including [ed25519‑dalek], [secp256k1], [ring],
+for many popular Rust crates, including [ed25519‑dalek], [*ring*], [secp256k1], 
 and [sodiumoxide].
 
 [Documentation][docs-link]
@@ -36,7 +36,7 @@ own respective crates (except for the [yubihsm] provider, which is included
 
 | Provider Crate        | Backend Crate  | Type | P‑256  | P‑384  | secp256k1  |
 | --------------------- | -------------- | ---- | ------ | ------ | ---------- |
-| [signatory‑ring]      | [ring]         | Soft | ✅     | ✅     | ⛔         |
+| [signatory‑ring]      | [*ring*]       | Soft | ✅     | ✅     | ⛔         |
 | [signatory‑secp256k1] | [secp256k1]    | Soft | ⛔     | ⛔     | ✅         |
 | [yubihsm]             | [yubihsm]      | Hard | ✅     | ✅     | ✅         |
 
@@ -45,7 +45,7 @@ own respective crates (except for the [yubihsm] provider, which is included
 | Provider Crate          | Backend Crate   | Type | Signing | Verification |
 | ----------------------- | --------------- | ---- | ------- | ------------ |
 | [signatory‑dalek]       | [ed25519‑dalek] | Soft | 51 k/s  | 18 k/s       |
-| [signatory‑ring]        | [ring]          | Soft | 47 k/s  | 16 k/s       |
+| [signatory‑ring]        | [*ring*]        | Soft | 47 k/s  | 16 k/s       |
 | [signatory‑sodiumoxide] | [sodiumoxide]   | Soft | 38 k/s  | 15 k/s       |
 | [yubihsm]               | [yubihsm]       | Hard | ~8/s    | N/A          |
 
@@ -80,7 +80,7 @@ See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 [FIPS 186‑4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519‑dalek]: https://github.com/dalek-cryptography/ed25519-dalek
-[ring]: https://github.com/briansmith/ring
+[*ring*]: https://github.com/briansmith/ring
 [secp256k1]: https://github.com/rust-bitcoin/rust-secp256k1/
 [sodiumoxide]: https://github.com/dnaq/sodiumoxide
 [yubihsm]: https://github.com/tendermint/yubihsm-rs
