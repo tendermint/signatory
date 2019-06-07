@@ -56,9 +56,9 @@
 //! [yubihsm::ecdsa::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ecdsa/struct.Signer.html
 //! [yubihsm::ed25519::Signer]: https://docs.rs/yubihsm/latest/yubihsm/ed25519/struct.Signer.html
 //! [Signer]: https://docs.rs/signatory/latest/signatory/trait.Signer.html
+//! [DigestSigner]: https://docs.rs/signatory/latest/signatory/trait.DigestSigner.html
 //! [Verifier]: https://docs.rs/signatory/latest/signatory/trait.Verifier.html
 //! [DigestVerifier]: https://docs.rs/signatory/latest/signatory/trait.DigestVerifier.html
-//! [turbofish]: https://turbo.fish/
 
 #![no_std]
 #![deny(
@@ -104,6 +104,8 @@ pub use crate::public_key::{PublicKey, PublicKeyed};
 pub use digest;
 #[cfg(feature = "generic-array")]
 pub use generic_array;
+#[cfg(feature = "sha2")]
+pub use sha2;
 pub use signature;
 
 // TODO(tarcieri): remove this and require downstream consumers to use `signatory::signature`

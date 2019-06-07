@@ -15,7 +15,7 @@ use signatory::{
     },
     generic_array::GenericArray,
     test_vector::TestVector,
-    DigestSigner, DigestVerifier, Signature,
+    Signature, Signer, Verifier,
 };
 use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier};
 
@@ -27,7 +27,7 @@ fn sign_ecdsa(c: &mut Criterion) {
 
     c.bench_function("secp256k1: ECDSA signer", move |b| {
         b.iter(|| {
-            let _: FixedSignature = signer.sign_msg_digest(TEST_VECTOR.msg);
+            let _: FixedSignature = signer.sign(TEST_VECTOR.msg);
         })
     });
 }
@@ -40,9 +40,7 @@ fn verify_ecdsa(c: &mut Criterion) {
 
     c.bench_function("secp256k1: ECDSA verifier", move |b| {
         b.iter(|| {
-            verifier
-                .verify_msg_digest(TEST_VECTOR.msg, &signature)
-                .unwrap();
+            verifier.verify(TEST_VECTOR.msg, &signature).unwrap();
         })
     });
 }

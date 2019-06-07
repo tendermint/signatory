@@ -7,7 +7,7 @@
     html_root_url = "https://docs.rs/signatory-ledger-tm/0.11.0"
 )]
 
-use ledger_tendermint::TendermintValidatorApp;
+use ledger_tendermint::ledgertm::TendermintValidatorApp;
 use signatory::{
     ed25519::{PublicKey, Signature},
     Error, PublicKeyed, Signer,
