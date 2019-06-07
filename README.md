@@ -64,6 +64,8 @@ Apache License (Version 2.0), at your option.
 
 See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 
+[//]: # (badges)
+
 [crate-image]: https://img.shields.io/crates/v/signatory.svg
 [crate-link]: https://crates.io/crates/signatory
 [docs-image]: https://docs.rs/signatory/badge.svg
@@ -72,6 +74,9 @@ See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
 [build-image]: https://circleci.com/gh/tendermint/signatory.svg?style=shield
 [build-link]: https://circleci.com/gh/tendermint/signatory
+
+[//]: # (general links)
+
 [FIPS 186‑4]: https://csrc.nist.gov/publications/detail/fips/186/4/final
 [RFC 8032]: https://tools.ietf.org/html/rfc8032
 [ed25519‑dalek]: https://github.com/dalek-cryptography/ed25519-dalek

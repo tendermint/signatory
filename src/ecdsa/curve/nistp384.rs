@@ -12,6 +12,8 @@ mod test_vectors;
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::SHA384_FIXED_SIZE_TEST_VECTORS;
 use super::{WeierstrassCurve, WeierstrassCurveKind};
+#[cfg(all(feature = "digest", feature = "sha2"))]
+use crate::sha2::Sha384;
 use generic_array::typenum::{U105, U48, U49, U96, U97};
 
 /// The NIST P-384 elliptic curve: y² = x³ - 3x + b over a ~384-bit prime field
@@ -66,3 +68,6 @@ pub type Asn1Signature = crate::ecdsa::Asn1Signature<NistP384>;
 
 /// Compact, fixed-sized secp384k1 ECDSA signature
 pub type FixedSignature = crate::ecdsa::FixedSignature<NistP384>;
+
+#[cfg(all(feature = "digest", feature = "sha2"))]
+impl_digest_signature!(Sha384, Asn1Signature, FixedSignature);

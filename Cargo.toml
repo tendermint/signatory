@@ -16,10 +16,11 @@ autobenches = false
 circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 
 [dependencies]
-generic-array = { version = "0.12", optional = true }
+generic-array = { version = "0.12", optional = true, default-features = false }
 getrandom = { version = "0.1", optional = true, default-features = false }
-signature = "0.1"
-zeroize = { version = "0.9", optional = true }
+sha2 = { version = "0.8", optional = true, default-features = false }
+signature = { version = "0.2", default-features = false }
+zeroize = { version = "0.9", optional = true, default-features = false }
 
 [dependencies.subtle-encoding]
 version = "0.3.6"
@@ -35,7 +36,7 @@ ecdsa = ["generic-array", "zeroize"]
 ed25519 = ["zeroize"]
 encoding = ["subtle-encoding", "zeroize"]
 pkcs8 = ["encoding"]
-std = ["alloc", "subtle-encoding/std"]
+std = ["alloc", "signature/std", "subtle-encoding/std"]
 test-vectors = []
 
 [workspace]
@@ -65,7 +66,4 @@ debug-assertions = false
 codegen-units = 1
 
 [package.metadata.docs.rs]
-features = ["digest", "ecdsa", "ed25519", "pkcs8", "sha2"]
-
-[patch.crates-io]
-signature = { git = "https://github.com/RustCrypto/signatures", rev = "a94234e" }
+all-features = true

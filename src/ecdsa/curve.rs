@@ -1,5 +1,9 @@
 //! Elliptic Curves: Weierstrass form - for use with ECDSA.
 
+#[cfg(all(feature = "digest", feature = "sha2"))]
+#[macro_use]
+mod macros;
+
 pub mod nistp256;
 pub mod nistp384;
 pub mod point;
