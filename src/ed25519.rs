@@ -30,7 +30,6 @@
 
 mod public_key;
 mod seed;
-mod signature;
 
 #[cfg(feature = "test-vectors")]
 #[macro_use]
@@ -45,5 +44,7 @@ pub use self::test_vectors::TEST_VECTORS;
 pub use self::{
     public_key::{PublicKey, PUBLIC_KEY_SIZE},
     seed::{Seed, SEED_SIZE},
-    signature::{Signature, SIGNATURE_SIZE},
 };
+
+// Import `Signature` type from the `ed25519` crate
+pub use ::ed25519::{Signature, SIGNATURE_LENGTH as SIGNATURE_SIZE};
