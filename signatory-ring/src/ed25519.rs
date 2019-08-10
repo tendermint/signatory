@@ -73,7 +73,7 @@ impl signatory::Verifier<Signature> for Verifier {
             &ring::signature::ED25519,
             untrusted::Input::from(self.0.as_bytes()),
             untrusted::Input::from(msg),
-            untrusted::Input::from(signature.as_bytes()),
+            untrusted::Input::from(signature.as_ref()),
         )
         .map_err(|_| Error::new())
     }
