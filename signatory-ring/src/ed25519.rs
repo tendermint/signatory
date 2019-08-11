@@ -5,7 +5,7 @@ pub use signatory::ed25519::{PublicKey, Seed, Signature};
 use ring::{
     self,
     rand::SystemRandom,
-    signature::{Ed25519KeyPair, KeyPair},
+    signature::{Ed25519KeyPair, KeyPair, UnparsedPublicKey},
 };
 use signatory::{
     encoding::{
@@ -15,7 +15,6 @@ use signatory::{
     public_key::PublicKeyed,
     signature::{self, Signature as _},
 };
-use untrusted;
 
 /// Ed25519 signature provider for *ring*
 pub struct Signer(Ed25519KeyPair);
@@ -23,9 +22,7 @@ pub struct Signer(Ed25519KeyPair);
 impl<'a> From<&'a Seed> for Signer {
     /// Create a new Ed25519Signer from an unexpanded seed value
     fn from(seed: &'a Seed) -> Self {
-        let keypair =
-            Ed25519KeyPair::from_seed_unchecked(untrusted::Input::from(seed.as_secret_slice()))
-                .unwrap();
+        let keypair = Ed25519KeyPair::from_seed_unchecked(seed.as_secret_slice()).unwrap();
 
         Signer(keypair)
     }
@@ -34,7 +31,7 @@ impl<'a> From<&'a Seed> for Signer {
 impl FromPkcs8 for Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
     fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
-        let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(secret_key.as_ref()))
+        let keypair = Ed25519KeyPair::from_pkcs8(secret_key.as_ref())
             .map_err(|_| encoding::error::ErrorKind::Decode)?;
 
         Ok(Signer(keypair))
@@ -73,13 +70,9 @@ impl<'a> From<&'a PublicKey> for Verifier {
 
 impl signature::Verifier<Signature> for Verifier {
     fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), signature::Error> {
-        ring::signature::verify(
-            &ring::signature::ED25519,
-            untrusted::Input::from(self.0.as_bytes()),
-            untrusted::Input::from(msg),
-            untrusted::Input::from(signature.as_ref()),
-        )
-        .map_err(|_| signature::Error::new())
+        UnparsedPublicKey::new(&ring::signature::ED25519, self.0.as_bytes())
+            .verify(msg, signature.as_ref())
+            .map_err(|_| signature::Error::new())
     }
 }
 

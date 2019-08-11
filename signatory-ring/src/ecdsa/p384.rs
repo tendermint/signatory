@@ -5,8 +5,8 @@ pub use signatory::ecdsa::curve::nistp384::{Asn1Signature, FixedSignature, Publi
 use ring::{
     rand::SystemRandom,
     signature::{
-        ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING, ECDSA_P384_SHA384_FIXED,
-        ECDSA_P384_SHA384_FIXED_SIGNING,
+        UnparsedPublicKey, ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING,
+        ECDSA_P384_SHA384_FIXED, ECDSA_P384_SHA384_FIXED_SIGNING,
     },
 };
 use signatory::{
@@ -18,7 +18,6 @@ use signatory::{
     public_key::PublicKeyed,
     signature,
 };
-use untrusted;
 
 use super::signer::EcdsaSigner;
 
@@ -105,25 +104,17 @@ impl<'a> From<&'a PublicKey> for Verifier {
 
 impl signature::Verifier<Asn1Signature> for Verifier {
     fn verify(&self, msg: &[u8], signature: &Asn1Signature) -> Result<(), signature::Error> {
-        ring::signature::verify(
-            &ECDSA_P384_SHA384_ASN1,
-            untrusted::Input::from(self.0.as_ref()),
-            untrusted::Input::from(msg),
-            untrusted::Input::from(signature.as_ref()),
-        )
-        .map_err(|_| signature::Error::new())
+        UnparsedPublicKey::new(&ECDSA_P384_SHA384_ASN1, self.0.as_ref())
+            .verify(msg, signature.as_ref())
+            .map_err(|_| signature::Error::new())
     }
 }
 
 impl signature::Verifier<FixedSignature> for Verifier {
     fn verify(&self, msg: &[u8], signature: &FixedSignature) -> Result<(), signature::Error> {
-        ring::signature::verify(
-            &ECDSA_P384_SHA384_FIXED,
-            untrusted::Input::from(self.0.as_ref()),
-            untrusted::Input::from(msg),
-            untrusted::Input::from(signature.as_ref()),
-        )
-        .map_err(|_| signature::Error::new())
+        UnparsedPublicKey::new(&ECDSA_P384_SHA384_FIXED, self.0.as_ref())
+            .verify(msg, signature.as_ref())
+            .map_err(|_| signature::Error::new())
     }
 }
 
