@@ -67,17 +67,19 @@ impl Debug for PublicKey {
 
 #[cfg(feature = "encoding")]
 impl Decode for PublicKey {
-    /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, signature::Error> {
+    /// Decode an Ed25519 public key from a byte slice with the given encoding
+    /// (e.g. hex, Base64)
+    fn decode<E: Encoding>(
+        encoded_key: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut decoded_key = [0u8; PUBLIC_KEY_SIZE];
-        let decoded_len = encoding
-            .decode_to_slice(encoded_key, &mut decoded_key)
-            .map_err(|_| signature::Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_key, &mut decoded_key)?;
 
         if decoded_len == PUBLIC_KEY_SIZE {
             Ok(Self::new(decoded_key))
         } else {
-            Err(signature::Error::new())
+            Err(crate::encoding::error::ErrorKind::Decode)?
         }
     }
 }
@@ -90,4 +92,4 @@ impl Encode for PublicKey {
     }
 }
 
-impl crate::PublicKey for PublicKey {}
+impl crate::public_key::PublicKey for PublicKey {}

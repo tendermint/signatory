@@ -6,7 +6,7 @@ use ring::{
     rand::SystemRandom,
     signature::{EcdsaKeyPair, EcdsaSigningAlgorithm, KeyPair},
 };
-use signatory::{ecdsa::Signature, Error};
+use signatory::{ecdsa::Signature, encoding, signature};
 use untrusted;
 
 /// Generic ECDSA signer which is wrapped with curve and signature-specific types
@@ -29,9 +29,9 @@ where
     pub fn from_pkcs8(
         alg: &'static EcdsaSigningAlgorithm,
         pkcs8_bytes: &[u8],
-    ) -> Result<Self, Error> {
+    ) -> Result<Self, encoding::Error> {
         let keypair = EcdsaKeyPair::from_pkcs8(alg, untrusted::Input::from(pkcs8_bytes))
-            .map_err(|_| Error::new())?;
+            .map_err(|_| encoding::error::ErrorKind::Decode)?;
 
         let csrng = SystemRandom::new();
 
@@ -48,11 +48,11 @@ where
     }
 
     /// Sign a message, returning the signature
-    pub fn sign(&self, msg: &[u8]) -> Result<S, Error> {
+    pub fn sign(&self, msg: &[u8]) -> Result<S, signature::Error> {
         let sig = self
             .keypair
             .sign(&self.csrng, untrusted::Input::from(msg))
-            .map_err(|_| Error::new())?;
+            .map_err(|_| signature::Error::new())?;
 
         S::from_bytes(sig)
     }

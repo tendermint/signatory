@@ -7,12 +7,12 @@ use crate::encoding::Decode;
 use crate::{
     ecdsa::{self, curve::WeierstrassCurve},
     util::fmt_colon_delimited_hex,
-    Error, Signature,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
+use signature::{Error, Signature};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
@@ -87,11 +87,12 @@ where
 {
     /// Decode an ASN.1 encoded ECDSA signature from a byte slice with the
     /// given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(
+        encoded_signature: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut array = GenericArray::default();
-        let decoded_len = encoding
-            .decode_to_slice(encoded_signature, array.as_mut_slice())
-            .map_err(|_| Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
 
         let result = Self {
             bytes: array,
@@ -99,7 +100,9 @@ where
         };
 
         // Ensure result is well-formed ASN.1 DER
-        ScalarPair::from_asn1_signature(&result).ok_or_else(Error::new)?;
+        if ScalarPair::from_asn1_signature(&result).is_none() {
+            Err(crate::encoding::error::ErrorKind::Decode)?;
+        }
 
         Ok(result)
     }
@@ -144,10 +147,10 @@ where
 
 #[cfg(all(test, feature = "encoding", feature = "test-vectors"))]
 mod tests {
-    use crate::{
-        ecdsa::curve::nistp256::{Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS},
-        Signature,
+    use crate::ecdsa::curve::nistp256::{
+        Asn1Signature, FixedSignature, SHA256_FIXED_SIZE_TEST_VECTORS,
     };
+    use signature::Signature;
 
     #[test]
     fn test_fixed_to_asn1_signature_roundtrip() {

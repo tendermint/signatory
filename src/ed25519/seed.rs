@@ -88,17 +88,19 @@ impl Seed {
 
 #[cfg(feature = "encoding")]
 impl Decode for Seed {
-    /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_seed: &[u8], encoding: &E) -> Result<Self, signature::Error> {
+    /// Decode an Ed25519 seed from a byte slice with the given encoding
+    /// (e.g. hex, Base64)
+    fn decode<E: Encoding>(
+        encoded_seed: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut decoded_seed = [0u8; SEED_SIZE];
-        let decoded_len = encoding
-            .decode_to_slice(encoded_seed, &mut decoded_seed)
-            .map_err(|_| signature::Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_seed, &mut decoded_seed)?;
 
         if decoded_len == SEED_SIZE {
             Ok(Self::new(decoded_seed))
         } else {
-            Err(signature::Error::new())
+            Err(crate::encoding::error::ErrorKind::Decode)?
         }
     }
 }

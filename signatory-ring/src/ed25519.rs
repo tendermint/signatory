@@ -8,8 +8,12 @@ use ring::{
     signature::{Ed25519KeyPair, KeyPair},
 };
 use signatory::{
-    encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
-    Error, PublicKeyed, Signature as _,
+    encoding::{
+        self,
+        pkcs8::{self, FromPkcs8, GeneratePkcs8},
+    },
+    public_key::PublicKeyed,
+    signature::{self, Signature as _},
 };
 use untrusted;
 
@@ -29,9 +33,9 @@ impl<'a> From<&'a Seed> for Signer {
 
 impl FromPkcs8 for Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
         let keypair = Ed25519KeyPair::from_pkcs8(untrusted::Input::from(secret_key.as_ref()))
-            .map_err(|_| Error::new())?;
+            .map_err(|_| encoding::error::ErrorKind::Decode)?;
 
         Ok(Signer(keypair))
     }
@@ -39,20 +43,20 @@ impl FromPkcs8 for Signer {
 
 impl GeneratePkcs8 for Signer {
     /// Randomly generate an Ed25519 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
         let keypair = Ed25519KeyPair::generate_pkcs8(&SystemRandom::new()).unwrap();
         pkcs8::SecretKey::from_bytes(keypair.as_ref())
     }
 }
 
 impl PublicKeyed<PublicKey> for Signer {
-    fn public_key(&self) -> Result<PublicKey, Error> {
+    fn public_key(&self) -> Result<PublicKey, signature::Error> {
         Ok(PublicKey::from_bytes(self.0.public_key()).unwrap())
     }
 }
 
-impl signatory::Signer<Signature> for Signer {
-    fn try_sign(&self, msg: &[u8]) -> Result<Signature, Error> {
+impl signature::Signer<Signature> for Signer {
+    fn try_sign(&self, msg: &[u8]) -> Result<Signature, signature::Error> {
         Ok(Signature::from_bytes(self.0.sign(msg).as_ref()).unwrap())
     }
 }
@@ -67,15 +71,15 @@ impl<'a> From<&'a PublicKey> for Verifier {
     }
 }
 
-impl signatory::Verifier<Signature> for Verifier {
-    fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), Error> {
+impl signature::Verifier<Signature> for Verifier {
+    fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), signature::Error> {
         ring::signature::verify(
             &ring::signature::ED25519,
             untrusted::Input::from(self.0.as_bytes()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
         )
-        .map_err(|_| Error::new())
+        .map_err(|_| signature::Error::new())
     }
 }
 

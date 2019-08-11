@@ -5,12 +5,12 @@ use crate::encoding::Decode;
 use crate::{
     ecdsa::{self, curve::WeierstrassCurve},
     util::fmt_colon_delimited_hex,
-    Error, Signature,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
+use signature::{Error, Signature};
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
@@ -75,16 +75,17 @@ where
 {
     /// Decode an ASN.1 encoded ECDSA signature from a byte slice with the
     /// given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(
+        encoded_signature: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut array = GenericArray::default();
-        let decoded_len = encoding
-            .decode_to_slice(encoded_signature, array.as_mut_slice())
-            .map_err(|_| Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
 
         if decoded_len == C::FixedSignatureSize::to_usize() {
             Ok(Self::from(array))
         } else {
-            Err(Error::new())
+            Err(crate::encoding::error::ErrorKind::Decode)?
         }
     }
 }

@@ -7,7 +7,11 @@ extern crate criterion;
 use signatory;
 
 use criterion::Criterion;
-use signatory::{ed25519::TEST_VECTORS, test_vector::TestVector, Signature, Signer, Verifier};
+use signatory::{
+    ed25519::TEST_VECTORS,
+    signature::{Signature, Signer, Verifier},
+    test_vector::TestVector,
+};
 use signatory_ring::ed25519;
 
 /// Test vector to use for benchmarking

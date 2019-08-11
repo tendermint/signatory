@@ -14,8 +14,8 @@ use signatory::{
     },
     encoding::FromPkcs8,
     generic_array::GenericArray,
+    signature::{Signature, Signer as _, Verifier as _},
     test_vector::TestVector,
-    Signature, Signer as _, Verifier as _,
 };
 use signatory_ring::ecdsa::p256::{Signer, Verifier};
 

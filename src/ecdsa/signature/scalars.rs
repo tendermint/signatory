@@ -7,9 +7,10 @@
 //! formats, i.e. all of the serialization code is in this module.
 
 use super::{asn1::Asn1Signature, fixed::FixedSignature};
-use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1, Signature};
+use crate::{ecdsa::curve::WeierstrassCurve, encoding::asn1};
 use core::marker::PhantomData;
 use generic_array::{typenum::Unsigned, GenericArray};
+use signature::Signature;
 
 /// ECDSA signature `r` and `s` values, represented as slices which are at
 /// most `C::ScalarSize` bytes (but *may* be smaller)

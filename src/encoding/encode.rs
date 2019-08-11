@@ -1,11 +1,13 @@
-//! Support for encoding and decoding keys and signatures in hex or Base64.
+//! Support for decoding keys and signatures in hex or Base64.
 //!
 //! Uses a constant-time implementation which is suitable for use with
 //! secret keys.
 
+#[cfg(feature = "std")]
+use super::error::ErrorKind;
 #[cfg(all(unix, feature = "std"))]
 use super::FILE_MODE;
-use crate::{prelude::*, Error};
+use crate::{encoding::Error, prelude::*};
 #[cfg(feature = "std")]
 use std::{fs::File, io::Write, path::Path};
 #[cfg(all(unix, feature = "std"))]
@@ -24,7 +26,7 @@ pub trait Encode: Sized {
     /// Encode `self` to a `String` using the provided `Encoding`, returning
     /// the encoded value or a `Error`.
     fn encode_to_string<E: Encoding>(&self, encoding: &E) -> Result<String, Error> {
-        String::from_utf8(self.encode(encoding)).map_err(Error::from_cause)
+        String::from_utf8(self.encode(encoding)).map_err(|_| ErrorKind::Encode.into())
     }
 
     /// Encode `self` with the given `Encoding`, writing the result to the
@@ -36,10 +38,7 @@ pub trait Encode: Sized {
         E: Encoding,
     {
         let mut encoded_bytes = self.encode(encoding);
-        writer
-            .write_all(encoded_bytes.as_ref())
-            .map_err(Error::from_cause)?;
-
+        writer.write_all(encoded_bytes.as_ref())?;
         encoded_bytes.zeroize();
         Ok(encoded_bytes.len())
     }
@@ -56,17 +55,21 @@ pub trait Encode: Sized {
         P: AsRef<Path>,
         E: Encoding,
     {
+        let path = path.as_ref();
         let mut file = OpenOptions::new()
             .create(true)
             .write(true)
             .truncate(true)
             .mode(FILE_MODE)
             .open(path)
-            .map_err(Error::from_cause)?;
+            .map_err(|e| {
+                Error::new(
+                    ErrorKind::Io,
+                    Some(&format!("couldn't create {}: {}", path.display(), e)),
+                )
+            })?;
 
-        self.encode_to_writer(&mut file, encoding)
-            .map_err(Error::from_cause)?;
-
+        self.encode_to_writer(&mut file, encoding)?;
         Ok(file)
     }
 
@@ -80,11 +83,14 @@ pub trait Encode: Sized {
         P: AsRef<Path>,
         E: Encoding,
     {
-        let mut file = File::create(path.as_ref()).map_err(|e| Error::from_cause(e))?;
+        let mut file = File::create(path.as_ref()).map_err(|e| {
+            Error::new(
+                ErrorKind::Io,
+                Some(&format!("couldn't create {}: {}", path.display(), e)),
+            )
+        })?;
 
-        self.encode_to_writer(&mut file, encoding)
-            .map_err(Error::from_cause)?;
-
+        self.encode_to_writer(&mut file, encoding)?;
         Ok(file)
     }
 }

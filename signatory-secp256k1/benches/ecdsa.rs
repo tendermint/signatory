@@ -14,8 +14,8 @@ use signatory::{
         PublicKey,
     },
     generic_array::GenericArray,
+    signature::{Signature, Signer, Verifier},
     test_vector::TestVector,
-    Signature, Signer, Verifier,
 };
 use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier};
 
