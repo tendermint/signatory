@@ -1,3 +1,9 @@
+## [0.13.0] (2019-08-11)
+
+- Update ring to v0.16; secp256k1 to v0.15 ([#167])
+- Remove toplevel `signature` re-exports; add `encoding::Error` ([#166])
+- Use `ed25519::Signature` from the `ed25519` crate ([#165])
+
 ## [0.12.0] (2019-06-07)
 
 - Use the `signature` crate ([#160], [#161])
@@ -161,6 +167,10 @@
 
 - Initial release
 
+[0.13.0]: https://github.com/tendermint/signatory/pull/168
+[#167]: https://github.com/tendermint/signatory/pull/167
+[#166]: https://github.com/tendermint/signatory/pull/166
+[#165]: https://github.com/tendermint/signatory/pull/165
 [0.12.0]: https://github.com/tendermint/signatory/pull/162
 [#161]: https://github.com/tendermint/signatory/pull/161
 [#160]: https://github.com/tendermint/signatory/pull/160

@@ -17,7 +17,7 @@
 )]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-dalek/0.12.0"
+    html_root_url = "https://docs.rs/signatory-dalek/0.13.0"
 )]
 
 #[cfg(test)]
