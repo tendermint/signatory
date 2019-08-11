@@ -17,7 +17,6 @@ circle-ci = { repository = "tendermint/signatory" }
 [dependencies]
 lazy_static = "1"
 ledger-tendermint = "0.4"
-libc = "0.2"
 
 [dependencies.signatory]
 version = "0.12"

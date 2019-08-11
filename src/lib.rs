@@ -61,15 +61,8 @@
 //! [DigestVerifier]: https://docs.rs/signatory/latest/signatory/trait.DigestVerifier.html
 
 #![no_std]
-#![deny(
-    warnings,
-    missing_docs,
-    trivial_casts,
-    trivial_numeric_casts,
-    unsafe_code,
-    unused_import_braces,
-    unused_qualifications
-)]
+#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
+#![forbid(unsafe_code)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
     html_root_url = "https://docs.rs/signatory/0.12.0"
@@ -91,22 +84,13 @@ pub mod ecdsa;
 pub mod ed25519;
 #[cfg(feature = "encoding")]
 pub mod encoding;
-pub(crate) mod prelude;
-mod public_key;
+mod prelude;
+pub mod public_key;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
 mod util;
-
-#[cfg(feature = "encoding")]
-pub use crate::encoding::*;
-pub use crate::public_key::{PublicKey, PublicKeyed};
-#[cfg(feature = "digest")]
-pub use digest;
 #[cfg(feature = "generic-array")]
 pub use generic_array;
 #[cfg(feature = "sha2")]
 pub use sha2;
 pub use signature;
-
-// TODO(tarcieri): remove this and require downstream consumers to use `signatory::signature`
-pub use signature::*;

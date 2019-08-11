@@ -9,11 +9,10 @@
 
 use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
-    digest::Digest,
     ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
+    public_key::PublicKeyed,
     sha2::Sha256,
-    signature::{Signer, Verifier},
-    DigestSigner, DigestVerifier, Error, PublicKeyed, Signature,
+    signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
 
 /// ECDSA signature provider for the secp256k1 crate
@@ -127,7 +126,8 @@ mod tests {
         ecdsa::curve::secp256k1::{
             Asn1Signature, FixedSignature, PublicKey, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS,
         },
-        PublicKeyed, Signature, Signer, Verifier,
+        public_key::PublicKeyed,
+        signature::{Signature, Signer, Verifier},
     };
 
     #[test]

@@ -9,7 +9,6 @@ use crate::{
         WeierstrassCurve,
     },
     util::fmt_colon_delimited_hex,
-    Error,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::{encoding::Encode, prelude::*};
@@ -135,14 +134,16 @@ where
     /// 2.3.3 (page 10).
     ///
     /// <http://www.secg.org/sec1-v2.pdf>
-    fn decode<E: Encoding>(encoded_signature: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(
+        encoded_signature: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut array: GenericArray<u8, C::UncompressedPointSize> = GenericArray::default();
 
-        let decoded_len = encoding
-            .decode_to_slice(encoded_signature, array.as_mut_slice())
-            .map_err(|_| Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_signature, array.as_mut_slice())?;
 
-        Self::from_bytes(&array.as_ref()[..decoded_len]).ok_or_else(Error::new)
+        Self::from_bytes(&array.as_ref()[..decoded_len])
+            .ok_or_else(|| crate::encoding::error::ErrorKind::Decode.into())
     }
 }
 
@@ -163,4 +164,4 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> crate::PublicKey for PublicKey<C> {}
+impl<C: WeierstrassCurve> crate::public_key::PublicKey for PublicKey<C> {}

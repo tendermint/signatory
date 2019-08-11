@@ -11,14 +11,15 @@ pub(crate) mod asn1;
 mod decode;
 #[cfg(feature = "alloc")]
 mod encode;
+pub mod error;
 #[cfg(feature = "pkcs8")]
 pub mod pkcs8;
 
-pub use self::decode::Decode;
 #[cfg(feature = "alloc")]
 pub use self::encode::Encode;
 #[cfg(feature = "pkcs8")]
 pub use self::pkcs8::FromPkcs8;
+pub use self::{decode::Decode, error::Error};
 
 /// Mode to use for newly created files
 #[cfg(all(unix, feature = "std"))]

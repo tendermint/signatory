@@ -70,4 +70,11 @@ pub type Asn1Signature = crate::ecdsa::Asn1Signature<NistP384>;
 pub type FixedSignature = crate::ecdsa::FixedSignature<NistP384>;
 
 #[cfg(all(feature = "digest", feature = "sha2"))]
-impl_digest_signature!(Sha384, Asn1Signature, FixedSignature);
+impl signature::DigestSignature for Asn1Signature {
+    type Digest = Sha384;
+}
+
+#[cfg(all(feature = "digest", feature = "sha2"))]
+impl signature::DigestSignature for FixedSignature {
+    type Digest = Sha384;
+}

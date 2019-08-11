@@ -7,7 +7,6 @@ use crate::encoding::Decode;
 use crate::encoding::Encode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::prelude::*;
-use crate::Error;
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "getrandom")]
 use getrandom::getrandom;
@@ -75,16 +74,17 @@ where
     C: WeierstrassCurve,
 {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
-    fn decode<E: Encoding>(encoded_key: &[u8], encoding: &E) -> Result<Self, Error> {
+    fn decode<E: Encoding>(
+        encoded_key: &[u8],
+        encoding: &E,
+    ) -> Result<Self, crate::encoding::Error> {
         let mut bytes = GenericArray::default();
-        let decoded_len = encoding
-            .decode_to_slice(encoded_key, &mut bytes)
-            .map_err(|_| Error::new())?;
+        let decoded_len = encoding.decode_to_slice(encoded_key, &mut bytes)?;
 
         if decoded_len == C::ScalarSize::to_usize() {
             Ok(Self { bytes })
         } else {
-            Err(Error::new())
+            Err(crate::encoding::error::ErrorKind::Decode.into())
         }
     }
 }

@@ -8,7 +8,11 @@ extern crate criterion;
 use signatory;
 
 use criterion::Criterion;
-use signatory::{ed25519, PublicKeyed, Signature, Verifier};
+use signatory::{
+    ed25519,
+    public_key::PublicKeyed,
+    signature::{Signature, Verifier},
+};
 use signatory_ledger_tm::Ed25519LedgerTmAppSigner;
 
 fn pubkey_ed25519(c: &mut Criterion) {

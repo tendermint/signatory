@@ -11,8 +11,12 @@ use ring::{
 };
 use signatory::{
     ecdsa,
-    encoding::pkcs8::{self, FromPkcs8, GeneratePkcs8},
-    Error, PublicKeyed,
+    encoding::{
+        self,
+        pkcs8::{self, FromPkcs8, GeneratePkcs8},
+    },
+    public_key::PublicKeyed,
+    signature,
 };
 use untrusted;
 
@@ -25,7 +29,7 @@ where
 
 impl FromPkcs8 for Signer<Asn1Signature> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
         Ok(Signer(EcdsaSigner::from_pkcs8(
             &ECDSA_P256_SHA256_ASN1_SIGNING,
             secret_key.as_ref(),
@@ -35,7 +39,7 @@ impl FromPkcs8 for Signer<Asn1Signature> {
 
 impl FromPkcs8 for Signer<FixedSignature> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
-    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, Error> {
+    fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
         Ok(Signer(EcdsaSigner::from_pkcs8(
             &ECDSA_P256_SHA256_FIXED_SIGNING,
             secret_key.as_ref(),
@@ -45,7 +49,7 @@ impl FromPkcs8 for Signer<FixedSignature> {
 
 impl GeneratePkcs8 for Signer<Asn1Signature> {
     /// Randomly generate a P-256 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
         let keypair = ring::signature::EcdsaKeyPair::generate_pkcs8(
             &ECDSA_P256_SHA256_ASN1_SIGNING,
             &SystemRandom::new(),
@@ -58,7 +62,7 @@ impl GeneratePkcs8 for Signer<Asn1Signature> {
 
 impl GeneratePkcs8 for Signer<FixedSignature> {
     /// Randomly generate a P-256 **PKCS#8** keypair
-    fn generate_pkcs8() -> Result<pkcs8::SecretKey, Error> {
+    fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
         let keypair = ring::signature::EcdsaKeyPair::generate_pkcs8(
             &ECDSA_P256_SHA256_FIXED_SIGNING,
             &SystemRandom::new(),
@@ -73,19 +77,19 @@ impl<S> PublicKeyed<PublicKey> for Signer<S>
 where
     S: ecdsa::Signature + Send + Sync,
 {
-    fn public_key(&self) -> Result<PublicKey, Error> {
-        PublicKey::from_bytes(self.0.public_key()).ok_or_else(Error::new)
+    fn public_key(&self) -> Result<PublicKey, signature::Error> {
+        PublicKey::from_bytes(self.0.public_key()).ok_or_else(signature::Error::new)
     }
 }
 
-impl signatory::Signer<Asn1Signature> for Signer<Asn1Signature> {
-    fn try_sign(&self, msg: &[u8]) -> Result<Asn1Signature, Error> {
+impl signature::Signer<Asn1Signature> for Signer<Asn1Signature> {
+    fn try_sign(&self, msg: &[u8]) -> Result<Asn1Signature, signature::Error> {
         self.0.sign(msg)
     }
 }
 
-impl signatory::Signer<FixedSignature> for Signer<FixedSignature> {
-    fn try_sign(&self, msg: &[u8]) -> Result<FixedSignature, Error> {
+impl signature::Signer<FixedSignature> for Signer<FixedSignature> {
+    fn try_sign(&self, msg: &[u8]) -> Result<FixedSignature, signature::Error> {
         self.0.sign(msg)
     }
 }
@@ -100,27 +104,27 @@ impl<'a> From<&'a PublicKey> for Verifier {
     }
 }
 
-impl signatory::Verifier<Asn1Signature> for Verifier {
-    fn verify(&self, msg: &[u8], signature: &Asn1Signature) -> Result<(), Error> {
+impl signature::Verifier<Asn1Signature> for Verifier {
+    fn verify(&self, msg: &[u8], signature: &Asn1Signature) -> Result<(), signature::Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_ASN1,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
         )
-        .map_err(|_| Error::new())
+        .map_err(|_| signature::Error::new())
     }
 }
 
-impl signatory::Verifier<FixedSignature> for Verifier {
-    fn verify(&self, msg: &[u8], signature: &FixedSignature) -> Result<(), Error> {
+impl signature::Verifier<FixedSignature> for Verifier {
+    fn verify(&self, msg: &[u8], signature: &FixedSignature) -> Result<(), signature::Error> {
         ring::signature::verify(
             &ECDSA_P256_SHA256_FIXED,
             untrusted::Input::from(self.0.as_ref()),
             untrusted::Input::from(msg),
             untrusted::Input::from(signature.as_ref()),
         )
-        .map_err(|_| Error::new())
+        .map_err(|_| signature::Error::new())
     }
 }
 
@@ -133,7 +137,8 @@ mod tests {
         },
         encoding::FromPkcs8,
         generic_array::GenericArray,
-        PublicKeyed, Signature, Signer as _, Verifier as _,
+        public_key::PublicKeyed,
+        signature::{Signature as _, Signer as _, Verifier as _},
     };
 
     #[test]

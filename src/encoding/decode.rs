@@ -1,4 +1,11 @@
-use crate::Error;
+//! Support for decoding keys and signatures in hex or Base64.
+//!
+//! Uses a constant-time implementation which is suitable for use with
+//! secret keys.
+
+use super::error::Error;
+#[cfg(feature = "std")]
+use super::error::ErrorKind;
 #[cfg(feature = "std")]
 use std::{fs::File, io::Read, path::Path};
 use subtle_encoding::Encoding;
@@ -31,9 +38,7 @@ pub trait Decode: Sized {
         E: Encoding,
     {
         let mut bytes = vec![];
-        reader
-            .read_to_end(bytes.as_mut())
-            .map_err(Error::from_cause)?;
+        reader.read_to_end(bytes.as_mut())?;
 
         let result = Self::decode(&bytes, encoding);
         bytes.zeroize();
@@ -48,7 +53,13 @@ pub trait Decode: Sized {
         P: AsRef<Path>,
         E: Encoding,
     {
-        let mut file = File::open(path.as_ref()).map_err(Error::from_cause)?;
+        let path = path.as_ref();
+        let mut file = File::open(path).map_err(|e| {
+            Error::new(
+                ErrorKind::Io,
+                Some(&format!("couldn't open {}: {}", path.display(), e)),
+            )
+        })?;
 
         Self::decode_from_reader(&mut file, encoding)
     }

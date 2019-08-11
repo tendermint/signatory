@@ -11,4 +11,4 @@ pub(crate) mod fixed;
 pub(crate) mod scalars;
 
 /// Marker trait for ECDSA signatures
-pub trait Signature: crate::Signature {}
+pub trait Signature: signature::Signature {}

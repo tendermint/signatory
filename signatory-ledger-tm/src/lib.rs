@@ -10,7 +10,8 @@
 use ledger_tendermint::ledgertm::TendermintValidatorApp;
 use signatory::{
     ed25519::{PublicKey, Signature},
-    Error, PublicKeyed, Signer,
+    public_key::PublicKeyed,
+    signature::{Error, Signer},
 };
 use std::sync::{Arc, Mutex};
 
@@ -54,7 +55,7 @@ mod tests {
 
     #[test]
     fn public_key() {
-        use signatory::PublicKeyed;
+        use signatory::public_key::PublicKeyed;
         let signer = Ed25519LedgerTmAppSigner::connect().unwrap();
 
         let _pk = signer.public_key().unwrap();
@@ -64,7 +65,7 @@ mod tests {
     #[test]
     fn sign() {
         use crate::Ed25519LedgerTmAppSigner;
-        use signatory::Signer;
+        use signatory::signature::Signer;
 
         let signer = Ed25519LedgerTmAppSigner::connect().unwrap();
 
@@ -86,7 +87,7 @@ mod tests {
 
     #[test]
     fn sign2() {
-        use signatory::Signer;
+        use signatory::signature::Signer;
 
         let signer = Ed25519LedgerTmAppSigner::connect().unwrap();
 
@@ -123,8 +124,8 @@ mod tests {
 
     #[test]
     fn sign_many() {
-        use signatory::PublicKeyed;
-        use signatory::Signer;
+        use signatory::public_key::PublicKeyed;
+        use signatory::signature::Signer;
         use Ed25519LedgerTmAppSigner;
 
         let signer = Ed25519LedgerTmAppSigner::connect().unwrap();

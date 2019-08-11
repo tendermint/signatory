@@ -25,8 +25,10 @@
 extern crate signatory;
 
 use signatory::{
-    digest::Digest, ed25519, generic_array::typenum::U64, DigestSigner, DigestVerifier, Error,
-    PublicKeyed, Signature, Signer, Verifier,
+    ed25519,
+    generic_array::typenum::U64,
+    public_key::PublicKeyed,
+    signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -48,7 +50,7 @@ impl PublicKeyed<ed25519::PublicKey> for Ed25519Signer {
 impl Signer<ed25519::Signature> for Ed25519Signer {
     fn try_sign(&self, msg: &[u8]) -> Result<ed25519::Signature, Error> {
         let signature = self.0.sign(msg).to_bytes();
-        Ok(Signature::from_bytes(&signature[..]).unwrap())
+        Ok(ed25519::Signature::from_bytes(&signature[..]).unwrap())
     }
 }
 
@@ -62,7 +64,8 @@ where
         let context: Option<&'static [u8]> = None;
 
         let signature =
-            Signature::from_bytes(&self.0.sign_prehashed(digest, context).to_bytes()[..]).unwrap();
+            ed25519::Signature::from_bytes(&self.0.sign_prehashed(digest, context).to_bytes()[..])
+                .unwrap();
 
         Ok(signature)
     }

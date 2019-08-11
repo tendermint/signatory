@@ -7,7 +7,11 @@
 extern crate criterion;
 
 use criterion::Criterion;
-use signatory::{ed25519, test_vector::TestVector, Signature, Signer, Verifier};
+use signatory::{
+    ed25519,
+    signature::{Signature, Signer, Verifier},
+    test_vector::TestVector,
+};
 use signatory_dalek::{Ed25519Signer, Ed25519Verifier};
 
 /// Test vector to use for benchmarking

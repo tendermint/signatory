@@ -12,7 +12,11 @@
 #[macro_use]
 extern crate signatory;
 
-use signatory::{ed25519, Error, PublicKeyed, Signature, Signer, Verifier};
+use signatory::{
+    ed25519,
+    public_key::PublicKeyed,
+    signature::{Error, Signature, Signer, Verifier},
+};
 use sodiumoxide::crypto::sign::ed25519::{self as sodiumoxide_ed25519, SecretKey};
 
 /// Ed25519 signature provider for *sodiumoxide*
