@@ -15,8 +15,7 @@ edition     = "2018"
 circle-ci = { repository = "tendermint/signatory" }
 
 [dependencies]
-ring = "0.14"
-untrusted = "0.6"
+ring = { version = "0.16", default-features = false }
 
 [dependencies.signatory]
 version = "0.12"
