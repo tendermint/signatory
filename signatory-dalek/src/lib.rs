@@ -6,15 +6,8 @@
 //! [ed25519-dalek]: https://github.com/dalek-cryptography/ed25519-dalek
 
 #![no_std]
-#![deny(
-    warnings,
-    missing_docs,
-    trivial_casts,
-    trivial_numeric_casts,
-    unsafe_code,
-    unused_import_braces,
-    unused_qualifications
-)]
+#![forbid(unsafe_code)]
+#![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
     html_root_url = "https://docs.rs/signatory-dalek/0.13.0"

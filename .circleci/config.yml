@@ -4,6 +4,8 @@ jobs:
   build:
     docker:
     - image: tendermint/kms:build-2019-06-05-v0 # bump cache keys when modifying this
+    environment:
+      RUSTFLAGS: -D warnings
     steps:
     - checkout
     - restore_cache:

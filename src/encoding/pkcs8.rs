@@ -8,7 +8,9 @@
 use super::FILE_MODE;
 use crate::encoding::error::Error;
 #[cfg(feature = "std")]
-use crate::{encoding::error::ErrorKind, prelude::*};
+use crate::encoding::error::ErrorKind;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
 #[cfg(feature = "std")]
 use std::{
     fs::File,

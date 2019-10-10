@@ -1,7 +1,7 @@
 //! Encoding errors
 
-#[cfg(feature = "std")]
-use crate::prelude::*;
+#[cfg(feature = "alloc")]
+use alloc::{borrow::ToOwned, string::String};
 use core::fmt::{self, Display};
 #[cfg(feature = "std")]
 use std::io;
@@ -24,7 +24,7 @@ impl Error {
         Self {
             kind,
             #[cfg(feature = "alloc")]
-            msg: msg.map(|s| s.to_owned()),
+            msg: msg.map(ToOwned::to_owned),
         }
     }
 

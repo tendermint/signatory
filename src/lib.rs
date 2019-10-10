@@ -61,16 +61,14 @@
 //! [DigestVerifier]: https://docs.rs/signatory/latest/signatory/trait.DigestVerifier.html
 
 #![no_std]
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
+#![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
     html_root_url = "https://docs.rs/signatory/0.13.0"
 )]
 
-#[cfg(all(feature = "alloc", not(feature = "std")))]
-#[allow(unused_imports)] // rustc bug?
-#[macro_use]
+#[cfg(feature = "alloc")]
 extern crate alloc;
 
 #[cfg(any(feature = "std", test))]
@@ -84,7 +82,6 @@ pub mod ecdsa;
 pub mod ed25519;
 #[cfg(feature = "encoding")]
 pub mod encoding;
-mod prelude;
 pub mod public_key;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;

@@ -4,7 +4,9 @@
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::{encoding::Encode, prelude::*};
+use crate::encoding::Encode;
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+use alloc::vec::Vec;
 #[cfg(feature = "getrandom")]
 use getrandom::getrandom;
 #[cfg(feature = "encoding")]

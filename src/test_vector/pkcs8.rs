@@ -1,7 +1,7 @@
 //! Hax PKCS#8 serializers for test vectors
 
 use super::{TestVector, TestVectorAlgorithm};
-use crate::prelude::*;
+use alloc::vec::Vec;
 
 /// PKCS#8 header for a NIST P-256 private key
 const P256_PKCS8_HEADER: &[u8] =
