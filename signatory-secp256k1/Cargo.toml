@@ -17,7 +17,7 @@ maintenance = { status = "passively-maintained" }
 
 [dependencies]
 secp256k1 = "0.15"
-signature = { version = "0.2", features = ["signature_derive"] }
+signature = { version = "0.3", features = ["signature_derive"] }
 
 [dependencies.signatory]
 version = "0.13"

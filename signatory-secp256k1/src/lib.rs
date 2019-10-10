@@ -17,6 +17,7 @@ use signatory::{
 
 /// ECDSA signature provider for the secp256k1 crate
 #[derive(Signer)]
+#[digest(Sha256)]
 pub struct EcdsaSigner {
     /// ECDSA secret key
     secret_key: secp256k1::SecretKey,
@@ -71,6 +72,7 @@ impl EcdsaSigner {
 
 /// ECDSA verifier provider for the secp256k1 crate
 #[derive(Clone, Debug, Eq, PartialEq, Verifier)]
+#[digest(Sha256)]
 pub struct EcdsaVerifier {
     /// ECDSA public key
     public_key: secp256k1::PublicKey,
