@@ -4,7 +4,7 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-secp256k1/0.13.0"
+    html_root_url = "https://docs.rs/signatory-secp256k1/0.14.0"
 )]
 
 use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};

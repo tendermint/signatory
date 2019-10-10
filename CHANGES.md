@@ -1,3 +1,8 @@
+## [0.14.0] (2019-10-10)
+
+- Always use the `alloc` crate for `String`/`Vec` ([#170])
+- Upgrade to `signature` crate v0.3, `ed25519` crate v0.2; MSRV 1.36+ ([#169])
+
 ## [0.13.0] (2019-08-11)
 
 - Update ring to v0.16; secp256k1 to v0.15 ([#167])
@@ -167,6 +172,9 @@
 
 - Initial release
 
+[0.14.0]: https://github.com/tendermint/signatory/pull/171
+[#169]: https://github.com/tendermint/signatory/pull/169
+[#168]: https://github.com/tendermint/signatory/pull/168
 [0.13.0]: https://github.com/tendermint/signatory/pull/168
 [#167]: https://github.com/tendermint/signatory/pull/167
 [#166]: https://github.com/tendermint/signatory/pull/166
