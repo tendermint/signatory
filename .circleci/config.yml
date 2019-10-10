@@ -9,6 +9,13 @@ jobs:
     - restore_cache:
         key: cache-2019-06-05-v0 # bump save_cache key below too
     - run:
+        name: Install Rust 1.36.0 # TODO: update Rust in the upstream Docker image
+        command: |
+          rustup toolchain install 1.36.0
+          rustup default 1.36.0
+          rustup component add rustfmt
+          rustup component add clippy
+    - run:
         name: rustfmt
         command: |
           cargo fmt --version
@@ -17,7 +24,7 @@ jobs:
         name: clippy
         command: |
           cargo clippy --version
-          cargo clippy --all
+          cargo clippy --all --exclude signatory-sodiumoxide # sodiumoxide isn't clippy-friendly
     - run:
         name: build (--no-default-features)
         command: |
