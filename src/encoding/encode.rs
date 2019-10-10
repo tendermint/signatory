@@ -7,7 +7,8 @@
 use super::error::ErrorKind;
 #[cfg(all(unix, feature = "std"))]
 use super::FILE_MODE;
-use crate::{encoding::Error, prelude::*};
+use crate::encoding::Error;
+use alloc::{string::String, vec::Vec};
 #[cfg(feature = "std")]
 use std::{fs::File, io::Write, path::Path};
 #[cfg(all(unix, feature = "std"))]

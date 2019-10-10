@@ -6,7 +6,9 @@ use core::fmt::{self, Debug};
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::{encoding::Encode, prelude::*};
+use crate::encoding::Encode;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use alloc::vec::Vec;
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 
@@ -58,7 +60,7 @@ impl AsRef<[u8]> for PublicKey {
 }
 
 impl Debug for PublicKey {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "signatory::ed25519::PublicKey(")?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")

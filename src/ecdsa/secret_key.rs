@@ -6,7 +6,7 @@ use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::encoding::Encode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::prelude::*;
+use alloc::vec::Vec;
 use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "getrandom")]
 use getrandom::getrandom;

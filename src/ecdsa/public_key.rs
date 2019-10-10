@@ -3,6 +3,8 @@
 
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::encoding::Encode;
 use crate::{
     ecdsa::curve::{
         point::{CompressedCurvePoint, UncompressedCurvePoint},
@@ -11,7 +13,7 @@ use crate::{
     util::fmt_colon_delimited_hex,
 };
 #[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::{encoding::Encode, prelude::*};
+use alloc::vec::Vec;
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, ArrayLength, GenericArray};
 #[cfg(feature = "encoding")]
@@ -114,7 +116,7 @@ impl<C> Debug for PublicKey<C>
 where
     C: WeierstrassCurve,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "signatory::ecdsa::PublicKey<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")

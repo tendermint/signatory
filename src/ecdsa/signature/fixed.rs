@@ -2,12 +2,14 @@
 
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
+#[cfg(all(feature = "alloc", feature = "encoding"))]
+use crate::encoding::Encode;
 use crate::{
     ecdsa::{self, curve::WeierstrassCurve},
     util::fmt_colon_delimited_hex,
 };
-#[cfg(all(feature = "alloc", feature = "encoding"))]
-use crate::{encoding::Encode, prelude::*};
+#[cfg(all(feature = "encoding", feature = "alloc"))]
+use alloc::vec::Vec;
 use core::fmt::{self, Debug};
 use generic_array::{typenum::Unsigned, GenericArray};
 use signature::{Error, Signature};
@@ -61,7 +63,7 @@ impl<C> Debug for FixedSignature<C>
 where
     C: WeierstrassCurve,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "signatory::ecdsa::FixedSignature<{:?}>(", C::default())?;
         fmt_colon_delimited_hex(f, self.as_ref())?;
         write!(f, ")")
