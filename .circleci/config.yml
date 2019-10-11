@@ -111,11 +111,6 @@ jobs:
           cargo build --package=signatory-ledger-tm
           # Temporarily Disabling testing until a mockhsm is available
           # cd signatory-ledger-tm && cargo test
-    - run:
-        name: audit
-        command: |
-          cargo audit --version
-          cargo audit
     - save_cache:
         key: cache-2019-06-05-v0 # bump restore_cache key above too
         paths:
