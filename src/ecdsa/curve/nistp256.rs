@@ -12,6 +12,8 @@ mod test_vectors;
 #[cfg(feature = "test-vectors")]
 pub use self::test_vectors::SHA256_FIXED_SIZE_TEST_VECTORS;
 use super::{WeierstrassCurve, WeierstrassCurveKind};
+#[cfg(all(feature = "digest", feature = "sha2"))]
+use crate::sha2::Sha256;
 use generic_array::typenum::{U32, U33, U64, U65, U73};
 
 /// The NIST P-256 elliptic curve: y² = x³ - 3x + b over a ~256-bit prime field
@@ -65,3 +67,13 @@ pub type Asn1Signature = crate::ecdsa::Asn1Signature<NistP256>;
 
 /// Compact, fixed-sized secp256k1 ECDSA signature
 pub type FixedSignature = crate::ecdsa::FixedSignature<NistP256>;
+
+#[cfg(all(feature = "digest", feature = "sha2"))]
+impl signature::DigestSignature for Asn1Signature {
+    type Digest = Sha256;
+}
+
+#[cfg(all(feature = "digest", feature = "sha2"))]
+impl signature::DigestSignature for FixedSignature {
+    type Digest = Sha256;
+}
