@@ -1,7 +1,7 @@
 [package]
 name        = "signatory-secp256k1"
 description = "Signatory ECDSA provider for secp256k1-rs"
-version     = "0.14.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.15.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/tendermint/signatory"
@@ -20,7 +20,7 @@ secp256k1 = "0.15"
 signature = { version = "1.0.0-pre.0", features = ["derive-preview"] }
 
 [dependencies.signatory]
-version = "0.14"
+version = "0.15"
 features = ["digest", "ecdsa", "sha2", "test-vectors"]
 path = ".."
 

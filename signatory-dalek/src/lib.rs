@@ -10,7 +10,7 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/tendermint/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-dalek/0.14.0"
+    html_root_url = "https://docs.rs/signatory-dalek/0.15.0"
 )]
 
 #[cfg(test)]
