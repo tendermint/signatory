@@ -28,7 +28,7 @@ where
     C: WeierstrassCurve,
 {
     /// Create an ECDSA signature from its serialized byte representation
-    fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Result<Self, Error> {
+    fn from_bytes(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         if bytes.as_ref().len() == C::FixedSignatureSize::to_usize() {
             Ok(Self::from(GenericArray::clone_from_slice(bytes.as_ref())))
         } else {

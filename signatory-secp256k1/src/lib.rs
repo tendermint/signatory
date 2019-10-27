@@ -63,7 +63,7 @@ impl EcdsaSigner {
     /// Sign a digest and produce a `secp256k1::Signature`
     fn raw_sign_digest(&self, digest: Sha256) -> Result<secp256k1::Signature, Error> {
         let msg = secp256k1::Message::from_slice(digest.result().as_slice())
-            .map_err(Error::from_cause)?;
+            .map_err(Error::from_source)?;
 
         Ok(self.engine.sign(&msg, &self.secret_key))
     }
@@ -91,7 +91,7 @@ impl DigestVerifier<Sha256, Asn1Signature> for EcdsaVerifier {
     fn verify_digest(&self, digest: Sha256, signature: &Asn1Signature) -> Result<(), Error> {
         self.raw_verify_digest(
             digest,
-            secp256k1::Signature::from_der(signature.as_slice()).map_err(Error::from_cause)?,
+            secp256k1::Signature::from_der(signature.as_slice()).map_err(Error::from_source)?,
         )
     }
 }
@@ -100,7 +100,7 @@ impl DigestVerifier<Sha256, FixedSignature> for EcdsaVerifier {
     fn verify_digest(&self, digest: Sha256, signature: &FixedSignature) -> Result<(), Error> {
         self.raw_verify_digest(
             digest,
-            secp256k1::Signature::from_compact(signature.as_slice()).map_err(Error::from_cause)?,
+            secp256k1::Signature::from_compact(signature.as_slice()).map_err(Error::from_source)?,
         )
     }
 }
@@ -109,11 +109,11 @@ impl EcdsaVerifier {
     /// Verify a digest against a `secp256k1::Signature`
     fn raw_verify_digest(&self, digest: Sha256, sig: secp256k1::Signature) -> Result<(), Error> {
         let msg = secp256k1::Message::from_slice(digest.result().as_slice())
-            .map_err(Error::from_cause)?;
+            .map_err(Error::from_source)?;
 
         self.engine
             .verify(&msg, &sig, &self.public_key)
-            .map_err(Error::from_cause)
+            .map_err(Error::from_source)
     }
 }
 
@@ -147,7 +147,7 @@ mod tests {
         let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
 
         let signature: Asn1Signature = signer.sign(vector.msg);
-        let mut tweaked_signature = signature.into_vec();
+        let mut tweaked_signature = signature.as_ref().to_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
@@ -184,7 +184,7 @@ mod tests {
         let signer = EcdsaSigner::from(&SecretKey::from_bytes(vector.sk).unwrap());
 
         let signature: FixedSignature = signer.sign(vector.msg);
-        let mut tweaked_signature = signature.into_vec();
+        let mut tweaked_signature = signature.as_ref().to_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
