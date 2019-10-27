@@ -33,10 +33,7 @@ where
     C: WeierstrassCurve,
 {
     /// Decode an ASN.1 DER-serialized ECDSA signature
-    fn from_bytes<B>(bytes: B) -> Result<Self, Error>
-    where
-        B: AsRef<[u8]>,
-    {
+    fn from_bytes(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let length = bytes.as_ref().len();
 
         // TODO: better validate signature is well-formed ASN.1 DER

@@ -23,7 +23,7 @@ pub struct Ed25519LedgerTmAppSigner {
 impl Ed25519LedgerTmAppSigner {
     /// Create a new Ed25519 signer based on Ledger Nano S - Tendermint Validator app
     pub fn connect() -> Result<Self, Error> {
-        let validator_app = TendermintValidatorApp::connect().map_err(Error::from_cause)?;
+        let validator_app = TendermintValidatorApp::connect().map_err(Error::from_source)?;
         let app = Arc::new(Mutex::new(validator_app));
         let signer = Ed25519LedgerTmAppSigner { app };
         let _pk = signer.public_key().unwrap();
@@ -35,7 +35,7 @@ impl PublicKeyed<PublicKey> for Ed25519LedgerTmAppSigner {
     /// Returns the public key that corresponds to the Tendermint Validator app connected to this signer
     fn public_key(&self) -> Result<PublicKey, Error> {
         let app = self.app.lock().unwrap();
-        let pk = app.public_key().map_err(Error::from_cause)?;
+        let pk = app.public_key().map_err(Error::from_source)?;
         Ok(PublicKey(pk))
     }
 }
@@ -44,7 +44,7 @@ impl Signer<Signature> for Ed25519LedgerTmAppSigner {
     /// c: Compute a compact, fixed-sized signature of the given amino/json vote
     fn try_sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let app = self.app.lock().unwrap();
-        let sig = app.sign(&msg).map_err(Error::from_cause)?;
+        let sig = app.sign(&msg).map_err(Error::from_source)?;
         Ok(Signature(sig))
     }
 }

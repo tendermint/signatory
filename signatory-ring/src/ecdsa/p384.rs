@@ -149,7 +149,7 @@ mod tests {
         let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
         let signature: Asn1Signature = signer.sign(vector.msg);
 
-        let mut tweaked_signature = signature.into_vec();
+        let mut tweaked_signature = signature.as_ref().to_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let verifier = Verifier::from(&signer.public_key().unwrap());
