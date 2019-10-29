@@ -1,6 +1,6 @@
 //! Hax PKCS#8 serializers for test vectors
 
-use super::{TestVector, TestVectorAlgorithm};
+use super::TestVectorAlgorithm;
 use alloc::vec::Vec;
 
 /// PKCS#8 header for a NIST P-256 private key
@@ -19,12 +19,18 @@ const P384_PKCS8_HEADER: &[u8] =
 /// PKCS#8 interstitial part for a NIST P-384 private key
 const P384_PKCS8_PUBKEY_PREFIX: &[u8] = b"\xa1\x64\x03\x62\x00\x04";
 
-impl TestVector {
+/// Serialize test vector as PKCS#8
+pub trait ToPkcs8 {
     /// Serialize this test vector as a PKCS#8 document
-    pub fn to_pkcs8(&self) -> Vec<u8> {
+    fn to_pkcs8(&self, alg: TestVectorAlgorithm) -> Vec<u8>;
+}
+
+#[cfg(feature = "ecdsa")]
+impl ToPkcs8 for ecdsa::test_vectors::TestVector {
+    fn to_pkcs8(&self, alg: TestVectorAlgorithm) -> Vec<u8> {
         // TODO: better serializer than giant hardcoded bytestring literals, like a PKCS#8 library,
         // or at least a less bogus internal PKCS#8 implementation
-        let mut pkcs8_document = match self.alg {
+        let mut pkcs8_document = match alg {
             TestVectorAlgorithm::NistP256 => P256_PKCS8_HEADER,
             TestVectorAlgorithm::NistP384 => P384_PKCS8_HEADER,
             other => panic!("unsupported test vector algorithm: {:?}", other),
@@ -32,7 +38,7 @@ impl TestVector {
         .to_vec();
 
         pkcs8_document.extend_from_slice(&self.sk);
-        pkcs8_document.extend_from_slice(match self.alg {
+        pkcs8_document.extend_from_slice(match alg {
             TestVectorAlgorithm::NistP256 => P256_PKCS8_PUBKEY_PREFIX,
             TestVectorAlgorithm::NistP384 => P384_PKCS8_PUBKEY_PREFIX,
             _ => panic!("this shouldn't be!"),

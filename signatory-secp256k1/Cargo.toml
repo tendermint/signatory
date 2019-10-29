@@ -17,15 +17,21 @@ maintenance = { status = "passively-maintained" }
 
 [dependencies]
 secp256k1 = "0.15"
-signature = { version = "1.0.0-pre.0", features = ["derive-preview"] }
+signature = { version = "1.0.0-pre.1", features = ["derive-preview"] }
 
 [dependencies.signatory]
 version = "0.15"
-features = ["digest", "ecdsa", "sha2", "test-vectors"]
+features = ["digest", "ecdsa", "sha2"]
 path = ".."
 
 [dev-dependencies]
 criterion = "0.2"
+
+[dev-dependencies.signatory]
+version = "0.15"
+default-features = false
+features = ["digest", "ecdsa", "sha2", "test-vectors"]
+path = ".."
 
 [[bench]]
 name = "ecdsa"

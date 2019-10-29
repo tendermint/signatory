@@ -3,6 +3,9 @@
 #[cfg(feature = "alloc")]
 mod pkcs8;
 
+#[cfg(feature = "alloc")]
+pub use pkcs8::ToPkcs8;
+
 /// Signature test vector
 pub struct TestVector {
     /// Algorithm name

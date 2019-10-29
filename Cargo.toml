@@ -17,8 +17,8 @@ circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
+ecdsa = { version = "0.1", optional = true }
 ed25519 = { version = "1.0.0-pre.1", optional = true, default-features = false }
-generic-array = { version = "0.12", optional = true, default-features = false }
 getrandom = { version = "0.1", optional = true, default-features = false }
 sha2 = { version = "0.8", optional = true, default-features = false }
 signature = { version = "1.0.0-pre.1", default-features = false }
@@ -34,11 +34,10 @@ features = ["base64", "hex"]
 alloc = []
 default = ["encoding", "getrandom", "std"]
 digest = ["signature/digest-preview"]
-ecdsa = ["generic-array"]
 encoding = ["subtle-encoding"]
 pkcs8 = ["encoding"]
 std = ["alloc", "signature/std", "subtle-encoding/std"]
-test-vectors = []
+test-vectors = ["ecdsa/test-vectors"]
 
 [workspace]
 members = [

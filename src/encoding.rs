@@ -6,8 +6,6 @@
 mod macros;
 
 pub use subtle_encoding::{Base64, Hex, Identity};
-#[cfg(feature = "ecdsa")]
-pub(crate) mod asn1;
 mod decode;
 #[cfg(feature = "alloc")]
 mod encode;

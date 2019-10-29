@@ -6,7 +6,10 @@ use ring::{
     rand::SystemRandom,
     signature::{EcdsaKeyPair, EcdsaSigningAlgorithm, KeyPair},
 };
-use signatory::{ecdsa::Signature, encoding, signature};
+use signatory::{
+    encoding,
+    signature::{self, Signature},
+};
 
 /// Generic ECDSA signer which is wrapped with curve and signature-specific types
 pub(super) struct EcdsaSigner<S: Signature> {

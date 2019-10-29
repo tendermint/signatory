@@ -23,11 +23,17 @@ sha2 = { version =  "0.8", default-features = false }
 [dependencies.signatory]
 version = "0.15"
 default-features = false
-features = ["digest", "ed25519", "generic-array", "test-vectors"]
+features = ["digest", "ed25519"]
 path = ".."
 
 [dev-dependencies]
 criterion = "0.2"
+
+[dev-dependencies.signatory]
+version = "0.15"
+default-features = false
+features = ["digest", "ed25519", "test-vectors"]
+path = ".."
 
 [features]
 default = ["u64_backend"]

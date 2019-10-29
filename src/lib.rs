@@ -85,7 +85,6 @@ pub mod encoding;
 pub mod public_key;
 #[cfg(feature = "test-vectors")]
 pub mod test_vector;
-mod util;
 #[cfg(feature = "generic-array")]
 pub use generic_array;
 #[cfg(feature = "sha2")]

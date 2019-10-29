@@ -1,42 +1,38 @@
 //! Raw ECDSA secret keys: `x` value for ECDSA.
 
-use super::curve::WeierstrassCurve;
 #[cfg(feature = "encoding")]
 use crate::encoding::Decode;
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use crate::encoding::Encode;
+use ::ecdsa::{
+    generic_array::{typenum::Unsigned, GenericArray},
+    Curve,
+};
 #[cfg(all(feature = "alloc", feature = "encoding"))]
 use alloc::vec::Vec;
-use generic_array::{typenum::Unsigned, GenericArray};
 #[cfg(feature = "getrandom")]
 use getrandom::getrandom;
 #[cfg(feature = "encoding")]
 use subtle_encoding::Encoding;
 use zeroize::Zeroize;
 
-/// Raw ECDSA secret keys: raw scalar value `WeierstrassCurve::ScalarBytes`
+/// Raw ECDSA secret keys: raw scalar value `Curve::ScalarBytes`
 /// in size used as the `x` value for ECDSA.
-pub struct SecretKey<C: WeierstrassCurve> {
+pub struct SecretKey<C: Curve> {
     /// Byte serialization of a secret scalar for ECDSA
     bytes: GenericArray<u8, C::ScalarSize>,
 }
 
-impl<C> SecretKey<C>
-where
-    C: WeierstrassCurve,
-{
+impl<C: Curve> SecretKey<C> {
     /// Create a raw ECDSA secret key
-    pub fn new<B>(into_bytes: B) -> Self
-    where
-        B: Into<GenericArray<u8, C::ScalarSize>>,
-    {
+    pub fn new(into_bytes: impl Into<GenericArray<u8, C::ScalarSize>>) -> Self {
         Self {
             bytes: into_bytes.into(),
         }
     }
 
     /// Decode a raw ECDSA secret key from the given byte slice
-    pub fn from_bytes<B: AsRef<[u8]>>(bytes: B) -> Option<Self> {
+    pub fn from_bytes(bytes: impl AsRef<[u8]>) -> Option<Self> {
         let slice = bytes.as_ref();
         let length = slice.len();
 
@@ -62,17 +58,14 @@ where
     }
 }
 
-impl<C: WeierstrassCurve> Clone for SecretKey<C> {
+impl<C: Curve> Clone for SecretKey<C> {
     fn clone(&self) -> Self {
         Self::new(self.bytes.clone())
     }
 }
 
 #[cfg(feature = "encoding")]
-impl<C> Decode for SecretKey<C>
-where
-    C: WeierstrassCurve,
-{
+impl<C: Curve> Decode for SecretKey<C> {
     /// Decode an Ed25519 seed from a byte slice with the given encoding (e.g. hex, Base64)
     fn decode<E: Encoding>(
         encoded_key: &[u8],
@@ -90,20 +83,14 @@ where
 }
 
 #[cfg(all(feature = "encoding", feature = "alloc"))]
-impl<C> Encode for SecretKey<C>
-where
-    C: WeierstrassCurve,
-{
+impl<C: Curve> Encode for SecretKey<C> {
     /// Encode an Ed25519 seed with the given encoding (e.g. hex, Base64)
     fn encode<E: Encoding>(&self, encoding: &E) -> Vec<u8> {
         encoding.encode(self.as_secret_slice())
     }
 }
 
-impl<C> Drop for SecretKey<C>
-where
-    C: WeierstrassCurve,
-{
+impl<C: Curve> Drop for SecretKey<C> {
     fn drop(&mut self) {
         self.bytes.as_mut().zeroize();
     }

@@ -1,6 +1,5 @@
 //! Ed25519 public keys
 
-use crate::util::fmt_colon_delimited_hex;
 use core::fmt::{self, Debug};
 
 #[cfg(feature = "encoding")]
@@ -61,9 +60,7 @@ impl AsRef<[u8]> for PublicKey {
 
 impl Debug for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "signatory::ed25519::PublicKey(")?;
-        fmt_colon_delimited_hex(f, self.as_ref())?;
-        write!(f, ")")
+        write!(f, "ed25519::PublicKey({:?})", self.as_ref())
     }
 }
 

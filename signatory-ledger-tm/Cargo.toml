@@ -21,7 +21,7 @@ ledger-tendermint = "0.4"
 
 [dependencies.signatory]
 version = "0.15"
-features = ["digest", "ed25519", "generic-array", "test-vectors"]
+features = ["digest", "ed25519"]
 path = ".."
 
 [dev-dependencies]

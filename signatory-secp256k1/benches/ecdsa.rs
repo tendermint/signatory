@@ -10,14 +10,15 @@ use signatory;
 use criterion::Criterion;
 use signatory::{
     ecdsa::{
-        curve::secp256k1::{FixedSignature, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS},
+        self,
+        curve::secp256k1::FixedSignature,
+        generic_array::GenericArray,
+        test_vectors::{secp256k1::SHA256_FIXED_SIZE_TEST_VECTORS, TestVector},
         PublicKey,
     },
-    generic_array::GenericArray,
     signature::{Signature, Signer, Verifier},
-    test_vector::TestVector,
 };
-use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier};
+use signatory_secp256k1::{EcdsaSigner, EcdsaVerifier, SecretKey};
 
 /// Test vector to use for benchmarking
 const TEST_VECTOR: &TestVector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
