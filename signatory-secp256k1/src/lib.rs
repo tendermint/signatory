@@ -9,11 +9,17 @@
 
 use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
-    ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey},
+    ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature},
     public_key::PublicKeyed,
     sha2::Sha256,
     signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
+
+/// ECDSA over secp256k1 public key
+pub type PublicKey = signatory::ecdsa::PublicKey<signatory::ecdsa::curve::Secp256k1>;
+
+/// ECDSA over secp256k1 secret key
+pub type SecretKey = signatory::ecdsa::SecretKey<signatory::ecdsa::curve::Secp256k1>;
 
 /// ECDSA signature provider for the secp256k1 crate
 #[derive(Signer)]
@@ -120,11 +126,12 @@ impl EcdsaVerifier {
 // TODO: test against actual test vectors, rather than just checking if signatures roundtrip
 #[cfg(test)]
 mod tests {
-    use super::{EcdsaSigner, EcdsaVerifier};
+    use super::{EcdsaSigner, EcdsaVerifier, PublicKey, SecretKey};
     use signatory::{
         self,
-        ecdsa::curve::secp256k1::{
-            Asn1Signature, FixedSignature, PublicKey, SecretKey, SHA256_FIXED_SIZE_TEST_VECTORS,
+        ecdsa::{
+            curve::secp256k1::{Asn1Signature, FixedSignature},
+            test_vectors::secp256k1::SHA256_FIXED_SIZE_TEST_VECTORS,
         },
         public_key::PublicKeyed,
         signature::{Signature, Signer, Verifier},

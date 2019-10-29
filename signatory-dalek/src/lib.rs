@@ -17,11 +17,11 @@
 #[macro_use]
 extern crate signatory;
 
+use sha2::Sha512;
 use signatory::{
     ed25519,
-    generic_array::typenum::U64,
     public_key::PublicKeyed,
-    signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
+    signature::{DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
 
 /// Ed25519 signature provider for ed25519-dalek
@@ -48,11 +48,8 @@ impl Signer<ed25519::Signature> for Ed25519Signer {
 }
 
 // TODO: tests!
-impl<D> DigestSigner<D, ed25519::Signature> for Ed25519Signer
-where
-    D: Digest<OutputSize = U64> + Default,
-{
-    fn try_sign_digest(&self, digest: D) -> Result<ed25519::Signature, Error> {
+impl DigestSigner<Sha512, ed25519::Signature> for Ed25519Signer {
+    fn try_sign_digest(&self, digest: Sha512) -> Result<ed25519::Signature, Error> {
         // TODO: context support
         let context: Option<&'static [u8]> = None;
 
@@ -82,11 +79,8 @@ impl Verifier<ed25519::Signature> for Ed25519Verifier {
 }
 
 // TODO: tests!
-impl<D> DigestVerifier<D, ed25519::Signature> for Ed25519Verifier
-where
-    D: Digest<OutputSize = U64> + Default,
-{
-    fn verify_digest(&self, digest: D, sig: &ed25519::Signature) -> Result<(), Error> {
+impl DigestVerifier<Sha512, ed25519::Signature> for Ed25519Verifier {
+    fn verify_digest(&self, digest: Sha512, sig: &ed25519::Signature) -> Result<(), Error> {
         // TODO: context support
         let context: Option<&'static [u8]> = None;
         let dalek_sig = ed25519_dalek::Signature::from_bytes(sig.as_ref()).unwrap();

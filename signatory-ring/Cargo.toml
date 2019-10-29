@@ -21,11 +21,17 @@ ring = { version = "0.16", default-features = false }
 [dependencies.signatory]
 version = "0.15"
 default-features = false
-features = ["pkcs8", "test-vectors"]
+features = ["pkcs8"]
 path = ".."
 
 [dev-dependencies]
 criterion = "0.2"
+
+[dev-dependencies.signatory]
+version = "0.15"
+default-features = false
+features = ["pkcs8", "test-vectors"]
+path = ".."
 
 [features]
 default = ["ecdsa", "ed25519", "std"]

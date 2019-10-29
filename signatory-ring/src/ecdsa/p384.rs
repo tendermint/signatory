@@ -1,6 +1,6 @@
 //! ECDSA P-384 provider for the *ring* crate
 
-pub use signatory::ecdsa::curve::nistp384::{Asn1Signature, FixedSignature, PublicKey};
+pub use signatory::ecdsa::curve::nistp384::{Asn1Signature, FixedSignature, NistP384};
 
 use ring::{
     rand::SystemRandom,
@@ -10,21 +10,21 @@ use ring::{
     },
 };
 use signatory::{
-    ecdsa,
     encoding::{
         self,
         pkcs8::{self, FromPkcs8, GeneratePkcs8},
     },
     public_key::PublicKeyed,
-    signature,
+    signature::{self, Signature},
 };
 
 use super::signer::EcdsaSigner;
 
+/// NIST P-384 public key
+pub type PublicKey = signatory::ecdsa::PublicKey<NistP384>;
+
 /// NIST P-384 ECDSA signer
-pub struct Signer<S>(EcdsaSigner<S>)
-where
-    S: ecdsa::Signature;
+pub struct Signer<S: Signature>(EcdsaSigner<S>);
 
 impl FromPkcs8 for Signer<Asn1Signature> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
@@ -72,7 +72,7 @@ impl GeneratePkcs8 for Signer<FixedSignature> {
 
 impl<S> PublicKeyed<PublicKey> for Signer<S>
 where
-    S: ecdsa::Signature + Send + Sync,
+    S: Signature + Send + Sync,
 {
     /// Obtain the public key which identifies this signer
     fn public_key(&self) -> Result<PublicKey, signature::Error> {
@@ -120,15 +120,17 @@ impl signature::Verifier<FixedSignature> for Verifier {
 
 #[cfg(test)]
 mod tests {
-    use super::{Signer, Verifier};
+    use super::{PublicKey, Signer, Verifier};
     use signatory::{
-        ecdsa::curve::nistp384::{
-            Asn1Signature, FixedSignature, PublicKey, SHA384_FIXED_SIZE_TEST_VECTORS,
+        ecdsa::{
+            curve::nistp384::{Asn1Signature, FixedSignature},
+            generic_array::GenericArray,
+            test_vectors::nistp384::SHA384_FIXED_SIZE_TEST_VECTORS,
         },
         encoding::FromPkcs8,
-        generic_array::GenericArray,
         public_key::PublicKeyed,
         signature::{Signature as _, Signer as _, Verifier as _},
+        test_vector::{TestVectorAlgorithm, ToPkcs8},
     };
 
     #[test]
@@ -136,7 +138,7 @@ mod tests {
         // TODO: DER test vectors
         let vector = &SHA384_FIXED_SIZE_TEST_VECTORS[0];
 
-        let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+        let signer = Signer::from_pkcs8(&vector.to_pkcs8(TestVectorAlgorithm::NistP384)).unwrap();
         let signature: Asn1Signature = signer.sign(vector.msg);
 
         let verifier = Verifier::from(&signer.public_key().unwrap());
@@ -146,7 +148,7 @@ mod tests {
     #[test]
     pub fn rejects_tweaked_asn1_signature() {
         let vector = &SHA384_FIXED_SIZE_TEST_VECTORS[0];
-        let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+        let signer = Signer::from_pkcs8(&vector.to_pkcs8(TestVectorAlgorithm::NistP384)).unwrap();
         let signature: Asn1Signature = signer.sign(vector.msg);
 
         let mut tweaked_signature = signature.as_ref().to_vec();
@@ -167,7 +169,8 @@ mod tests {
     #[test]
     pub fn fixed_signature_vectors() {
         for vector in SHA384_FIXED_SIZE_TEST_VECTORS {
-            let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+            let signer =
+                Signer::from_pkcs8(&vector.to_pkcs8(TestVectorAlgorithm::NistP384)).unwrap();
             let public_key = PublicKey::from_untagged_point(&GenericArray::from_slice(vector.pk));
             assert_eq!(signer.public_key().unwrap(), public_key);
 
@@ -191,10 +194,10 @@ mod tests {
     #[test]
     pub fn rejects_tweaked_fixed_signature() {
         let vector = &SHA384_FIXED_SIZE_TEST_VECTORS[0];
-        let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+        let signer = Signer::from_pkcs8(&vector.to_pkcs8(TestVectorAlgorithm::NistP384)).unwrap();
         let signature: FixedSignature = signer.sign(vector.msg);
 
-        let mut tweaked_signature = signature.into_bytes();
+        let mut tweaked_signature = signature.as_ref().to_vec();
         *tweaked_signature.iter_mut().last().unwrap() ^= 42;
 
         let verifier = Verifier::from(&signer.public_key().unwrap());
@@ -212,7 +215,8 @@ mod tests {
     #[test]
     fn test_fixed_to_asn1_transformed_signature_verifies() {
         for vector in SHA384_FIXED_SIZE_TEST_VECTORS {
-            let signer = Signer::from_pkcs8(&vector.to_pkcs8()).unwrap();
+            let signer =
+                Signer::from_pkcs8(&vector.to_pkcs8(TestVectorAlgorithm::NistP384)).unwrap();
             let fixed_signature: FixedSignature = signer.sign(vector.msg);
 
             let asn1_signature = Asn1Signature::from(&fixed_signature);

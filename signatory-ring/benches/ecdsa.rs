@@ -9,21 +9,22 @@ use signatory;
 use criterion::Criterion;
 use signatory::{
     ecdsa::{
-        curve::nistp256::{self, FixedSignature},
+        curve::nistp256::FixedSignature,
+        generic_array::GenericArray,
+        test_vectors::{nistp256::SHA256_FIXED_SIZE_TEST_VECTORS, TestVector},
         PublicKey,
     },
     encoding::FromPkcs8,
-    generic_array::GenericArray,
     signature::{Signature, Signer as _, Verifier as _},
-    test_vector::TestVector,
+    test_vector::{TestVectorAlgorithm, ToPkcs8},
 };
 use signatory_ring::ecdsa::p256::{Signer, Verifier};
 
 /// Test vector to use for benchmarking
-const TEST_VECTOR: &TestVector = &nistp256::SHA256_FIXED_SIZE_TEST_VECTORS[0];
+const TEST_VECTOR: &TestVector = &SHA256_FIXED_SIZE_TEST_VECTORS[0];
 
 fn sign_ecdsa_p256(c: &mut Criterion) {
-    let signer = Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8()).unwrap();
+    let signer = Signer::from_pkcs8(&TEST_VECTOR.to_pkcs8(TestVectorAlgorithm::NistP256)).unwrap();
 
     c.bench_function("ring: ECDSA (nistp256) signer", move |b| {
         b.iter(|| {
