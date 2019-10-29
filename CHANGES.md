@@ -1,3 +1,9 @@
+## [0.16.0] (2019-10-29)
+
+- Use the `ecdsa` crate ([#178])
+- Upgrade to zeroize 1.0 ([#176])
+- Upgrade to `signature` and `ed25519` crates v1.0.0-pre.1 ([#177])
+
 ## [0.15.0] (2019-10-11)
 
 - signatory-dalek: Upgrade `ed25519-dalek` to 1.0.0-pre.2 ([#173])
@@ -177,6 +183,10 @@
 
 - Initial release
 
+[0.16.0]: https://github.com/tendermint/signatory/pull/179
+[#178]: https://github.com/tendermint/signatory/pull/178
+[#177]: https://github.com/tendermint/signatory/pull/177
+[#176]: https://github.com/tendermint/signatory/pull/176
 [0.15.0]: https://github.com/tendermint/signatory/pull/174
 [#173]: https://github.com/tendermint/signatory/pull/173
 [#172]: https://github.com/tendermint/signatory/pull/172
