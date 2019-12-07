@@ -34,7 +34,8 @@ pub struct EcdsaSigner {
 impl<'a> From<&'a SecretKey> for EcdsaSigner {
     /// Create a new secp256k1 signer from the given `SecretKey`
     fn from(secret_key: &'a SecretKey) -> EcdsaSigner {
-        let secret_key = secp256k1::SecretKey::from_slice(secret_key.as_secret_slice()).unwrap();
+        let secret_key =
+            secp256k1::SecretKey::from_slice(secret_key.secret_scalar().as_slice()).unwrap();
         let engine = Secp256k1::signing_only();
         EcdsaSigner { secret_key, engine }
     }
