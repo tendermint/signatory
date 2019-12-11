@@ -1,3 +1,9 @@
+## [0.17.0] (2019-12-11)
+
+- Use `=` expression to lock all prerelease deps to specific versions ([#185])
+- Upgrade to `secp256k1` crate v0.17 ([#184])
+- Upgrade to `ecdsa` crate v0.3 ([#183])
+
 ## [0.16.0] (2019-10-29)
 
 - Use the `ecdsa` crate ([#178])
@@ -183,6 +189,10 @@
 
 - Initial release
 
+[0.16.0]: https://github.com/tendermint/signatory/pull/186
+[#185]: https://github.com/tendermint/signatory/pull/185
+[#184]: https://github.com/tendermint/signatory/pull/184
+[#183]: https://github.com/tendermint/signatory/pull/183
 [0.16.0]: https://github.com/tendermint/signatory/pull/179
 [#178]: https://github.com/tendermint/signatory/pull/178
 [#177]: https://github.com/tendermint/signatory/pull/177
