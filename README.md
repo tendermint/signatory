@@ -24,7 +24,7 @@ specific providers selected at runtime.
 
 ## Requirements
 
-All Signatory providers require Rust **1.36+**
+All Signatory providers require Rust **1.37+**
 
 ## Provider Support
 
@@ -72,7 +72,7 @@ See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 [docs-image]: https://docs.rs/signatory/badge.svg
 [docs-link]: https://docs.rs/signatory/
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.36+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.37+-blue.svg
 [build-image]: https://circleci.com/gh/tendermint/signatory.svg?style=shield
 [build-link]: https://circleci.com/gh/tendermint/signatory
 
