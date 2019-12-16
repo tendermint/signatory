@@ -1,3 +1,7 @@
+## [0.17.1] (2019-12-16)
+
+- Fix Windows builds ([#187], [#188])
+
 ## [0.17.0] (2019-12-11)
 
 - Use `=` expression to lock all prerelease deps to specific versions ([#185])
@@ -189,7 +193,10 @@
 
 - Initial release
 
-[0.16.0]: https://github.com/tendermint/signatory/pull/186
+[0.17.1]: https://github.com/tendermint/signatory/pull/189
+[#188]: https://github.com/tendermint/signatory/pull/188
+[#187]: https://github.com/tendermint/signatory/pull/187
+[0.17.0]: https://github.com/tendermint/signatory/pull/186
 [#185]: https://github.com/tendermint/signatory/pull/185
 [#184]: https://github.com/tendermint/signatory/pull/184
 [#183]: https://github.com/tendermint/signatory/pull/183
