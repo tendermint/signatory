@@ -84,7 +84,8 @@ pub trait Encode: Sized {
         P: AsRef<Path>,
         E: Encoding,
     {
-        let mut file = File::create(path.as_ref()).map_err(|e| {
+        let path = path.as_ref();
+        let mut file = File::create(path).map_err(|e| {
             Error::new(
                 ErrorKind::Io,
                 Some(&format!("couldn't create {}: {}", path.display(), e)),
