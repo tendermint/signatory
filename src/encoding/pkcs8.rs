@@ -94,8 +94,9 @@ pub trait GeneratePkcs8: Sized + FromPkcs8 {
     /// If the file does not exist, it will be created.
     #[cfg(not(unix))]
     fn generate_pkcs8_file<P: AsRef<Path>>(path: P) -> Result<File, Error> {
+        let path = path.as_ref();
         let secret_key = Self::generate_pkcs8()?;
-        let mut file = File::create(path.as_ref()).map_err(|e| {
+        let mut file = File::create(path).map_err(|e| {
             Error::new(
                 ErrorKind::Io,
                 Some(&format!("couldn't create {}: {}", path.display(), e)),
