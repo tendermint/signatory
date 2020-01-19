@@ -1,3 +1,7 @@
+## [0.18.0] (2020-01-19)
+
+- Upgrade `ecdsa` crate to v0.4 ([#190])
+
 ## [0.17.1] (2019-12-16)
 
 - Fix Windows builds ([#187], [#188])
@@ -193,6 +197,8 @@
 
 - Initial release
 
+[0.18.0]: https://github.com/tendermint/signatory/pull/191
+[#190]: https://github.com/tendermint/signatory/pull/190
 [0.17.1]: https://github.com/tendermint/signatory/pull/189
 [#188]: https://github.com/tendermint/signatory/pull/188
 [#187]: https://github.com/tendermint/signatory/pull/187
