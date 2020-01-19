@@ -7,19 +7,15 @@
     html_root_url = "https://docs.rs/signatory-secp256k1/0.17.0"
 )]
 
+pub use signatory;
+pub use signatory::ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature, PublicKey, SecretKey};
+
 use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
-    ecdsa::curve::secp256k1::{Asn1Signature, FixedSignature},
     public_key::PublicKeyed,
     sha2::Sha256,
     signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
-
-/// ECDSA over secp256k1 public key
-pub type PublicKey = signatory::ecdsa::PublicKey<signatory::ecdsa::curve::Secp256k1>;
-
-/// ECDSA over secp256k1 secret key
-pub type SecretKey = signatory::ecdsa::SecretKey<signatory::ecdsa::curve::Secp256k1>;
 
 /// ECDSA signature provider for the secp256k1 crate
 #[derive(Signer)]
@@ -31,11 +27,11 @@ pub struct EcdsaSigner {
     engine: Secp256k1<SignOnly>,
 }
 
-impl<'a> From<&'a SecretKey> for EcdsaSigner {
+impl From<&SecretKey> for EcdsaSigner {
     /// Create a new secp256k1 signer from the given `SecretKey`
-    fn from(secret_key: &'a SecretKey) -> EcdsaSigner {
+    fn from(secret_key: &SecretKey) -> EcdsaSigner {
         let secret_key =
-            secp256k1::SecretKey::from_slice(secret_key.secret_scalar().as_slice()).unwrap();
+            secp256k1::SecretKey::from_slice(secret_key.secret_scalar().as_ref()).unwrap();
         let engine = Secp256k1::signing_only();
         EcdsaSigner { secret_key, engine }
     }
