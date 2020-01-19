@@ -114,8 +114,8 @@ jobs:
     - run:
         name: audit
         command: |
-          cargo audit --version
-          cargo audit
+          cargo install cargo-audit --force
+          cargo audit --deny-warnings --ignore RUSTSEC-2019-0031
     - save_cache:
         key: cache-2019-06-05-v0 # bump restore_cache key above too
         paths:
