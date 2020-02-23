@@ -14,6 +14,7 @@ use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
     public_key::PublicKeyed,
     sha2::Sha256,
+    sha3::Keccak256,
     signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
 
@@ -62,9 +63,18 @@ impl DigestSigner<Sha256, FixedSignature> for EcdsaSigner {
     }
 }
 
+impl DigestSigner<Keccak256, FixedSignature> for EcdsaSigner {
+    fn try_sign_digest(&self, digest: Keccak256) -> Result<FixedSignature, Error> {
+        Ok(
+            FixedSignature::from_bytes(&self.raw_sign_digest(digest)?.serialize_compact()[..])
+            .unwrap(),
+        )
+    }
+}
+
 impl EcdsaSigner {
     /// Sign a digest and produce a `secp256k1::Signature`
-    fn raw_sign_digest(&self, digest: Sha256) -> Result<secp256k1::Signature, Error> {
+    fn raw_sign_digest<D:Digest>(&self, digest: D) -> Result<secp256k1::Signature, Error> {
         let msg = secp256k1::Message::from_slice(digest.result().as_slice())
             .map_err(Error::from_source)?;
 

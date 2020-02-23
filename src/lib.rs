@@ -89,4 +89,5 @@ pub mod test_vector;
 pub use generic_array;
 #[cfg(feature = "sha2")]
 pub use sha2;
+pub use sha3;
 pub use signature;
