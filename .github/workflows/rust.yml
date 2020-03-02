@@ -248,6 +248,15 @@ jobs:
           command: test
           args: --package=signatory-dalek --release
 
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run cargo clippy --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package signatory-dalek
+
   ring:
     name: "Provider: ring"
     strategy:
@@ -305,6 +314,15 @@ jobs:
         with:
           command: test
           args: --package=signatory-ring --release
+
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run cargo clippy --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package signatory-ring
 
   secp256k1:
     name: "Provider: secp256k1"
@@ -364,6 +382,15 @@ jobs:
           command: test
           args: --package=signatory-secp256k1 --release
 
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run cargo clippy --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package signatory-secp256k1
+
   sodiumoxide:
     name: "Provider: sodiumoxide"
     strategy:
@@ -422,6 +449,15 @@ jobs:
           command: test
           args: --package=signatory-sodiumoxide --release
 
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run cargo clippy --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package signatory-secp256k1
+
   ledger-tm:
     name: "Provider: ledger-tm"
     strategy:
@@ -469,6 +505,15 @@ jobs:
         with:
           command: build
           args: --package=signatory-ledger-tm --release
+
+      - name: Install clippy
+        run: rustup component add clippy
+
+      - name: Run cargo clippy --all
+        uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package signatory-ledger-tm
 
   coverage:
     name: Code Coverage
@@ -542,7 +587,6 @@ jobs:
           command: fmt
           args: --all -- --check
 
-  # TODO(tarcieri): move provider-specific clippy lints to the provider's job
   clippy:
     name: Clippy
     runs-on: ubuntu-latest
@@ -575,4 +619,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all --exclude signatory-ledger-tm
+          args: --all-features
