@@ -4,7 +4,7 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/iqlusioninc/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory-secp256k1/0.18.0"
+    html_root_url = "https://docs.rs/signatory-secp256k1/0.18.1"
 )]
 
 pub use signatory;
@@ -14,9 +14,11 @@ use secp256k1::{self, Secp256k1, SignOnly, VerifyOnly};
 use signatory::{
     public_key::PublicKeyed,
     sha2::Sha256,
-    sha3::Keccak256,
     signature::{digest::Digest, DigestSigner, DigestVerifier, Error, Signature, Signer, Verifier},
 };
+
+#[cfg(feature = "sha3")]
+use sha3::Keccak256;
 
 /// ECDSA signature provider for the secp256k1 crate
 #[derive(Signer)]
@@ -63,6 +65,7 @@ impl DigestSigner<Sha256, FixedSignature> for EcdsaSigner {
     }
 }
 
+#[cfg(feature = "sha3")]
 impl DigestSigner<Keccak256, FixedSignature> for EcdsaSigner {
     fn try_sign_digest(&self, digest: Keccak256) -> Result<FixedSignature, Error> {
         Ok(

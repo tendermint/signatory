@@ -1,3 +1,9 @@
+## 0.18.1 (2020-03-02)
+
+- Update links to point to new repository location
+- signatory-secp256k1: update `secp256k1` requirement from 0.15 to 0.17
+- signatory-secp256k1: support Ethereum's `Keccak256` hash function for signing
+
 ## 0.18.0 (2020-01-19)
 
 - Upgrade `ecdsa` crate to v0.4
