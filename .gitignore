@@ -1,5 +1,2 @@
 /target/
-/signatory-*/target
 **/*.rs.bk
-Cargo.lock
-\.idea/
