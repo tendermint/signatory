@@ -422,63 +422,53 @@ jobs:
           command: test
           args: --package=signatory-sodiumoxide --release
 
-# TODO(tarcieri): debug hidapi problems: https://github.com/iqlusioninc/signatory/pull/6/checks?check_run_id=480092487
-#  ledger-tm:
-#    name: "Provider: ledger-tm"
-#    strategy:
-#      matrix:
-#        toolchain:
-#          - stable
-#          - 1.36.0
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout sources
-#        uses: actions/checkout@v1
-#
-#      - name: Cache cargo registry
-#        uses: actions/cache@v1
-#        with:
-#          path: ~/.cargo/registry
-#          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
-#
-#      - name: Cache cargo index
-#        uses: actions/cache@v1
-#        with:
-#          path: ~/.cargo/git
-#          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
-#
-#      - name: Cache cargo build
-#        uses: actions/cache@v1
-#        with:
-#          path: target
-#          key: ${{ runner.os }}-rust-${{ matrix.toolchain }}-ledger-tm-${{ hashFiles('Cargo.lock') }}
-#
-#      - name: Install toolchain
-#        uses: actions-rs/toolchain@v1
-#        with:
-#          toolchain: ${{ matrix.toolchain }}
-#          override: true
-#
-#      - name: Install libhidapi-dev
-#        run: sudo apt-get install libhidapi-dev
-#
-#      - name: Run cargo build
-#        uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_INCREMENTAL: 0
-#          RUSTFLAGS: -D warnings
-#        with:
-#          command: build
-#          args: --package=signatory-ledger-tm --benches --release
-#
-#      - name: Run cargo test
-#        uses: actions-rs/cargo@v1
-#        env:
-#          CARGO_INCREMENTAL: 0
-#          RUSTFLAGS: -D warnings
-#        with:
-#          command: test
-#          args: --package=signatory-ledger-tm --release
+  ledger-tm:
+    name: "Provider: ledger-tm"
+    strategy:
+      matrix:
+        toolchain:
+          - stable
+          - 1.36.0
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+
+      - name: Cache cargo build
+        uses: actions/cache@v1
+        with:
+          path: target
+          key: ${{ runner.os }}-rust-${{ matrix.toolchain }}-ledger-tm-${{ hashFiles('Cargo.lock') }}
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Install libhidapi-dev
+        run: sudo apt-get install libudev-dev
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: -D warnings
+        with:
+          command: build
+          args: --package=signatory-ledger-tm --release
 
   coverage:
     name: Code Coverage
