@@ -66,15 +66,15 @@ See [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
 
 [//]: # (badges)
 
-[logo]: https://www.iqlusion.io/img/github/tendermint/signatory/signatory.svg
+[logo]: https://storage.googleapis.com/iqlusion-production-web/github/signatory/signatory.svg
 [crate-image]: https://img.shields.io/crates/v/signatory.svg
 [crate-link]: https://crates.io/crates/signatory
 [docs-image]: https://docs.rs/signatory/badge.svg
 [docs-link]: https://docs.rs/signatory/
 [license-image]: https://img.shields.io/badge/license-Apache2.0/MIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.37+-blue.svg
-[build-image]: https://circleci.com/gh/tendermint/signatory.svg?style=shield
-[build-link]: https://circleci.com/gh/tendermint/signatory
+[build-image]: https://github.com/iqlusioninc/signatory/workflows/Rust/badge.svg?branch=develop&event=push
+[build-link]: https://github.com/iqlusioninc/signatory/actions
 
 [//]: # (general links)
 

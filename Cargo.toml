@@ -4,8 +4,8 @@ description = "Multi-provider elliptic curve digital signature library with ECDS
 version     = "0.18.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
-homepage    = "https://github.com/tendermint/signatory"
-repository  = "https://github.com/tendermint/signatory/tree/develop"
+homepage    = "https://github.com/iqlusioninc/signatory"
+repository  = "https://github.com/iqlusioninc/signatory/tree/develop"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ecdsa", "ed25519", "signing", "signatures"]
@@ -13,7 +13,6 @@ edition     = "2018"
 autobenches = false
 
 [badges]
-circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
