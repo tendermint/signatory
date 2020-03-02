@@ -4,15 +4,14 @@ description = "Signatory Ed25519 provider for sodiumoxide"
 version     = "0.18.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
-homepage    = "https://github.com/tendermint/signatory"
-repository  = "https://github.com/tendermint/signatory/tree/develop/providers/signatory-sodiumoxide/"
+homepage    = "https://github.com/iqlusioninc/signatory"
+repository  = "https://github.com/iqlusioninc/signatory/tree/develop/providers/signatory-sodiumoxide/"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
 keywords    = ["cryptography", "ed25519", "no_std", "sodiumoxide", "signatures"]
 edition     = "2018"
 
 [badges]
-circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
