@@ -24,7 +24,7 @@ features = ["ed25519", "test-vectors"]
 path = ".."
 
 [dev-dependencies]
-criterion = "0.2"
+criterion = "0.3"
 
 [[bench]]
 name = "ed25519"
