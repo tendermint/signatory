@@ -25,7 +25,7 @@ features = ["digest", "ecdsa", "sha2"]
 path = ".."
 
 [dev-dependencies]
-criterion = "0.2"
+criterion = "0.3"
 
 [dev-dependencies.signatory]
 version = "0.18"

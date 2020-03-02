@@ -25,7 +25,7 @@ features = ["digest", "ed25519"]
 path = ".."
 
 [dev-dependencies]
-criterion = "0.2.10"
+criterion = "0.3.1"
 
 [[bench]]
 name = "ed25519"
