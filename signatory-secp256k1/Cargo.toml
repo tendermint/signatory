@@ -16,7 +16,7 @@ circle-ci = { repository = "tendermint/signatory", branch = "develop" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-secp256k1 = "0.15"
+secp256k1 = "0.17"
 signature = { version = "= 1.0.0-pre.1", features = ["derive-preview"] }
 
 [dependencies.signatory]
