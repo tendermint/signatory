@@ -1,7 +1,7 @@
 [package]
 name        = "signatory"
 description = "Multi-provider elliptic curve digital signature library with ECDSA and Ed25519 support"
-version     = "0.18.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.18.1" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["Tony Arcieri <tony@iqlusion.io>"]
 homepage    = "https://github.com/iqlusioninc/signatory"
@@ -22,7 +22,6 @@ getrandom = { version = "0.1", optional = true, default-features = false }
 sha2 = { version = "0.8", optional = true, default-features = false }
 signature = { version = "= 1.0.0-pre.1", default-features = false }
 zeroize = { version = "1", default-features = false }
-sha3 = "0.8"
 
 [dependencies.subtle-encoding]
 version = "0.4"

@@ -6,7 +6,7 @@
 ![MSRV][rustc-image]
 [![Build Status][build-image]][build-link]
 
-A pure Rust multi-provider digital signature library with support for elliptic
+Pure Rust multi-provider digital signature library with support for elliptic
 curve digital signature algorithms, namely ECDSA (described in [FIPS 186‑4])
 and Ed25519 (described in [RFC 8032]).
 
