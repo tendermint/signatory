@@ -494,7 +494,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           override: true
 
-      - name: Install libhidapi-dev
+      - name: Install libudev-dev
         run: sudo apt-get install libudev-dev
 
       - name: Run cargo build
