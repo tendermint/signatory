@@ -1,3 +1,11 @@
+## 0.19.0 (2020-04-19)
+
+- Update `signature` crate requirement to v1.0.1 ([#14])
+- Update `subtle-encoding` requirement to 0.5 ([#2])
+
+[#14]: https://github.com/iqlusioninc/signatory/pull/14
+[#2]: https://github.com/iqlusioninc/signatory/pull/2
+
 ## 0.18.1 (2020-03-02)
 
 - Update links to point to new repository location

@@ -65,7 +65,7 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/iqlusioninc/signatory/develop/img/signatory-rustacean.png",
-    html_root_url = "https://docs.rs/signatory/0.18.1"
+    html_root_url = "https://docs.rs/signatory/0.19.0"
 )]
 
 #[cfg(feature = "alloc")]
