@@ -28,6 +28,7 @@ where
     S: Signature,
 {
     /// Create an ECDSA signer
+    #[cfg(feature = "std")]
     pub fn from_pkcs8(
         alg: &'static EcdsaSigningAlgorithm,
         pkcs8_bytes: &[u8],
@@ -56,6 +57,6 @@ where
             .sign(&self.csrng, msg)
             .map_err(|_| signature::Error::new())?;
 
-        S::from_bytes(sig)
+        S::from_bytes(sig.as_ref())
     }
 }

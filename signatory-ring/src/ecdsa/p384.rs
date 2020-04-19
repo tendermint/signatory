@@ -2,23 +2,23 @@
 
 pub use signatory::ecdsa::curve::nistp384::{Asn1Signature, FixedSignature, NistP384};
 
-use ring::{
-    rand::SystemRandom,
-    signature::{
-        UnparsedPublicKey, ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING,
-        ECDSA_P384_SHA384_FIXED, ECDSA_P384_SHA384_FIXED_SIGNING,
-    },
+use super::signer::EcdsaSigner;
+use ring::signature::{
+    UnparsedPublicKey, ECDSA_P384_SHA384_ASN1, ECDSA_P384_SHA384_ASN1_SIGNING,
+    ECDSA_P384_SHA384_FIXED, ECDSA_P384_SHA384_FIXED_SIGNING,
 };
 use signatory::{
-    encoding::{
-        self,
-        pkcs8::{self, FromPkcs8, GeneratePkcs8},
-    },
     public_key::PublicKeyed,
     signature::{self, Signature},
 };
 
-use super::signer::EcdsaSigner;
+#[cfg(feature = "std")]
+use ring::rand::SystemRandom;
+#[cfg(feature = "std")]
+use signatory::encoding::{
+    self,
+    pkcs8::{self, FromPkcs8, GeneratePkcs8},
+};
 
 /// NIST P-384 public key
 pub type PublicKey = signatory::ecdsa::PublicKey<NistP384>;
@@ -26,6 +26,7 @@ pub type PublicKey = signatory::ecdsa::PublicKey<NistP384>;
 /// NIST P-384 ECDSA signer
 pub struct Signer<S: Signature>(EcdsaSigner<S>);
 
+#[cfg(feature = "std")]
 impl FromPkcs8 for Signer<Asn1Signature> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
@@ -36,6 +37,7 @@ impl FromPkcs8 for Signer<Asn1Signature> {
     }
 }
 
+#[cfg(feature = "std")]
 impl FromPkcs8 for Signer<FixedSignature> {
     /// Create a new ECDSA signer which produces fixed-width signatures from a PKCS#8 keypair
     fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
@@ -46,6 +48,7 @@ impl FromPkcs8 for Signer<FixedSignature> {
     }
 }
 
+#[cfg(feature = "std")]
 impl GeneratePkcs8 for Signer<Asn1Signature> {
     /// Randomly generate a P-384 **PKCS#8** keypair
     fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
@@ -58,6 +61,7 @@ impl GeneratePkcs8 for Signer<Asn1Signature> {
     }
 }
 
+#[cfg(feature = "std")]
 impl GeneratePkcs8 for Signer<FixedSignature> {
     /// Randomly generate a P-384 **PKCS#8** keypair
     fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
@@ -157,7 +161,7 @@ mod tests {
         let verifier = Verifier::from(&signer.public_key().unwrap());
         let result = verifier.verify(
             vector.msg,
-            &Asn1Signature::from_bytes(tweaked_signature).unwrap(),
+            &Asn1Signature::from_bytes(tweaked_signature.as_ref()).unwrap(),
         );
 
         assert!(
@@ -203,7 +207,7 @@ mod tests {
         let verifier = Verifier::from(&signer.public_key().unwrap());
         let result = verifier.verify(
             vector.msg,
-            &FixedSignature::from_bytes(tweaked_signature).unwrap(),
+            &FixedSignature::from_bytes(tweaked_signature.as_ref()).unwrap(),
         );
 
         assert!(

@@ -45,7 +45,7 @@ impl Signer<Signature> for Ed25519LedgerTmAppSigner {
     fn try_sign(&self, msg: &[u8]) -> Result<Signature, Error> {
         let app = self.app.lock().unwrap();
         let sig = app.sign(&msg).map_err(Error::from_source)?;
-        Ok(Signature(sig))
+        Ok(Signature::from(sig))
     }
 }
 

@@ -51,17 +51,16 @@ impl PublicKeyed<PublicKey> for EcdsaSigner {
 impl DigestSigner<Sha256, Asn1Signature> for EcdsaSigner {
     /// Compute an ASN.1 DER-encoded signature of the given 32-byte SHA-256 digest
     fn try_sign_digest(&self, digest: Sha256) -> Result<Asn1Signature, Error> {
-        Ok(Asn1Signature::from_bytes(self.raw_sign_digest(digest)?.serialize_der()).unwrap())
+        let signature = self.raw_sign_digest(digest)?.serialize_der();
+        Ok(Asn1Signature::from_bytes(signature.as_ref()).unwrap())
     }
 }
 
 impl DigestSigner<Sha256, FixedSignature> for EcdsaSigner {
     /// Compute a compact, fixed-sized signature of the given 32-byte SHA-256 digest
     fn try_sign_digest(&self, digest: Sha256) -> Result<FixedSignature, Error> {
-        Ok(
-            FixedSignature::from_bytes(&self.raw_sign_digest(digest)?.serialize_compact()[..])
-                .unwrap(),
-        )
+        let signature = self.raw_sign_digest(digest)?.serialize_compact();
+        Ok(FixedSignature::from_bytes(signature.as_ref()).unwrap())
     }
 }
 
@@ -107,7 +106,7 @@ impl DigestVerifier<Sha256, Asn1Signature> for EcdsaVerifier {
     fn verify_digest(&self, digest: Sha256, signature: &Asn1Signature) -> Result<(), Error> {
         self.raw_verify_digest(
             digest,
-            secp256k1::Signature::from_der(signature.as_slice()).map_err(Error::from_source)?,
+            secp256k1::Signature::from_der(signature.as_bytes()).map_err(Error::from_source)?,
         )
     }
 }
@@ -116,7 +115,7 @@ impl DigestVerifier<Sha256, FixedSignature> for EcdsaVerifier {
     fn verify_digest(&self, digest: Sha256, signature: &FixedSignature) -> Result<(), Error> {
         self.raw_verify_digest(
             digest,
-            secp256k1::Signature::from_compact(signature.as_slice()).map_err(Error::from_source)?,
+            secp256k1::Signature::from_compact(signature.as_bytes()).map_err(Error::from_source)?,
         )
     }
 }
@@ -170,7 +169,7 @@ mod tests {
         let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
         let result = verifier.verify(
             vector.msg,
-            &Asn1Signature::from_bytes(tweaked_signature).unwrap(),
+            &Asn1Signature::from_bytes(tweaked_signature.as_ref()).unwrap(),
         );
 
         assert!(
@@ -207,7 +206,7 @@ mod tests {
         let verifier = EcdsaVerifier::from(&signer.public_key().unwrap());
         let result = verifier.verify(
             vector.msg,
-            &FixedSignature::from_bytes(tweaked_signature).unwrap(),
+            &FixedSignature::from_bytes(tweaked_signature.as_ref()).unwrap(),
         );
 
         assert!(

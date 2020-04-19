@@ -16,11 +16,11 @@ autobenches = false
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-ecdsa = { version = "0.5.0-pre", optional = true, features = ["p256", "p384", "k256"] }
-ed25519 = { version = "= 1.0.0-pre.2", optional = true, default-features = false }
+ecdsa = { version = "0.5", optional = true }
+ed25519 = { version = "1", optional = true, default-features = false }
 getrandom = { version = "0.1", optional = true, default-features = false }
 sha2 = { version = "0.8", optional = true, default-features = false }
-signature = { version = "= 1.0.0-pre.3", default-features = false }
+signature = { version = "1.0.1", default-features = false }
 zeroize = { version = "1", default-features = false }
 
 [dependencies.subtle-encoding]
@@ -34,6 +34,9 @@ alloc = []
 default = ["encoding", "getrandom", "std"]
 digest = ["signature/digest-preview"]
 encoding = ["subtle-encoding"]
+k256 = ["ecdsa/k256"]
+p256 = ["ecdsa/p256"]
+p384 = ["ecdsa/p384"]
 pkcs8 = ["encoding"]
 std = ["alloc", "signature/std", "subtle-encoding/std"]
 test-vectors = ["ecdsa/test-vectors"]
