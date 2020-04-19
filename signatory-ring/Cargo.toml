@@ -34,7 +34,7 @@ path = ".."
 
 [features]
 default = ["ecdsa", "ed25519", "std"]
-ecdsa = ["signatory/ecdsa"]
+ecdsa = ["signatory/ecdsa", "signatory/p256", "signatory/p384"]
 ed25519 = ["signatory/ed25519"]
 std = ["signatory/std"]
 

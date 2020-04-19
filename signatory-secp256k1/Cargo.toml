@@ -17,11 +17,11 @@ maintenance = { status = "passively-maintained" }
 [dependencies]
 secp256k1 = "0.17"
 sha3 = { version = "0.8", optional = true }
-signature = { version = "= 1.0.0-pre.3", features = ["derive-preview"] }
+signature = { version = "1", features = ["derive-preview"] }
 
 [dependencies.signatory]
 version = "0.18"
-features = ["digest", "ecdsa", "sha2"]
+features = ["digest", "ecdsa", "k256", "sha2"]
 path = ".."
 
 [dev-dependencies]
@@ -30,7 +30,7 @@ criterion = "0.3"
 [dev-dependencies.signatory]
 version = "0.18"
 default-features = false
-features = ["digest", "ecdsa", "sha2", "test-vectors"]
+features = ["digest", "ecdsa", "k256", "sha2", "test-vectors"]
 path = ".."
 
 [[bench]]

@@ -4,16 +4,19 @@ pub use signatory::ed25519::{PublicKey, Seed, Signature};
 
 use ring::{
     self,
-    rand::SystemRandom,
     signature::{Ed25519KeyPair, KeyPair, UnparsedPublicKey},
 };
 use signatory::{
-    encoding::{
-        self,
-        pkcs8::{self, FromPkcs8, GeneratePkcs8},
-    },
     public_key::PublicKeyed,
     signature::{self, Signature as _},
+};
+
+#[cfg(feature = "std")]
+use ring::rand::SystemRandom;
+#[cfg(feature = "std")]
+use signatory::encoding::{
+    self,
+    pkcs8::{self, FromPkcs8, GeneratePkcs8},
 };
 
 /// Ed25519 signature provider for *ring*
@@ -28,6 +31,7 @@ impl<'a> From<&'a Seed> for Signer {
     }
 }
 
+#[cfg(feature = "std")]
 impl FromPkcs8 for Signer {
     /// Create a new Ed25519Signer from a PKCS#8 encoded private key
     fn from_pkcs8<K: AsRef<[u8]>>(secret_key: K) -> Result<Self, encoding::Error> {
@@ -38,6 +42,7 @@ impl FromPkcs8 for Signer {
     }
 }
 
+#[cfg(feature = "std")]
 impl GeneratePkcs8 for Signer {
     /// Randomly generate an Ed25519 **PKCS#8** keypair
     fn generate_pkcs8() -> Result<pkcs8::SecretKey, encoding::Error> {
