@@ -267,7 +267,7 @@ dependencies = [
 
 [[package]]
 name = "ed25519"
-version = "1.0.0"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "signature 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -827,7 +827,7 @@ name = "signatory"
 version = "0.19.0"
 dependencies = [
  "ecdsa 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "ed25519 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ed25519 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "getrandom 0.1.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "sha2 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "signature 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1215,7 +1215,7 @@ dependencies = [
 "checksum curve25519-dalek 1.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "8b7dcd30ba50cdf88b55b033456138b7c0ac4afdc436d82e1b79f370f24cc66d"
 "checksum digest 0.8.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f3d0c8c8752312f9713efd397ff63acb9f85585afbf179282e720e7704954dd5"
 "checksum ecdsa 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5a7aaf89875554fab12c9d0855d694803a8820b73bfb89cdc96546b6bcab69e4"
-"checksum ed25519 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d7973fe31504dc6812d147856ac716bce1c0bd50e8ea22f838f7002ec72bff74"
+"checksum ed25519 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "bf038a7b6fd7ef78ad3348b63f3a17550877b0e28f8d68bcc94894d1412158bc"
 "checksum ed25519-dalek 1.0.0-pre.2 (registry+https://github.com/rust-lang/crates.io-index)" = "845aaacc16f01178f33349e7c992ecd0cee095aa5e577f0f4dee35971bd36455"
 "checksum either 1.5.3 (registry+https://github.com/rust-lang/crates.io-index)" = "bb1f6b1ce1c140482ea30ddd3335fc0024ac7ee112895426e0a629a6c20adfe3"
 "checksum elliptic-curve 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "01f69be7d1feb7a7a04f158aaf32c7deaa7604e9bd58145525e536438c4e5096"
