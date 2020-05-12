@@ -15,7 +15,7 @@
 ********************************************************************************/
 
 use ledger::{ApduAnswer, ApduCommand};
-use quick_error::quick_error;
+use thiserror::Error;
 
 const CLA: u8 = 0x56;
 const INS_PUBLIC_KEY_ED25519: u8 = 0x01;
@@ -26,36 +26,33 @@ const USER_MESSAGE_CHUNK_SIZE: usize = 250;
 #[allow(dead_code)]
 const INS_GET_VERSION: u8 = 0x00;
 
-quick_error! {
-    #[derive(Debug)]
-    pub enum Error {
-        InvalidVersion{
-            description("This version is not supported")
-        }
-        InvalidEmptyMessage{
-            description("message cannot be empty")
-        }
-        InvalidMessageSize{
-            description("message size is invalid (too big)")
-        }
-        InvalidPK{
-            description("received an invalid PK")
-        }
-        NoSignature {
-            description("received no signature back")
-        }
-        InvalidSignature {
-            description("received an invalid signature")
-        }
-        InvalidDerivationPath {
-            description("invalid derivation path")
-        }
-        Ledger ( err: ledger::Error ) {
-            from()
-            description("ledger error")
-            display("Ledger error: {}", err)
-            cause(err)
-        }
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("This version is not supported")]
+    InvalidVersion,
+
+    #[error("message cannot be empty")]
+    InvalidEmptyMessage,
+
+    #[error("message size is invalid (too big)")]
+    InvalidMessageSize,
+
+    #[error("received an invalid PK")]
+    InvalidPK,
+
+    #[error("received no signature back")]
+    NoSignature,
+
+    #[error("received an invalid signature")]
+    InvalidSignature,
+
+    #[error("ledger error")]
+    Ledger(ledger::Error),
+}
+
+impl From<ledger::Error> for Error {
+    fn from(err: ledger::Error) -> Error {
+        Error::Ledger(err)
     }
 }
 

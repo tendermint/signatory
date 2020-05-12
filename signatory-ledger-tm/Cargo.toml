@@ -15,10 +15,10 @@ edition     = "2018"
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-ledger = "0.2.5"
-quick-error = "1.2.2"
 byteorder = "1.3.1"
+ledger = "0.2.5"
 matches = "0.1.8"
+thiserror = "1"
 
 [dependencies.signatory]
 version = "0.19"
