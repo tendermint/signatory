@@ -4,7 +4,7 @@ description = "Signatory provider for Ledger Tendermint Validator app"
 version     = "0.19.0" # Also update html_root_url in lib.rs when bumping this
 license     = "Apache-2.0 OR MIT"
 authors     = ["ZondaX GmbH <info@zondax.ch>"]
-homepage    = "https://github.com/iqlusioninc/signatory"
+homepage    = "https://github.com/ZondaX/ledger-tendermint-rs"
 repository  = "https://github.com/iqlusioninc/signatory/tree/develop/providers/signatory-ledger-tm/"
 readme      = "README.md"
 categories  = ["authentication", "cryptography", "no-std"]
@@ -15,8 +15,10 @@ edition     = "2018"
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
-lazy_static = "1"
-ledger-tendermint = "0.4"
+ledger = "0.2.5"
+quick-error = "1.2.2"
+byteorder = "1.3.1"
+matches = "0.1.8"
 
 [dependencies.signatory]
 version = "0.19"
@@ -24,7 +26,10 @@ features = ["digest", "ed25519"]
 path = ".."
 
 [dev-dependencies]
-criterion = "0.3.1"
+ed25519-dalek = "1.0.0-pre.2"
+lazy_static = "1.2.0"
+sha2 = "0.8.0"
+criterion = "0.3"
 
 [[bench]]
 name = "ed25519"
