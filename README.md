@@ -1,3 +1,7 @@
+# 🚨 DEPRECATED 🚨 
+
+This repo has been deprecated. Development work continues in [iqlusioninc/signatory](https://github.com/iqlusioninc/signatory). Please reference that repository in the future.
+
 # ![Signatory][logo]
 
 [![crate][crate-image]][crate-link]
